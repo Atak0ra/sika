@@ -1,0 +1,124 @@
+{% extends "economat/director/_base_director.html" %}
+{% block title %}Années scolaires — {{ school.name }}{% endblock %}
+{% block director_content %}
+<div style="margin-bottom:1.5rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem;">
+  <div>
+    <h1 style="font-size:1.125rem;font-weight:700;letter-spacing:-0.02em;">Années scolaires</h1>
+    <p style="font-size:.8375rem;color:#9397a8;margin-top:.25rem;">{{ school.name }}</p>
+  </div>
+</div>
+
+<!-- Années existantes -->
+{% if all_years %}
+<div style="display:flex;flex-direction:column;gap:.6rem;margin-bottom:1.5rem;">
+  {% for year in all_years %}
+  <div class="card" style="padding:1rem 1.25rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem;">
+    <div style="display:flex;align-items:center;gap:.75rem;">
+      <div style="width:2.25rem;height:2.25rem;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;
+                  {% if year.status == 'ACTIVE' %}background:#ecfdf5;color:#059669;
+                  {% elif year.status == 'CLOSED' %}background:#f4f4f5;color:#9397a8;
+                  {% else %}background:#eef2ff;color:#4f46e5;{% endif %}">
+        <svg class="icon" style="width:1.1rem;height:1.1rem;">
+          {% if year.status == 'ACTIVE' %}<use href="#icon-check-circle"/>
+          {% elif year.status == 'CLOSED' %}<use href="#icon-x-circle"/>
+          {% else %}<use href="#icon-alert-circle"/>{% endif %}
+        </svg>
+      </div>
+      <div>
+        <div style="font-size:.9375rem;font-weight:700;color:#1a1d29;">{{ year.label }}</div>
+        <div style="font-size:.775rem;color:#9397a8;">{{ year.start_date }} → {{ year.end_date }}</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;">
+      <span class="badge
+        {% if year.status == 'ACTIVE' %}badge-success
+        {% elif year.status == 'CLOSED' %}badge-neutral
+        {% else %}badge-info{% endif %}">
+        {{ year.get_status_display }}
+      </span>
+      {% if year.status == 'DRAFT' %}
+      <form method="post" action="{% url 'economat:activate_year' school.id year.id %}">
+        {% csrf_token %}
+        <button type="submit" class="btn-primary" style="font-size:.8125rem;padding:.4rem .75rem;"
+                data-confirm="true" data-confirm-title="Activer {{ year.label }} ?"
+                data-confirm-message="Cette année deviendra l'année active. Les paiements et inscriptions seront rattachés à cette année."
+                data-confirm-label="Activer">
+          <svg style="width:.9em;height:.9em;stroke:currentColor;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;vertical-align:-0.12em;" viewBox="0 0 24 24"><use href="#icon-check-circle"/></svg> Activer
+        </button>
+      </form>
+      {% endif %}
+      {% if year.status == 'ACTIVE' %}
+      <a href="{% url 'economat:add_level' school.id year.id %}" class="btn-secondary" style="font-size:.8125rem;padding:.4rem .75rem;">
+        <svg class="icon" style="width:.85em;height:.85em;"><use href="#icon-book"/></svg> Niveaux
+      </a>
+      <a href="{% url 'economat:students_list' school.id year.id %}" class="btn-secondary" style="font-size:.8125rem;padding:.4rem .75rem;">
+        <svg class="icon" style="width:.85em;height:.85em;"><use href="#icon-users"/></svg> Élèves
+      </a>
+      <form method="post" action="{% url 'economat:close_year' school.id year.id %}">
+        {% csrf_token %}
+        <button type="submit" class="btn-secondary" style="font-size:.8125rem;padding:.4rem .75rem;color:#b91c1c;border-color:#fecaca;"
+                data-confirm="true" data-confirm-title="Clôturer {{ year.label }} ?"
+                data-confirm-message="Action irréversible. L'année sera verrouillée en lecture seule. Assurez-vous que tous les paiements sont enregistrés."
+                data-confirm-label="Clôturer" data-confirm-danger="true">
+          Clôturer
+        </button>
+      </form>
+      {% endif %}
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div style="text-align:center;padding:2.5rem;border:1.5px dashed #ecedf1;border-radius:14px;margin-bottom:1.5rem;">
+  <svg class="icon" style="width:2.5rem;height:2.5rem;color:#d1d5db;margin-bottom:.75rem;"><use href="#icon-alert-circle"/></svg>
+  <p style="font-weight:600;color:#52556b;margin-bottom:.375rem;">Aucune année scolaire</p>
+  <p style="font-size:.875rem;color:#9397a8;">Créez la première année pour commencer à configurer niveaux, tarifs et élèves.</p>
+</div>
+{% endif %}
+
+<!-- Formulaire de création -->
+<div class="card" style="padding:1.5rem;max-width:560px;">
+  <h2 style="font-size:.9rem;font-weight:700;margin-bottom:1rem;">Créer une nouvelle année</h2>
+  <form method="post" style="display:flex;flex-direction:column;gap:1rem;">
+    {% csrf_token %}
+    <input type="hidden" name="create_year" value="1">
+
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.75rem;">
+      <div style="grid-column:1/-1;">
+        <label class="field-label">{{ form.label.label }}</label>
+        {{ form.label }}
+        {% if form.label.help_text %}<p class="field-hint">{{ form.label.help_text }}</p>{% endif %}
+        {% if form.label.errors %}<p class="field-error">{{ form.label.errors.0 }}</p>{% endif %}
+      </div>
+      <div>
+        <label class="field-label">{{ form.start_date.label }}</label>
+        {{ form.start_date }}
+        {% if form.start_date.errors %}<p class="field-error">{{ form.start_date.errors.0 }}</p>{% endif %}
+      </div>
+      <div>
+        <label class="field-label">{{ form.end_date.label }}</label>
+        {{ form.end_date }}
+        {% if form.end_date.errors %}<p class="field-error">{{ form.end_date.errors.0 }}</p>{% endif %}
+      </div>
+    </div>
+
+    {% if all_years %}
+    <div>
+      <label class="field-label">Dupliquer la structure d'une année précédente (optionnel)</label>
+      <select name="duplicate_from" class="form-select">
+        <option value="">Partir de zéro</option>
+        {% for y in all_years %}
+        <option value="{{ y.id }}">{{ y.label }}</option>
+        {% endfor %}
+      </select>
+      <p class="field-hint">Si sélectionné, les niveaux, classes et tarifs seront copiés comme base de travail.</p>
+    </div>
+    {% endif %}
+
+    <button type="submit" class="btn-primary" data-loading-text="Création…">
+      <svg class="icon" style="width:.9em;height:.9em;"><use href="#icon-plus"/></svg>
+      Créer l'année
+    </button>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,243 @@
+{% extends "economat/director/_base_director.html" %}
+{% load economat_tags %}
+{% block title %}Élèves — {{ school.name }}{% endblock %}
+{% block director_content %}
+
+<!-- En-tête -->
+<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem;margin-bottom:1.5rem;">
+  <div>
+    <h1 style="font-size:1.125rem;font-weight:700;letter-spacing:-0.02em;">Élèves</h1>
+    <p style="font-size:.8125rem;color:#9397a8;margin-top:.2rem;">{{ school.name }}</p>
+  </div>
+  <a href="{% url 'economat:register_student' school.id school_year.id %}" class="btn-primary" style="font-size:.875rem;">
+    <svg class="icon" style="width:.95em;height:.95em;"><use href="#icon-user-plus"/></svg>
+    Nouvel élève
+  </a>
+</div>
+
+<!-- Compteurs rapides -->
+<div style="display:flex;gap:.75rem;margin-bottom:1.25rem;flex-wrap:wrap;">
+  <a href="?status=all{% if level_id %}&level={{ level_id }}{% endif %}{% if class_id_f %}&class={{ class_id_f }}{% endif %}{% if q %}&q={{ q }}{% endif %}"
+     style="text-decoration:none;display:flex;align-items:center;gap:.4rem;padding:.35rem .75rem;
+            background:{% if status_f == 'all' %}#eef2ff{% else %}#fff{% endif %};
+            border:1px solid {% if status_f == 'all' %}#c7d2fe{% else %}#ecedf1{% endif %};
+            border-radius:999px;font-size:.8rem;font-weight:600;
+            color:{% if status_f == 'all' %}#4338ca{% else %}#52556b{% endif %};">
+    Tous <span>{{ total_all }}</span>
+  </a>
+  <a href="?status=ACTIVE{% if level_id %}&level={{ level_id }}{% endif %}{% if class_id_f %}&class={{ class_id_f }}{% endif %}{% if q %}&q={{ q }}{% endif %}"
+     style="text-decoration:none;display:flex;align-items:center;gap:.4rem;padding:.35rem .75rem;
+            background:{% if status_f == 'ACTIVE' %}#ecfdf5{% else %}#fff{% endif %};
+            border:1px solid {% if status_f == 'ACTIVE' %}#a7f3d0{% else %}#ecedf1{% endif %};
+            border-radius:999px;font-size:.8rem;font-weight:600;
+            color:{% if status_f == 'ACTIVE' %}#047857{% else %}#52556b{% endif %};">
+    <span style="width:.5em;height:.5em;border-radius:50%;background:currentColor;display:inline-block;"></span>
+    Actifs <span>{{ total_active }}</span>
+  </a>
+  <a href="?status=INACTIVE{% if level_id %}&level={{ level_id }}{% endif %}{% if class_id_f %}&class={{ class_id_f }}{% endif %}{% if q %}&q={{ q }}{% endif %}"
+     style="text-decoration:none;display:flex;align-items:center;gap:.4rem;padding:.35rem .75rem;
+            background:{% if status_f == 'INACTIVE' %}#f4f4f5{% else %}#fff{% endif %};
+            border:1px solid {% if status_f == 'INACTIVE' %}#e4e4e7{% else %}#ecedf1{% endif %};
+            border-radius:999px;font-size:.8rem;font-weight:600;
+            color:{% if status_f == 'INACTIVE' %}#3f3f46{% else %}#52556b{% endif %};">
+    Inactifs <span>{{ total_inactive }}</span>
+  </a>
+</div>
+
+<!-- Barre de filtres -->
+<form method="get" id="filterForm"
+      style="display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;margin-bottom:1rem;">
+  <input type="hidden" name="status" value="{{ status_f }}">
+
+  <!-- Recherche -->
+  <div style="position:relative;flex:1;min-width:180px;">
+    <svg class="icon" style="position:absolute;left:.65rem;top:50%;transform:translateY(-50%);
+                             width:.95rem;height:.95rem;color:#9397a8;pointer-events:none;">
+      <use href="#icon-search"/>
+    </svg>
+    <input type="text" name="q" value="{{ q }}"
+           placeholder="Rechercher par nom…"
+           class="form-input" style="padding-left:2.1rem;min-height:38px;font-size:.875rem;"
+           autocomplete="off">
+  </div>
+
+  <!-- Niveau -->
+  <select name="level" class="form-select" style="min-height:38px;font-size:.875rem;width:auto;min-width:130px;"
+          onchange="document.getElementById('filterForm').submit()">
+    <option value="">Tous les niveaux</option>
+    {% for lv in levels %}
+    <option value="{{ lv.id }}" {% if lv.id|stringformat:'s' == level_id %}selected{% endif %}>{{ lv.name }}</option>
+    {% endfor %}
+  </select>
+
+  <!-- Classe -->
+  <select name="class" class="form-select" style="min-height:38px;font-size:.875rem;width:auto;min-width:130px;"
+          onchange="document.getElementById('filterForm').submit()">
+    <option value="">Toutes les classes</option>
+    {% for cl in classes %}
+    <option value="{{ cl.id }}" {% if cl.id|stringformat:'s' == class_id_f %}selected{% endif %}>
+      {{ cl.level.name }} — {{ cl.name }}
+    </option>
+    {% endfor %}
+  </select>
+
+  <button type="submit" class="btn-primary" style="height:38px;padding:.45rem 1rem;font-size:.875rem;">
+    <svg class="icon" style="width:.9em;height:.9em;"><use href="#icon-search"/></svg>
+    Filtrer
+  </button>
+
+  {% if q or level_id or class_id_f %}
+  <a href="?status={{ status_f }}" class="btn-secondary" style="height:38px;padding:.45rem .75rem;font-size:.875rem;">
+    <svg class="icon" style="width:.9em;height:.9em;"><use href="#icon-x"/></svg>
+    Réinitialiser
+  </a>
+  {% endif %}
+</form>
+
+<!-- Tableau -->
+{% if page_obj %}
+<div class="card" style="overflow:hidden;">
+  <div style="overflow-x:auto;">
+    <table style="width:100%;border-collapse:collapse;font-size:.84375rem;">
+      <thead>
+        <tr style="border-bottom:1.5px solid #ecedf1;background:#fbfbfd;">
+          <th style="text-align:left;padding:.65rem 1rem;font-size:.7375rem;font-weight:700;
+                      color:#9397a8;letter-spacing:.04em;white-space:nowrap;">NOM</th>
+          <th style="text-align:left;padding:.65rem .75rem;font-size:.7375rem;font-weight:700;
+                      color:#9397a8;letter-spacing:.04em;white-space:nowrap;">NIVEAU</th>
+          <th style="text-align:left;padding:.65rem .75rem;font-size:.7375rem;font-weight:700;
+                      color:#9397a8;letter-spacing:.04em;white-space:nowrap;">CLASSE</th>
+          <th style="text-align:left;padding:.65rem .75rem;font-size:.7375rem;font-weight:700;
+                      color:#9397a8;letter-spacing:.04em;white-space:nowrap;">INSCRIPTION</th>
+          <th style="text-align:center;padding:.65rem .75rem;font-size:.7375rem;font-weight:700;
+                      color:#9397a8;letter-spacing:.04em;white-space:nowrap;">STATUT</th>
+          <th style="text-align:center;padding:.65rem .75rem;font-size:.7375rem;font-weight:700;
+                      color:#9397a8;letter-spacing:.04em;white-space:nowrap;">PAIEMENT {{ school_year }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for student in page_obj %}
+        <tr style="border-bottom:1px solid #f4f5f7;cursor:pointer;transition:background .1s;"
+            onclick="window.location='{% url 'economat:student_detail' school.id school_year.id student.id %}'"
+            onmouseenter="this.style.background='#f9fafb'" onmouseleave="this.style.background=''">
+
+          <!-- Nom -->
+          <td style="padding:.7rem 1rem;">
+            <div style="display:flex;align-items:center;gap:.6rem;">
+              <!-- Avatar initiales -->
+              <div style="width:1.9rem;height:1.9rem;border-radius:50%;background:#eef2ff;
+                          color:#4338ca;display:flex;align-items:center;justify-content:center;
+                          font-size:.68rem;font-weight:700;flex-shrink:0;letter-spacing:-.02em;">
+                {{ student.first_name|slice:':1'|upper }}{{ student.last_name|slice:':1'|upper }}
+              </div>
+              <div>
+                <div style="font-weight:600;color:#1a1d29;">{{ student.student.last_name|upper }} {{ student.student.first_name }}</div>
+              </div>
+            </div>
+          </td>
+
+          <!-- Niveau -->
+          <td style="padding:.7rem .75rem;color:#52556b;">{{ student.level.name }}</td>
+
+          <!-- Classe -->
+          <td style="padding:.7rem .75rem;">
+            <span style="background:#f4f5f9;color:#3f3f46;padding:.2rem .55rem;
+                          border-radius:5px;font-size:.78rem;font-weight:600;">{{ student.klass.name }}</span>
+          </td>
+
+          <!-- Date d'inscription -->
+          <td style="padding:.7rem .75rem;color:#9397a8;font-size:.8rem;font-variant-numeric:tabular-nums;">
+            {{ student.enrollment_date|date:"d/m/Y" }}
+          </td>
+
+          <!-- Statut élève -->
+          <td style="padding:.7rem .75rem;text-align:center;">
+            {% if student.status == 'ACTIVE' %}
+            <span class="badge badge-success">Actif</span>
+            {% else %}
+            <span class="badge badge-neutral">Inactif</span>
+            {% endif %}
+          </td>
+
+          <!-- Badge paiement rapide -->
+          <td style="padding:.7rem .75rem;text-align:center;">
+            {% with paid=student.paid_total fee=student.level.annual_fee %}
+            {% if fee == 0 %}
+              <span class="badge badge-neutral">N/A</span>
+            {% elif paid >= fee %}
+              <span class="badge badge-success"><svg style="width:.85em;height:.85em;stroke:#059669;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;vertical-align:-0.12em;" viewBox="0 0 24 24"><use href="#icon-check-circle"/></svg> Soldé</span>
+            {% elif paid > 0 %}
+              <span class="badge badge-info"><svg style="width:.85em;height:.85em;stroke:#4f46e5;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;vertical-align:-0.12em;" viewBox="0 0 24 24"><use href="#icon-check-circle"/></svg> En cours</span>
+            {% else %}
+              <span class="badge badge-danger"><svg style="width:.85em;height:.85em;stroke:#b91c1c;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;vertical-align:-0.12em;" viewBox="0 0 24 24"><use href="#icon-x-circle"/></svg> Non payé</span>
+            {% endif %}
+            {% endwith %}
+          </td>
+
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="6" style="text-align:center;padding:3.5rem 1rem;color:#9397a8;">
+            <svg class="icon" style="width:2rem;height:2rem;margin-bottom:.5rem;color:#d1d5db;"><use href="#icon-users"/></svg>
+            <p style="font-weight:500;margin-bottom:.25rem;color:#52556b;">Aucun élève trouvé</p>
+            {% if q or level_id or class_id_f %}
+            <p style="font-size:.8125rem;">Essayez de modifier vos filtres.</p>
+            {% else %}
+            <a href="{% url 'economat:register_student' school.id school_year.id %}" class="btn-primary"
+               style="display:inline-flex;margin-top:.75rem;">
+              <svg class="icon" style="width:.9em;height:.9em;"><use href="#icon-user-plus"/></svg>
+              Inscrire le premier élève
+            </a>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Footer : pagination + total -->
+  <div style="display:flex;align-items:center;justify-content:space-between;
+              padding:.75rem 1rem;border-top:1px solid #ecedf1;background:#fbfbfd;
+              flex-wrap:wrap;gap:.5rem;">
+    <p style="font-size:.8125rem;color:#9397a8;">
+      <strong style="color:#1a1d29;">{{ page_obj.paginator.count }}</strong> élève{{ page_obj.paginator.count|pluralize }}
+      {% if page_obj.paginator.num_pages > 1 %}
+      &mdash; Page <strong>{{ page_obj.number }}</strong> / {{ page_obj.paginator.num_pages }}
+      {% endif %}
+    </p>
+    {% if page_obj.paginator.num_pages > 1 %}
+    <nav style="display:flex;gap:.3rem;">
+      {% if page_obj.has_previous %}
+      <a href="?page={{ page_obj.previous_page_number }}{% if q %}&q={{ q }}{% endif %}{% if level_id %}&level={{ level_id }}{% endif %}{% if class_id_f %}&class={{ class_id_f }}{% endif %}&status={{ status_f }}"
+         class="btn-secondary" style="padding:.35rem .7rem;font-size:.8125rem;">
+        <svg class="icon" style="width:.9em;height:.9em;"><use href="#icon-chevron-left"/></svg>
+      </a>
+      {% endif %}
+      <span style="padding:.35rem .75rem;font-size:.8125rem;font-weight:600;color:#1a1d29;"
+            >{{ page_obj.number }}</span>
+      {% if page_obj.has_next %}
+      <a href="?page={{ page_obj.next_page_number }}{% if q %}&q={{ q }}{% endif %}{% if level_id %}&level={{ level_id }}{% endif %}{% if class_id_f %}&class={{ class_id_f }}{% endif %}&status={{ status_f }}"
+         class="btn-secondary" style="padding:.35rem .7rem;font-size:.8125rem;">
+        <svg class="icon" style="width:.9em;height:.9em;transform:rotate(180deg);"><use href="#icon-chevron-left"/></svg>
+      </a>
+      {% endif %}
+    </nav>
+    {% endif %}
+  </div>
+</div>
+
+{% else %}
+<!-- École sans élèves du tout -->
+<div style="text-align:center;padding:4rem 2rem;border:1.5px dashed #ecedf1;border-radius:16px;">
+  <svg class="icon" style="width:2.5rem;height:2.5rem;color:#d1d5db;margin-bottom:.75rem;"><use href="#icon-users"/></svg>
+  <p style="font-weight:600;color:#52556b;margin-bottom:.375rem;">Aucun élève inscrit</p>
+  <p style="font-size:.875rem;color:#9397a8;margin-bottom:1rem;">Commencez par inscrire les élèves de votre école.</p>
+  <a href="{% url 'economat:register_student' school.id school_year.id %}" class="btn-primary" style="display:inline-flex;">
+    <svg class="icon" style="width:.9em;height:.9em;"><use href="#icon-user-plus"/></svg>
+    Inscrire le premier élève
+  </a>
+</div>
+{% endif %}
+
+{% endblock %}

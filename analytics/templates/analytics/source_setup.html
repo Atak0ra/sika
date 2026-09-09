@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>TransactIA — Choisir une source de données</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"/>
+  <script>tailwind.config={theme:{extend:{colors:{accent:{600:'#2C3E63',700:'#22314F'}},fontFamily:{sans:['Inter','ui-sans-serif']}}}}</script>
+  <style>
+    body{font-family:'Inter',sans-serif;background:#f8fafc}
+    .tab-btn.active{background:#2C3E63;color:#fff;border-color:#2C3E63}
+    .drop-zone.drag-over{border-color:#2C3E63;background:#eef2ff}
+  </style>
+</head>
+<body class="min-h-screen flex items-start justify-center pt-12 px-4 pb-16">
+<div class="w-full max-w-2xl">
+
+  <!-- En-tête -->
+  <div class="mb-8">
+    <a href="{% url 'analytics:index' %}" class="text-sm text-zinc-400 hover:text-zinc-600 transition mb-4 inline-flex items-center gap-1">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4"><path fill-rule="evenodd" d="M11.03 3.97a.75.75 0 0 1 0 1.06l-6.22 6.22H21a.75.75 0 0 1 0 1.5H4.81l6.22 6.22a.75.75 0 1 1-1.06 1.06l-7.5-7.5a.75.75 0 0 1 0-1.06l7.5-7.5a.75.75 0 0 1 1.06 0Z" clip-rule="evenodd"/></svg>
+      Retour
+    </a>
+    <h1 class="text-2xl font-semibold text-zinc-900">Choisir une source de données</h1>
+    <p class="text-sm text-zinc-500 mt-1">Connectez vos propres données pour les analyser en langage naturel.</p>
+  </div>
+
+  {% if error %}
+  <div class="mb-6 bg-red-50 border border-red-200 rounded-xl px-4 py-3 flex gap-3">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 text-red-500 shrink-0 mt-0.5"><path fill-rule="evenodd" d="M9.401 3.003c1.155-2 4.043-2 5.197 0l7.355 12.748c1.154 2-.29 4.5-2.599 4.5H4.645c-2.309 0-3.752-2.5-2.598-4.5L9.4 3.003ZM12 8.25a.75.75 0 0 1 .75.75v3.75a.75.75 0 0 1-1.5 0V9a.75.75 0 0 1 .75-.75Zm0 8.25a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Z" clip-rule="evenodd"/></svg>
+    <p class="text-sm text-red-700">{{ error }}</p>
+  </div>
+  {% endif %}
+
+  {% for message in messages %}
+  <div class="mb-6 bg-red-50 border border-red-200 rounded-xl px-4 py-3 flex gap-3">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 text-red-500 shrink-0 mt-0.5"><path fill-rule="evenodd" d="M9.401 3.003c1.155-2 4.043-2 5.197 0l7.355 12.748c1.154 2-.29 4.5-2.599 4.5H4.645c-2.309 0-3.752-2.5-2.598-4.5L9.4 3.003ZM12 8.25a.75.75 0 0 1 .75.75v3.75a.75.75 0 0 1-1.5 0V9a.75.75 0 0 1 .75-.75Zm0 8.25a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Z" clip-rule="evenodd"/></svg>
+    <p class="text-sm text-red-700">{{ message }}</p>
+  </div>
+  {% endfor %}
+
+  <!-- Option 1 : Base interne -->
+  <form method="post" class="mb-4">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="use_internal"/>
+    <button type="submit"
+      class="w-full flex items-center gap-4 px-5 py-4 bg-white border-2 {% if current_source.type == 'internal' %}border-accent-600{% else %}border-zinc-200 hover:border-zinc-400{% endif %} rounded-xl transition-all group">
+      <div class="w-10 h-10 rounded-lg bg-accent-600/10 flex items-center justify-center shrink-0">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 text-accent-600"><path d="M21 6.375c0 2.692-4.03 4.875-9 4.875S3 9.067 3 6.375 7.03 1.5 12 1.5s9 2.183 9 4.875Z"/><path d="M12 12.75c2.685 0 5.19-.586 7.078-1.609a8.283 8.283 0 0 0 1.897-1.384c.016.121.025.244.025.368C21 12.817 16.97 15 12 15s-9-2.183-9-4.875c0-.124.009-.247.025-.368a8.285 8.285 0 0 0 1.897 1.384C6.809 12.164 9.315 12.75 12 12.75Z"/><path d="M12 16.5c2.685 0 5.19-.586 7.078-1.609a8.282 8.282 0 0 0 1.897-1.384c.016.121.025.244.025.368 0 2.692-4.03 4.875-9 4.875s-9-2.183-9-4.875c0-.124.009-.247.025-.368a8.284 8.284 0 0 0 1.897 1.384C6.809 15.914 9.315 16.5 12 16.5Z"/><path d="M12 20.25c2.685 0 5.19-.586 7.078-1.609a8.282 8.282 0 0 0 1.897-1.384c.016.121.025.244.025.368 0 2.692-4.03 4.875-9 4.875s-9-2.183-9-4.875c0-.124.009-.247.025-.368a8.284 8.284 0 0 0 1.897 1.384C6.809 19.664 9.315 20.25 12 20.25Z"/></svg>
+      </div>
+      <div class="text-left flex-1">
+        <p class="text-sm font-semibold text-zinc-900">Base interne — Transactions</p>
+        <p class="text-xs text-zinc-500 mt-0.5">Données de transactions déjà chargées dans l'application</p>
+      </div>
+      {% if current_source.type == 'internal' %}
+      <span class="text-xs bg-accent-600 text-white px-2 py-0.5 rounded-full shrink-0">Actif</span>
+      {% endif %}
+    </button>
+  </form>
+
+
+
+  <!-- Option 2 : Fichier externe -->
+  <div class="bg-white border-2 border-zinc-200 rounded-xl overflow-hidden">
+    <div class="px-5 py-4 border-b border-zinc-100">
+      <p class="text-sm font-semibold text-zinc-900">Connecter un fichier externe</p>
+      <p class="text-xs text-zinc-500 mt-0.5">Importez votre propre base SQLite ou fichier CSV</p>
+    </div>
+    <div class="px-5 pt-4 flex gap-2">
+      <button onclick="switchTab('sqlite')" id="tab-sqlite" class="tab-btn active px-4 py-1.5 rounded-lg text-xs font-medium border border-zinc-200 transition-colors">Base SQLite</button>
+      <button onclick="switchTab('csv')" id="tab-csv" class="tab-btn px-4 py-1.5 rounded-lg text-xs font-medium border border-zinc-200 text-zinc-600 transition-colors">Fichier CSV</button>
+      <button onclick="switchTab('excel')" id="tab-excel" class="tab-btn px-4 py-1.5 rounded-lg text-xs font-medium border border-zinc-200 text-zinc-600 transition-colors">Fichier Excel</button>
+    </div>
+    <form method="post" enctype="multipart/form-data" id="sourceForm" class="px-5 pb-5 pt-4 space-y-4">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="test"/>
+      <input type="hidden" name="source_type" value="sqlite" id="sourceTypeInput"/>
+      <div id="dropZone" class="drop-zone border-2 border-dashed border-zinc-300 rounded-xl p-6 text-center cursor-pointer hover:border-zinc-400 transition-colors"
+        onclick="document.getElementById('fileInput').click()"
+        ondragover="event.preventDefault();this.classList.add('drag-over')"
+        ondragleave="this.classList.remove('drag-over')"
+        ondrop="handleDrop(event)">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-8 h-8 text-zinc-300 mx-auto mb-2"><path fill-rule="evenodd" d="M11.47 2.47a.75.75 0 0 1 1.06 0l4.5 4.5a.75.75 0 0 1-1.06 1.06l-3.22-3.22V16.5a.75.75 0 0 1-1.5 0V4.81L8.03 8.03a.75.75 0 0 1-1.06-1.06l4.5-4.5ZM3 15.75a.75.75 0 0 1 .75.75v2.25a1.5 1.5 0 0 0 1.5 1.5h13.5a1.5 1.5 0 0 0 1.5-1.5V16.5a.75.75 0 0 1 1.5 0v2.25a3 3 0 0 1-3 3H5.25a3 3 0 0 1-3-3V16.5a.75.75 0 0 1 .75-.75Z" clip-rule="evenodd"/></svg>
+        <p id="dropText" class="text-sm text-zinc-500">Glissez votre fichier ici ou <span class="text-accent-600 font-medium">cliquez pour parcourir</span></p>
+        <p id="fileHint" class="text-xs text-zinc-400 mt-1">Fichiers .db .sqlite .sqlite3 acceptés</p>
+        <input type="file" id="fileInput" name="db_file" class="hidden" accept=".db,.sqlite,.sqlite3,.csv,.xlsx,.xls" multiple onchange="handleFileSelect(this)"/>
+        <p id="multiHint" class="text-xs text-zinc-400 mt-1">Plusieurs fichiers de même structure (ex: un par mois) ? Sélectionnez-les tous ensemble — ils seront combinés en une seule table. Une base SQLite reste un fichier unique.</p>
+      </div>
+      <div class="flex items-center gap-3">
+        <div class="flex-1 h-px bg-zinc-200"></div>
+        <span class="text-xs text-zinc-400">ou saisissez le chemin</span>
+        <div class="flex-1 h-px bg-zinc-200"></div>
+      </div>
+      <input type="text" name="manual_path" placeholder="/chemin/absolu/vers/votre/fichier.db"
+        class="w-full px-4 py-2.5 text-sm border border-zinc-200 rounded-lg focus:outline-none focus:border-accent-600 font-mono text-zinc-700"/>
+      <button type="button" onclick="testConnection()" id="testBtn"
+        class="w-full flex items-center justify-center gap-2 px-4 py-2.5 border-2 border-accent-600 text-accent-600 rounded-lg text-sm font-medium hover:bg-accent-600 hover:text-white transition-colors">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4"><path fill-rule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12Zm13.36-1.814a.75.75 0 1 0-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 0 0-1.06 1.06l2.25 2.25a.75.75 0 0 0 1.14-.094l3.75-5.25Z" clip-rule="evenodd"/></svg>
+        <span id="testText">Tester la connexion</span>
+      </button>
+    </form>
+    <div id="testResult" class="hidden px-5 pb-5"></div>
+  </div>
+
+</div>
+
+
+<script>
+  function switchTab(type) {
+    ['sqlite','csv','excel'].forEach(t => {
+      const b = document.getElementById('tab-'+t);
+      b.classList.toggle('active', t===type);
+      b.classList.toggle('text-zinc-600', t!==type);
+    });
+    document.getElementById('sourceTypeInput').value = type;
+    const hint = document.getElementById('fileHint');
+    const inp  = document.getElementById('fileInput');
+    const multiOk = type !== 'sqlite'; // une seule base SQLite a la fois, CSV/Excel peuvent se combiner
+    inp.multiple = multiOk;
+    document.getElementById('multiHint').classList.toggle('hidden', !multiOk);
+    if (type==='sqlite')      { hint.textContent='Fichiers .db .sqlite .sqlite3 acceptés'; inp.accept='.db,.sqlite,.sqlite3'; }
+    else if (type==='excel')  { hint.textContent='Fichiers .xlsx .xls acceptés'; inp.accept='.xlsx,.xls'; }
+    else                      { hint.textContent='Fichiers .csv acceptés'; inp.accept='.csv'; }
+  }
+  function describeFiles(files) {
+    if (!files.length) return;
+    const text = files.length === 1
+      ? '<strong>' + files[0].name + '</strong> sélectionné'
+      : '<strong>' + files.length + ' fichiers</strong> sélectionnés — ' + Array.from(files).map(f => f.name).join(', ');
+    document.getElementById('dropText').innerHTML = text;
+  }
+  function handleFileSelect(input) {
+    describeFiles(input.files);
+  }
+  function handleDrop(e) {
+    e.preventDefault();
+    document.getElementById('dropZone').classList.remove('drag-over');
+    const dropped = e.dataTransfer.files; if (!dropped.length) return;
+    const fi = document.getElementById('fileInput');
+    const dt = new DataTransfer();
+    Array.from(fi.multiple ? dropped : [dropped[0]]).forEach(f => dt.items.add(f));
+    fi.files = dt.files;
+    describeFiles(fi.files);
+  }
+  async function testConnection() {
+    const btn=document.getElementById('testBtn'), txt=document.getElementById('testText'), out=document.getElementById('testResult');
+    btn.disabled=true; txt.textContent='Test en cours…';
+    const fd=new FormData(document.getElementById('sourceForm'));
+    try {
+      const resp=await fetch("{% url 'analytics:source_test' %}",{method:'POST',body:fd});
+      const data=await resp.json();
+      out.classList.remove('hidden');
+      if (data.ok) {
+        const cols=(data.table_info?.columns||[]).map(c=>`<span class="bg-zinc-100 text-zinc-600 text-xs px-2 py-0.5 rounded font-mono">${c.name} <span class="text-zinc-400">${c.type}</span></span>`).join('');
+        const opts=(data.tables||[]).map(t=>`<option value="${t}"${t===data.active_table?' selected':''}>${t}</option>`).join('');
+        const csrf=fd.get('csrfmiddlewaretoken');
+        const cfg=JSON.stringify(data.source_config).replace(/'/g,"&#39;");
+        out.innerHTML=`<div class="bg-emerald-50 border border-emerald-200 rounded-xl p-4 space-y-3">
+          <p class="text-sm font-semibold text-emerald-800">Connexion réussie — ${data.table_info?.row_count??'?'} lignes détectées</p>
+          <div><label class="text-xs text-zinc-600 font-medium block mb-1">Table / feuille à analyser</label>
+            <select id="atSel" class="w-full px-3 py-2 text-sm border border-zinc-200 rounded-lg focus:outline-none focus:border-accent-600">${opts}</select></div>
+          <div class="flex flex-wrap gap-1">${cols}</div>
+          <form method="post" action="{% url 'analytics:source_confirm' %}" class="mt-2">
+            <input type="hidden" name="csrfmiddlewaretoken" value="${csrf}"/>
+            <input type="hidden" name="action" value="confirm"/>
+            <input type="hidden" name="source_config_json" value='${cfg}'/>
+            <input type="hidden" name="active_table" id="atH" value="${data.active_table}"/>
+            <button type="submit" onclick="document.getElementById('atH').value=document.getElementById('atSel').value"
+              class="w-full px-4 py-2.5 bg-accent-600 hover:bg-accent-700 text-white rounded-xl text-sm font-semibold transition-colors">
+              Utiliser cette source pour analyser mes données
+            </button>
+          </form>
+        </div>`;
+      } else {
+        out.innerHTML=`<div class="bg-red-50 border border-red-200 rounded-xl p-4"><p class="text-sm text-red-700">${data.error||'Erreur inconnue.'}</p></div>`;
+      }
+    } catch(e) {
+      out.classList.remove('hidden');
+      out.innerHTML=`<div class="bg-red-50 border border-red-200 rounded-xl p-4"><p class="text-sm text-red-700">Erreur réseau.</p></div>`;
+    } finally { btn.disabled=false; txt.textContent='Tester la connexion'; }
+  }
+</script>
+</body></html>
+

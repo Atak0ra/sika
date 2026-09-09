@@ -1,0 +1,49 @@
+{% extends "economat/director/_base_director.html" %}
+{% block title %}Nouvel élève — {{ school.name }}{% endblock %}
+{% block director_content %}
+<div style="margin-bottom:1.5rem;display:flex;align-items:center;gap:.75rem;">
+  <a href="{% url 'economat:students_list' school.id school_year.id %}"
+     style="display:inline-flex;align-items:center;gap:.35rem;font-size:.8125rem;
+            color:#9397a8;text-decoration:none;transition:color .15s;"
+     onmouseover="this.style.color='#4f46e5'" onmouseout="this.style.color='#9397a8'">
+    <svg class="icon" style="width:.9em;height:.9em;"><use href="#icon-chevron-left"/></svg>
+    Liste des élèves
+  </a>
+  <div style="width:1px;height:14px;background:#ecedf1;"></div>
+  <h1 style="font-size:1.125rem;font-weight:700;letter-spacing:-0.02em;">Nouvel élève</h1>
+  <span style="font-size:.8125rem;color:#9397a8;">{{ school.name }}</span>
+</div>
+<div style="max-width:560px;">
+  <div class="card" style="padding:1.75rem;">
+    <form method="post" style="display:flex;flex-direction:column;gap:1rem;">
+      {% csrf_token %}
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;">
+        {% for field in form %}{% if field.name == 'first_name' or field.name == 'last_name' %}
+        <div>
+          <label class="field-label">{{ field.label }}</label>
+          {{ field }}
+          {% if field.errors %}<p class="field-error">{{ field.errors.0 }}</p>{% endif %}
+        </div>
+        {% endif %}{% endfor %}
+      </div>
+      {% for field in form %}{% if field.name not in 'first_name,last_name' %}
+      <div>
+        <label class="field-label">{{ field.label }}</label>
+        {{ field }}
+        {% if field.errors %}<p class="field-error">{{ field.errors.0 }}</p>{% endif %}
+        {% if field.help_text %}<p class="field-hint">{{ field.help_text }}</p>{% endif %}
+      </div>
+      {% endif %}{% endfor %}
+      <div style="display:flex;gap:.5rem;padding-top:.25rem;">
+        <a href="{% url 'economat:students_list' school.id school_year.id %}" class="btn-secondary" style="flex:1;justify-content:center;">
+          Annuler
+        </a>
+        <button type="submit" class="btn-primary" style="flex:2;" data-loading-text="Inscription…">
+          <svg class="icon" style="width:.9em;height:.9em;"><use href="#icon-check-circle"/></svg>
+          Inscrire l’élève
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

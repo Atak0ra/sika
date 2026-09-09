@@ -1,0 +1,126 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}SikaSchool{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root {
+      --brand:#4f46e5; --brand-hover:#4338ca; --brand-ring:rgba(79,70,229,.14);
+      --border:#ecedf1; --text-1:#1a1d29; --text-2:#52556b; --text-3:#9397a8;
+      --surface:#ffffff; --radius-btn:9px; --radius-input:9px;
+    }
+    *, *::before, *::after { box-sizing:border-box; }
+    body {
+      font-family:'Inter',system-ui,sans-serif; background:#f4f5f9;
+      -webkit-font-smoothing:antialiased; min-height:100vh;
+      display:flex; align-items:center; justify-content:center; padding:1.5rem;
+    }
+    h1,h2,h3 { letter-spacing:-0.02em; font-weight:600; }
+    .auth-card {
+      background:var(--surface); border:1px solid var(--border);
+      border-radius:18px; padding:2.25rem 2rem; width:100%; max-width:22rem;
+      box-shadow:0 4px 24px rgba(10,10,20,.07), 0 1px 3px rgba(10,10,20,.04);
+    }
+    .form-input,.form-select {
+      width:100%; min-height:44px; padding:.6rem .75rem;
+      background:var(--surface); border:1.5px solid var(--border);
+      border-radius:var(--radius-input); color:var(--text-1);
+      font-size:.9375rem; font-family:inherit; outline:none;
+      transition:border-color .15s ease, box-shadow .15s ease;
+    }
+    .form-input::placeholder { color:var(--text-3); }
+    .form-input:hover,.form-select:hover { border-color:#d1d5db; }
+    .form-input:focus,.form-select:focus { border-color:var(--brand); box-shadow:0 0 0 3px var(--brand-ring); }
+    label.field-label { display:block; font-size:.8125rem; font-weight:600; color:var(--text-2); margin-bottom:.3rem; letter-spacing:.01em; }
+    .btn-primary {
+      display:inline-flex; align-items:center; justify-content:center; gap:.45rem;
+      background:var(--brand); color:#fff; font-weight:600; font-size:.9rem;
+      border-radius:var(--radius-btn); padding:.7rem 1.2rem; width:100%;
+      border:1px solid var(--brand);
+      box-shadow:0 1px 2px rgba(79,70,229,.2),inset 0 1px 0 rgba(255,255,255,.1);
+      transition:background .15s ease, box-shadow .15s ease, transform .1s ease;
+      cursor:pointer;
+    }
+    .btn-primary:hover { background:var(--brand-hover); border-color:var(--brand-hover); }
+    .btn-primary:active { transform:translateY(.5px); }
+    .btn-primary[disabled] { opacity:.6; cursor:not-allowed; transform:none; }
+    .btn-secondary {
+      display:inline-flex; align-items:center; justify-content:center; gap:.4rem;
+      background:var(--surface); color:var(--text-1); font-weight:500; font-size:.875rem;
+      border-radius:var(--radius-btn); padding:.55rem .9rem;
+      border:1px solid var(--border);
+      box-shadow:0 1px 2px rgba(16,24,40,.04);
+      transition:background .15s, border-color .15s; cursor:pointer; text-decoration:none;
+    }
+    .btn-secondary:hover { background:#f6f7f9; border-color:#d1d5db; }
+    .btn-primary:focus-visible,.btn-secondary:focus-visible,a:focus-visible {
+      outline:2px solid var(--brand); outline-offset:2px; border-radius:6px;
+    }
+    .icon { width:1.1em;height:1.1em;stroke:currentColor;fill:none;stroke-width:1.75;
+            stroke-linecap:round;stroke-linejoin:round;vertical-align:-0.15em;flex-shrink:0; }
+    .spinner {
+      width:1em;height:1em;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;
+      border-radius:50%;display:inline-block;animation:eco-spin .65s linear infinite;
+    }
+    @keyframes eco-spin { to { transform:rotate(360deg); } }
+    .badge { display:inline-flex;align-items:center;gap:.3rem;padding:.2rem .6rem;
+      border-radius:9999px;font-size:.73rem;font-weight:600;line-height:1.5;
+      border:1px solid transparent;white-space:nowrap; }
+    .badge-success { background:#ecfdf5;color:#047857;border-color:#a7f3d0; }
+    .badge-info    { background:#eef2ff;color:#4338ca;border-color:#c7d2fe; }
+    .badge-warning { background:#fff7ed;color:#c2410c;border-color:#fed7aa; }
+    .badge-neutral { background:#f4f4f5;color:#52525b;border-color:#e4e4e7; }
+    .field-error { font-size:.75rem;color:#b91c1c;margin-top:.25rem; }
+  </style>
+</head>
+<body>
+  <div style="width:100%;max-width:22rem">
+
+    <!-- Logo + titre -->
+    <div style="text-align:center;margin-bottom:2rem;">
+      <div style="display:inline-flex;align-items:center;justify-content:center;
+                  width:3rem;height:3rem;background:#eef2ff;border-radius:14px;margin-bottom:.85rem;">
+        <svg style="width:1.6rem;height:1.6rem;color:#4f46e5" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 21h18M4 21V10l8-5 8 5v11M9 21v-6h6v6"/>
+        </svg>
+      </div>
+      <h1 style="font-size:1.1875rem;font-weight:700;color:#1a1d29;letter-spacing:-0.02em;">SikaSchool</h1>
+      <p style="font-size:.8125rem;color:#9397a8;margin-top:.25rem;">Gestion des frais de scolarité</p>
+    </div>
+
+    <div class="auth-card">
+      <!-- Messages Django -->
+      {% if messages %}
+      <div style="margin-bottom:1.25rem;display:flex;flex-direction:column;gap:.5rem;">
+        {% for msg in messages %}
+        <div style="padding:.65rem .9rem;border-radius:9px;font-size:.8375rem;border:1px solid;
+          {% if msg.tags == 'success' %}background:#ecfdf5;color:#047857;border-color:#a7f3d0;
+          {% else %}background:#fef2f2;color:#b91c1c;border-color:#fecaca;{% endif %}">{{ msg }}</div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      {% block content %}{% endblock %}
+    </div>
+
+  </div>
+  <script>
+    document.querySelectorAll('form').forEach(form => {
+      form.addEventListener('submit', function() {
+        const btn = form.querySelector('button[type=submit]');
+        if (btn && !btn.disabled) {
+          btn.disabled = true;
+          btn.innerHTML = '<span class="spinner"></span><span>' + (btn.dataset.loadingText || 'Chargement…') + '</span>';
+        }
+      });
+    });
+  </script>
+</body>
+</html>

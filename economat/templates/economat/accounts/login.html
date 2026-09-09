@@ -1,0 +1,36 @@
+{% extends "economat/accounts/base_auth.html" %}
+{% block title %}Connexion — SikaSchool{% endblock %}
+{% block content %}
+  <h2 style="font-size:1.125rem;font-weight:700;margin-bottom:1.5rem;color:#1a1d29;letter-spacing:-0.01em;">Connexion</h2>
+
+  {% if error %}
+  <div style="padding:.65rem .9rem;border-radius:9px;background:#fef2f2;color:#b91c1c;
+    border:1px solid #fecaca;font-size:.8375rem;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem;">
+    <svg class="icon" style="flex-shrink:0;width:1em;height:1em;"
+         viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="9.5"/><path d="M12 8v4M12 16h.01"/>
+    </svg>
+    {{ error }}
+  </div>
+  {% endif %}
+
+  <form method="post" class="" style="display:flex;flex-direction:column;gap:1.1rem;">
+    {% csrf_token %}
+    {% for field in form %}
+    <div>
+      <label class="field-label">{{ field.label }}</label>
+      {{ field }}
+      {% if field.errors %}
+        <p class="field-error">{{ field.errors.0 }}</p>
+      {% endif %}
+    </div>
+    {% endfor %}
+    <button type="submit" class="btn-primary" style="margin-top:.25rem;" data-loading-text="Connexion en cours…">
+      Connexion
+    </button>
+  </form>
+
+  <p style="text-align:center;font-size:.8rem;color:#9397a8;margin-top:1.5rem;line-height:1.5;">
+    Accès sur invitation de l’administrateur.
+  </p>
+{% endblock %}

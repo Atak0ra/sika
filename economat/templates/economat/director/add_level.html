@@ -1,0 +1,74 @@
+{% extends "economat/director/_base_director.html" %}
+{% load economat_tags %}
+{% block title %}Niveaux — {{ school.name }}{% endblock %}
+{% block director_content %}
+<div style="margin-bottom:1.5rem;">
+  <h1 style="font-size:1.125rem;font-weight:700;letter-spacing:-0.02em;">Niveaux scolaires</h1>
+  <p style="font-size:.8375rem;color:#9397a8;margin-top:.25rem;">{{ school.name }}</p>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;">
+
+  <!-- Niveaux existants -->
+  <div class="card" style="padding:1.5rem;">
+    <h2 style="font-size:.875rem;font-weight:700;color:#1a1d29;margin-bottom:1rem;">Niveaux existants</h2>
+    {% if levels %}
+    <div style="display:flex;flex-direction:column;gap:.5rem;">
+      {% for level in levels %}
+      <div style="display:flex;align-items:center;justify-content:space-between;
+                  padding:.75rem 1rem;border:1px solid #ecedf1;border-radius:10px;
+                  background:#fbfbfd;transition:border-color .15s;" class="card-hover">
+        <div>
+          <div style="font-size:.875rem;font-weight:600;color:#1a1d29;">{{ level.name }}</div>
+          <div style="font-size:.75rem;color:#9397a8;margin-top:.15rem;">
+            <span style="font-variant-numeric:tabular-nums;">{{ level.annual_fee|spacemil }}</span> FCFA
+            &nbsp;·&nbsp; {{ level.get_payment_mode_display }}
+            &nbsp;·&nbsp; {{ level.classes.count }} classe(s)
+          </div>
+        </div>
+        <a href="{% url 'economat:add_class' school.id school_year.id level.id %}" class="btn-secondary" style="font-size:.7875rem;padding:.35rem .65rem;">
+          <svg class="icon" style="width:.9em;height:.9em;"><use href="#icon-plus"/></svg> Classe
+        </a>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div style="text-align:center;padding:2rem .5rem;">
+      <svg class="icon" style="width:2rem;height:2rem;color:#d1d5db;margin-bottom:.5rem;"><use href="#icon-book"/></svg>
+      <p style="font-size:.84375rem;color:#9397a8;">Aucun niveau créé pour l’instant.</p>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Formulaire d'ajout -->
+  <div class="card" style="padding:1.5rem;">
+    <h2 style="font-size:.875rem;font-weight:700;color:#1a1d29;margin-bottom:1rem;">Ajouter un niveau</h2>
+    <form method="post" style="display:flex;flex-direction:column;gap:.9rem;">
+      {% csrf_token %}
+      {% for field in form %}
+      <div>
+        <label class="field-label">{{ field.label }}</label>
+        {% if field.field.widget.input_type == 'radio' %}
+        <div class="radio-group" style="margin-top:.35rem;">
+          {% for choice_val, choice_lbl in field.field.choices %}
+          <label class="radio-card">
+            <input type="radio" name="{{ field.html_name }}" value="{{ choice_val }}"
+              {% if field.value == choice_val %}checked{% elif choice_val == 'TRANCHES' and not field.value %}checked{% endif %}>
+            <div class="radio-card-label">{{ choice_lbl }}</div>
+          </label>
+          {% endfor %}
+        </div>
+        {% else %}
+        {{ field }}
+        {% endif %}
+        {% if field.help_text %}<p class="field-hint">{{ field.help_text }}</p>{% endif %}
+        {% if field.errors %}<p class="field-error">{{ field.errors.0 }}</p>{% endif %}
+      </div>
+      {% endfor %}
+      <button type="submit" class="btn-primary" data-loading-text="Création…">
+        <svg class="icon" style="width:.9em;height:.9em;"><use href="#icon-check"/></svg> Créer le niveau
+      </button>
+    </form>
+  </div>
+
+</div>
+{% endblock %}

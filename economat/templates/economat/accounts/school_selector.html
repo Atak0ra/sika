@@ -1,0 +1,25 @@
+{% extends "economat/accounts/base_auth.html" %}
+{% block title %}Choisir une école — SikaSchool{% endblock %}
+{% block content %}
+  <h2 style="font-size:1.0625rem;font-weight:700;margin-bottom:.375rem;color:#1a1d29;letter-spacing:-0.01em;">Choisir un établissement</h2>
+  <p style="font-size:.8125rem;color:#9397a8;margin-bottom:1.25rem;">Vous avez accès à plusieurs établissements</p>
+  <div style="display:flex;flex-direction:column;gap:.5rem;">
+    {% for m in memberships %}
+    <a href="{% if m.role == 'DIRECTOR' %}{% url 'economat:director_dashboard' %}{% else %}{% url 'economat:econome_dashboard' %}{% endif %}"
+       style="display:flex;align-items:center;justify-content:space-between;
+              padding:.875rem 1rem; background:#fff;
+              border:1.5px solid #ecedf1; border-radius:12px;
+              text-decoration:none; color:#1a1d29;
+              box-shadow:0 1px 2px rgba(16,24,40,.04);
+              transition:border-color .15s,box-shadow .15s,transform .1s;">
+      <div>
+        <div style="font-size:.9rem;font-weight:600;letter-spacing:-0.01em;">{{ m.school_name }}</div>
+        <div style="font-size:.775rem;color:#9397a8;margin-top:.15rem;">{{ m.school_city }}</div>
+      </div>
+      <span class="badge {{ m.role_badge }}">{{ m.role_label }}</span>
+    </a>
+    {% empty %}
+    <p style="text-align:center;color:#9397a8;font-size:.875rem;">Aucune école trouvée.</p>
+    {% endfor %}
+  </div>
+{% endblock %}

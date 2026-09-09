@@ -1,0 +1,561 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}SikaSchool{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
+          colors: {
+            brand: {
+               50:'#eef2ff', 100:'#e0e7ff', 200:'#c7d2fe',
+              400:'#818cf8', 500:'#6366f1', 600:'#4f46e5',
+              700:'#4338ca', 800:'#3730a3', 900:'#312e81',
+            },
+          },
+        },
+      },
+    };
+  </script>
+  <style>
+    /* ================================================================
+       DESIGN SYSTEM — SikaSchool
+       Direction : Trust & Clarity (Linear + Stripe, Inter, Indigo)
+    ================================================================ */
+
+    :root {
+      --bg          : #fbfbfd;
+      --surface     : #ffffff;
+      --border      : #ecedf1;
+      --border-hover: #d1d5db;
+      --text-1      : #1a1d29;
+      --text-2      : #52556b;
+      --text-3      : #9397a8;
+      --brand       : #4f46e5;
+      --brand-hover : #4338ca;
+      --brand-ring  : rgba(79,70,229,.14);
+      --radius-card : 14px;
+      --radius-btn  : 9px;
+      --radius-input: 9px;
+      --shadow-xs   : 0 1px 2px rgba(16,24,40,.04);
+      --shadow-sm   : 0 1px 3px rgba(16,24,40,.06), 0 1px 2px rgba(16,24,40,.04);
+      --shadow-md   : 0 4px 16px rgba(16,24,40,.08), 0 1px 3px rgba(16,24,40,.04);
+      --transition  : .15s cubic-bezier(.4,0,.2,1);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg); color: var(--text-1);
+      -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
+      font-size: 15px; line-height: 1.6;
+    }
+
+    h1, h2, h3, h4 {
+      letter-spacing: -0.02em; font-weight: 600; line-height: 1.3;
+    }
+
+    /* ---- Scrollbar fine ---- */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 99px; }
+    ::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
+
+    /* ==== CARTES ==== */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-xs);
+    }
+    .card-hover {
+      cursor: pointer;
+      transition: box-shadow var(--transition), border-color var(--transition), transform var(--transition);
+    }
+    .card-hover:hover {
+      box-shadow: var(--shadow-md);
+      border-color: var(--border-hover);
+      transform: translateY(-1px);
+    }
+
+    /* ==== KPI CARDS ==== */
+    .kpi-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-xs);
+      padding: 1.25rem 1.4rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+    .kpi-icon {
+      width: 2.5rem; height: 2.5rem; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .kpi-value {
+      font-size: 1.875rem; font-weight: 700;
+      letter-spacing: -0.03em; line-height: 1;
+      font-variant-numeric: tabular-nums;
+    }
+    .kpi-label {
+      font-size: .75rem; color: var(--text-2);
+      font-weight: 500; margin-top: .25rem;
+    }
+
+    /* ==== BOUTONS ==== */
+    .btn-primary {
+      display: inline-flex; align-items: center; justify-content: center; gap: .45rem;
+      background: var(--brand); color: #fff; font-weight: 600; font-size: .875rem;
+      border-radius: var(--radius-btn); padding: .6rem 1.1rem;
+      border: 1px solid var(--brand);
+      box-shadow: 0 1px 2px rgba(79,70,229,.18), inset 0 1px 0 rgba(255,255,255,.12);
+      transition: background var(--transition), box-shadow var(--transition), transform var(--transition);
+      white-space: nowrap; cursor: pointer; text-decoration: none;
+    }
+    .btn-primary:hover {
+      background: var(--brand-hover); border-color: var(--brand-hover);
+      box-shadow: 0 2px 6px rgba(79,70,229,.24), inset 0 1px 0 rgba(255,255,255,.12);
+    }
+    .btn-primary:active { transform: translateY(.5px); }
+    .btn-primary[disabled] { opacity: .6; cursor: not-allowed; transform: none; }
+
+    .btn-danger { background: #dc2626; border-color: #dc2626;
+      box-shadow: 0 1px 2px rgba(220,38,38,.2), inset 0 1px 0 rgba(255,255,255,.1); }
+    .btn-danger:hover { background: #b91c1c; border-color: #b91c1c; }
+
+    .btn-secondary {
+      display: inline-flex; align-items: center; justify-content: center; gap: .4rem;
+      background: var(--surface); color: var(--text-1); font-weight: 500; font-size: .875rem;
+      border-radius: var(--radius-btn); padding: .55rem .9rem;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-xs);
+      transition: background var(--transition), border-color var(--transition), box-shadow var(--transition);
+      white-space: nowrap; cursor: pointer; text-decoration: none;
+    }
+    .btn-secondary:hover {
+      background: #f6f7f9; border-color: var(--border-hover);
+      box-shadow: 0 1px 4px rgba(16,24,40,.06);
+    }
+    .btn-secondary[disabled] { opacity: .6; cursor: not-allowed; }
+
+    .btn-ghost {
+      display: inline-flex; align-items: center; gap: .4rem;
+      background: transparent; color: var(--text-2); font-size: .875rem; font-weight: 500;
+      border-radius: 7px; padding: .45rem .7rem; border: none; cursor: pointer;
+      transition: background var(--transition), color var(--transition);
+    }
+    .btn-ghost:hover { background: #f1f2f5; color: var(--text-1); }
+
+    /* Focus visible (accessibilité) */
+    .btn-primary:focus-visible, .btn-secondary:focus-visible,
+    .btn-ghost:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible {
+      outline: 2px solid var(--brand); outline-offset: 2px; border-radius: 6px;
+    }
+
+    /* ==== INPUTS ==== */
+    .form-input, .form-select, .form-textarea {
+      width: 100%;
+      min-height: 42px;
+      padding: .55rem .75rem;
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-input);
+      color: var(--text-1);
+      font-size: .9375rem;
+      font-family: inherit;
+      transition: border-color var(--transition), box-shadow var(--transition);
+      outline: none;
+    }
+    .form-textarea { min-height: unset; resize: vertical; }
+    .form-input::placeholder, .form-textarea::placeholder { color: var(--text-3); }
+    .form-input:hover, .form-select:hover, .form-textarea:hover {
+      border-color: var(--border-hover);
+    }
+    .form-input:focus, .form-select:focus, .form-textarea:focus {
+      border-color: var(--brand);
+      box-shadow: 0 0 0 3px var(--brand-ring);
+    }
+    .form-input.error, .form-select.error { border-color: #dc2626; }
+    .form-input.error:focus { box-shadow: 0 0 0 3px rgba(220,38,38,.12); }
+
+    label.field-label {
+      display: block; font-size: .8125rem; font-weight: 600;
+      color: var(--text-2); margin-bottom: .35rem; letter-spacing: .01em;
+    }
+    .field-hint { font-size: .75rem; color: var(--text-3); margin-top: .25rem; }
+    .field-error { font-size: .75rem; color: #b91c1c; margin-top: .25rem; }
+
+    /* ==== RADIO CARDS ==== */
+    .radio-group { display: flex; flex-direction: column; gap: .5rem; }
+    .radio-card {
+      display: flex; align-items: center; gap: .75rem;
+      padding: .7rem .9rem;
+      border: 1.5px solid var(--border);
+      border-radius: 9px;
+      cursor: pointer;
+      transition: border-color var(--transition), background var(--transition);
+      font-size: .875rem; color: var(--text-1);
+      user-select: none;
+    }
+    .radio-card:hover { border-color: var(--brand); background: #f9f9ff; }
+    .radio-card input[type=radio] {
+      width: 1rem; height: 1rem; accent-color: var(--brand);
+      flex-shrink: 0;
+    }
+    .radio-card:has(input:checked) {
+      border-color: var(--brand); background: #eef2ff;
+      color: var(--brand-hover);
+    }
+    .radio-card-label { font-weight: 500; }
+    .radio-card-desc { font-size: .75rem; color: var(--text-3); margin-top: .1rem; }
+
+    /* ==== BADGES DE STATUT ==== */
+    .badge {
+      display: inline-flex; align-items: center; gap: .3rem;
+      padding: .2rem .6rem; border-radius: 9999px;
+      font-size: .7375rem; font-weight: 600; line-height: 1.5;
+      border: 1px solid transparent; white-space: nowrap;
+    }
+    .badge::before { content:''; width:.45em; height:.45em; border-radius:50%; background:currentColor; opacity:.7; flex-shrink:0; }
+    .badge-success { background: #ecfdf5; color: #047857; border-color: #a7f3d0; }
+    .badge-warning { background: #fff7ed; color: #c2410c; border-color: #fed7aa; }
+    .badge-danger  { background: #fef2f2; color: #b91c1c; border-color: #fecaca; }
+    .badge-info    { background: #eef2ff; color: #4338ca; border-color: #c7d2fe; }
+    .badge-neutral { background: #f4f4f5; color: #52525b; border-color: #e4e4e7; }
+
+    /* ==== NAVIGATION (éléments sidebar) ==== */
+    .nav-link {
+      display: flex; align-items: center; gap: .6rem;
+      padding: .5rem .65rem; border-radius: 8px;
+      color: var(--text-2); font-size: .875rem; font-weight: 500;
+      transition: background var(--transition), color var(--transition);
+      text-decoration: none;
+    }
+    .nav-link:hover { background: #f1f2f7; color: var(--text-1); }
+    .nav-link-active { background: #eef2ff !important; color: var(--brand-hover) !important; font-weight: 600; }
+    .nav-link-active .icon { color: var(--brand); }
+
+    /* ==== SPINNER ==== */
+    .spinner {
+      width: 1em; height: 1em;
+      border: 2px solid rgba(255,255,255,.35); border-top-color: #fff;
+      border-radius: 50%; display: inline-block;
+      animation: eco-spin .65s linear infinite; flex-shrink: 0;
+    }
+    .btn-secondary .spinner { border-color: rgba(79,70,229,.2); border-top-color: var(--brand); }
+    @keyframes eco-spin { to { transform: rotate(360deg); } }
+    @media (prefers-reduced-motion: reduce) { .spinner { animation-duration: 1.5s; } }
+
+    /* ==== SKELETON ==== */
+    .skeleton {
+      background: linear-gradient(90deg, #f0f0f3 25%, #f8f8fb 50%, #f0f0f3 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.4s ease infinite;
+      border-radius: 6px;
+    }
+    @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+    @media (prefers-reduced-motion: reduce) { .skeleton { animation: none; background: #f0f0f3; } }
+
+    /* ==== MODALE DE CONFIRMATION ==== */
+    .modal-backdrop {
+      position: fixed; inset: 0;
+      background: rgba(10,10,20,.45);
+      backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 100; padding: 1rem;
+      opacity: 0; pointer-events: none;
+      transition: opacity .18s ease;
+    }
+    .modal-backdrop.is-open { opacity: 1; pointer-events: auto; }
+    .modal-panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px; padding: 1.5rem;
+      max-width: 23rem; width: 100%;
+      box-shadow: 0 24px 48px rgba(10,10,20,.18), 0 4px 12px rgba(10,10,20,.08);
+      transform: scale(.96) translateY(8px);
+      transition: transform .18s cubic-bezier(.34,1.56,.64,1);
+    }
+    .modal-backdrop.is-open .modal-panel { transform: scale(1) translateY(0); }
+
+    /* ==== TOASTS ==== */
+    #toastContainer {
+      position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%);
+      z-index: 200;
+      display: flex; flex-direction: column; align-items: center; gap: .5rem;
+      pointer-events: none;
+    }
+    .toast {
+      display: inline-flex; align-items: center; gap: .6rem;
+      padding: .65rem 1rem .65rem .85rem;
+      background: #1a1d29;
+      border-radius: 999px;
+      box-shadow: 0 8px 32px rgba(0,0,0,.28), 0 2px 8px rgba(0,0,0,.18);
+      font-size: .84375rem; font-weight: 500; color: #fff;
+      pointer-events: auto;
+      max-width: 30rem;
+      white-space: nowrap;
+      animation: toast-in .22s cubic-bezier(.34,1.56,.64,1) forwards;
+    }
+    .toast.toast-out { animation: toast-out .16s ease forwards; }
+    /* Point coloré indicateur de type */
+    .toast-dot {
+      width: .55rem; height: .55rem; border-radius: 50%; flex-shrink: 0;
+    }
+    .toast-success .toast-dot { background: #10b981; }
+    .toast-error   .toast-dot { background: #ef4444; }
+    .toast-warning .toast-dot { background: #f59e0b; }
+    .toast-info    .toast-dot { background: #818cf8; }
+    /* Bouton fermer discret */
+    .toast-close {
+      margin-left: .35rem; opacity: .45; cursor: pointer; background: none;
+      border: none; padding: 0; color: #fff; display: flex; align-items: center;
+      transition: opacity .12s;
+    }
+    .toast-close:hover { opacity: 1; }
+    @keyframes toast-in  { from { opacity:0; transform:translateY(8px) scale(.96); } to { opacity:1; transform:none; } }
+    @keyframes toast-out { from { opacity:1; transform:none; } to { opacity:0; transform:translateY(4px) scale(.97); } }
+    @media (prefers-reduced-motion: reduce) { .toast { animation: none; } }
+
+    /* ==== UTILITAIRES ==== */
+    .icon { width:1.1em; height:1.1em; stroke:currentColor; fill:none; stroke-width:1.75;
+            stroke-linecap:round; stroke-linejoin:round; flex-shrink:0; vertical-align:-0.15em; }
+    .tabular-nums { font-variant-numeric: tabular-nums; }
+    .text-1 { color: var(--text-1); } .text-2 { color: var(--text-2); } .text-3 { color: var(--text-3); }
+
+    /* ==== DIVIDER ==== */
+    .divider { border: none; border-top: 1px solid var(--border); margin: 1rem 0; }
+
+    @media print {
+      body * { visibility: hidden; }
+      #receiptPrint, #receiptPrint * { visibility: visible; }
+      #receiptPrint { position: absolute; top: 0; left: 0; border: none !important; }
+    }
+  </style>
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+
+  <!-- ============================================================
+       SPRITE D'ICÔNES SVG — une seule définition, <use> partout
+  ============================================================ -->
+  <svg style="display:none" aria-hidden="true">
+    <symbol id="icon-school" viewBox="0 0 24 24"><path d="M3 21h18M4 21V10l8-5 8 5v11M9 21v-6h6v6M9 12h.01M15 12h.01M9 8h.01M15 8h.01"/></symbol>
+    <symbol id="icon-wallet" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h13a1 1 0 0 1 1 1v3M3 7v11a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4M3 7l3-3h9"/><path d="M15 13h4a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1h-4a2 2 0 0 1 0-4Z"/></symbol>
+    <symbol id="icon-bar-chart" viewBox="0 0 24 24"><path d="M4 20V10M12 20V4M20 20v-7M2 20h20"/></symbol>
+    <symbol id="icon-trending-up" viewBox="0 0 24 24"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></symbol>
+    <symbol id="icon-book" viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2V5Z"/><path d="M19 19H6a2 2 0 0 0-2 2"/></symbol>
+    <symbol id="icon-settings" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v3M12 18.5v3M21.5 12h-3M5.5 12h-3M18.7 5.3l-2.1 2.1M7.4 16.6l-2.1 2.1M18.7 18.7l-2.1-2.1M7.4 7.4 5.3 5.3"/></symbol>
+    <symbol id="icon-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="icon-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M2.5 20c.7-3.4 3-5.3 6.5-5.3s5.8 1.9 6.5 5.3"/><circle cx="17.5" cy="8.5" r="2.6"/><path d="M15.8 14.9c2.6.4 4.2 2 4.7 4.4"/></symbol>
+    <symbol id="icon-message" viewBox="0 0 24 24"><path d="M4 4.5h16a1 1 0 0 1 1 1V16a1 1 0 0 1-1 1H9l-4.5 4V17H4a1 1 0 0 1-1-1V5.5a1 1 0 0 1 1-1Z"/></symbol>
+    <symbol id="icon-sparkles" viewBox="0 0 24 24"><path d="M12 3v1m0 16v1M5.2 5.2l.7.7m12.2 12.2.7.7M3 12h1m16 0h1M5.2 18.8l.7-.7M18.1 5.9l.7-.7"/><path d="m9 12 1.5 1.5L12 9l1.5 4.5L15 12"/></symbol>
+    <symbol id="icon-check" viewBox="0 0 24 24"><path d="M4 12.5 9.5 18 20 7"/></symbol>
+    <symbol id="icon-check-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.5"/><path d="m8 12.5 2.5 2.5 5.5-6"/></symbol>
+    <symbol id="icon-x" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></symbol>
+    <symbol id="icon-x-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.5"/><path d="m9 9 6 6M15 9l-6 6"/></symbol>
+    <symbol id="icon-save" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2Z"/><path d="M17 21v-8H7v8M7 3v5h8"/></symbol>
+    <symbol id="icon-list" viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01"/></symbol>
+    <symbol id="icon-chevron-left" viewBox="0 0 24 24"><path d="M15 19 9 12l6-7"/></symbol>
+    <symbol id="icon-printer" viewBox="0 0 24 24"><path d="M6 9V3h12v6M6 18H4a1 1 0 0 1-1-1v-6a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1h-2"/><rect x="6" y="14" width="12" height="7"/></symbol>
+    <symbol id="icon-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m20 20-4.6-4.6"/></symbol>
+    <symbol id="icon-alert" viewBox="0 0 24 24"><path d="M12 3.5 22 20.5H2Z"/><path d="M12 10v4M12 17.5h.01"/></symbol>
+    <symbol id="icon-alert-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.5"/><path d="M12 8v4M12 16h.01"/></symbol>
+    <symbol id="icon-log-out" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></symbol>
+    <symbol id="icon-user-plus" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></symbol>
+    <symbol id="icon-lock" viewBox="0 0 24 24"><rect x="4.5" y="10.5" width="15" height="10" rx="1.5"/><path d="M8 10.5V7a4 4 0 0 1 8 0v3.5"/></symbol>
+    <symbol id="icon-building" viewBox="0 0 24 24"><path d="M3 21h18M4 21V7l8-4 8 4v14M9 21v-6h6v6M9 9h.01M15 9h.01M9 13h.01M15 13h.01"/></symbol>
+    <symbol id="icon-coins" viewBox="0 0 24 24"><circle cx="8" cy="8" r="5.5"/><path d="M14.3 4.4A5.5 5.5 0 1 1 19.6 9.7M18.5 20.5H14a2 2 0 0 1 0-4h4.5a2 2 0 0 1 0 4ZM12 16l1.5-3"/></symbol>
+  </svg>
+
+  <!-- ============================================================
+       NAVBAR
+  ============================================================ -->
+  <header style="background:var(--surface); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:40;">
+    <div style="width:100%; padding:0 2rem; height:56px; display:flex; align-items:center; justify-content:space-between; gap:1rem;">
+
+      <!-- Logo -->
+      <div style="display:flex; align-items:center; gap:1.25rem;">
+        <a href="{% url 'economat:school_selector' %}" style="display:flex; align-items:center; gap:.5rem; text-decoration:none; color:var(--text-1);">
+          <svg style="width:1.5rem;height:1.5rem; color:var(--brand)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M4 21V10l8-5 8 5v11M9 21v-6h6v6"/></svg>
+          <span style="font-weight:700; font-size:.9375rem; letter-spacing:-0.02em;">SikaSchool</span>
+        </a>
+      </div>
+
+      <!-- Profil + déconnexion -->
+      <div style="display:flex; align-items:center; gap:.75rem;">
+        {% if request.user.is_authenticated %}
+        <span style="font-size:.8125rem; color:var(--text-2); font-weight:500;">
+          {{ request.user.get_full_name|default:request.user.username }}
+        </span>
+        <a href="{% url 'economat:logout' %}"
+           data-confirm="true"
+           data-confirm-title="Se déconnecter ?"
+           data-confirm-message="Vous devrez ressaisir vos identifiants pour revenir."
+           data-confirm-label="Se déconnecter"
+           data-confirm-danger="true"
+           class="btn-secondary" style="font-size:.8125rem; padding:.4rem .7rem; gap:.35rem;">
+          <svg class="icon" style="width:.95em;height:.95em;"><use href="#icon-log-out"/></svg>
+          Déconnexion
+        </a>
+        {% else %}
+        <a href="{% url 'economat:login' %}" class="btn-primary" style="font-size:.8125rem;">Connexion</a>
+        {% endif %}
+      </div>
+    </div>
+  </header>
+
+  <!-- ============================================================
+       TOASTS (injectables par Django messages)
+  ============================================================ -->
+  <div id="toastContainer" role="region" aria-label="Notifications" aria-live="polite"></div>
+
+  {% if messages %}
+  <script>
+  (function(){
+    var TYPES={success:'toast-success',error:'toast-error',warning:'toast-warning',info:'toast-info'};
+    var container=document.getElementById('toastContainer');
+    function showToast(text,type){
+      var t=document.createElement('div');
+      t.className='toast '+(TYPES[type]||'toast-info');
+      t.innerHTML='<span class="toast-dot"></span>'
+        +'<span>'+text+'</span>'
+        +'<button class="toast-close" onclick="closeToast(this.closest(\'.toast\'))" aria-label="Fermer">'
+        +'<svg style="width:.85em;height:.85em;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>'
+        +'</button>';
+      container.appendChild(t);
+      setTimeout(function(){closeToast(t);},4500);
+    }
+    window.closeToast=function(el){
+      if(!el)return;
+      el.classList.add('toast-out');
+      setTimeout(function(){if(el.parentNode)el.parentNode.removeChild(el);},180);
+    };
+    {% for msg in messages %}
+    showToast("{{ msg.message|escapejs }}","{{ msg.tags|default:'info' }}");
+    {% endfor %}
+  })();
+  </script>
+  {% endif %}
+
+
+  <!-- ============================================================
+       CONTENU PRINCIPAL
+  ============================================================ -->
+  <main style="width:100%; padding:1.5rem 2rem;">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- ============================================================
+       MODALE DE CONFIRMATION GLOBALE
+  ============================================================ -->
+  <div id="confirmModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="confirmModalTitle">
+    <div class="modal-panel">
+      <div style="display:flex; align-items:flex-start; gap:.85rem; margin-bottom:1.25rem;">
+        <div id="confirmIcon"
+             style="width:2.25rem;height:2.25rem;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:#fef2f2;color:#b91c1c;">
+          <svg class="icon" style="width:1.15rem;height:1.15rem;"><use href="#icon-alert"/></svg>
+        </div>
+        <div style="flex:1;">
+          <h2 id="confirmModalTitle" style="font-size:1rem;font-weight:700;letter-spacing:-0.01em;color:var(--text-1);">Confirmer</h2>
+          <p id="confirmModalMessage" style="font-size:.875rem;color:var(--text-2);margin-top:.25rem;line-height:1.5;">Voulez-vous continuer ?</p>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:flex-end;gap:.5rem;">
+        <button type="button" class="btn-secondary modal-cancel" style="font-size:.875rem;">Annuler</button>
+        <button type="button" class="btn-primary modal-confirm" style="font-size:.875rem;">Confirmer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       JS GLOBAL : modale + loading + confirm
+  ============================================================ -->
+  <script>
+  (function () {
+    /* --- Modale de confirmation --- */
+    const backdrop  = document.getElementById('confirmModal');
+    const okBtn     = backdrop.querySelector('.modal-confirm');
+    const cancelBtn = backdrop.querySelector('.modal-cancel');
+    const titleEl   = backdrop.querySelector('#confirmModalTitle');
+    const msgEl     = backdrop.querySelector('#confirmModalMessage');
+    const iconEl    = backdrop.querySelector('#confirmIcon');
+
+    function confirmDialog({ title, message, confirmLabel, danger } = {}) {
+      return new Promise(resolve => {
+        titleEl.textContent   = title         || 'Confirmer';
+        msgEl.textContent     = message       || 'Voulez-vous continuer ?';
+        okBtn.textContent     = confirmLabel  || 'Confirmer';
+        okBtn.classList.toggle('btn-danger', !!danger);
+        iconEl.style.background = danger ? '#fef2f2' : '#eef2ff';
+        iconEl.style.color      = danger ? '#b91c1c' : 'var(--brand)';
+        backdrop.classList.add('is-open');
+        function cleanup(res) {
+          backdrop.classList.remove('is-open');
+          okBtn.removeEventListener('click', onOk);
+          cancelBtn.removeEventListener('click', onCancel);
+          backdrop.removeEventListener('click', onBd);
+          document.removeEventListener('keydown', onKey);
+          resolve(res);
+        }
+        function onOk()     { cleanup(true); }
+        function onCancel() { cleanup(false); }
+        function onBd(e)    { if (e.target === backdrop) cleanup(false); }
+        function onKey(e)   { if (e.key === 'Escape') cleanup(false); }
+        okBtn.addEventListener('click', onOk);
+        cancelBtn.addEventListener('click', onCancel);
+        backdrop.addEventListener('click', onBd);
+        document.addEventListener('keydown', onKey);
+        setTimeout(() => okBtn.focus(), 50);
+      });
+    }
+    window.confirmDialog = confirmDialog;
+
+    /* --- data-confirm sur liens et formulaires --- */
+    document.querySelectorAll('a[data-confirm], form[data-confirm]').forEach(el => {
+      const isForm = el.tagName === 'FORM';
+      el.addEventListener(isForm ? 'submit' : 'click', function (e) {
+        if (el.dataset.confirmed) return;
+        e.preventDefault();
+        confirmDialog({
+          title:        el.dataset.confirmTitle,
+          message:      el.dataset.confirmMessage,
+          confirmLabel: el.dataset.confirmLabel,
+          danger:       el.dataset.confirmDanger === 'true',
+        }).then(ok => {
+          if (!ok) return;
+          el.dataset.confirmed = 'true';
+          if (isForm) el.requestSubmit(); else window.location.href = el.href;
+        });
+      });
+    });
+
+    /* --- Loading state sur les boutons submit --- */
+    document.querySelectorAll('form').forEach(form => {
+      form.addEventListener('submit', function () {
+        if (form.dataset.confirm && !form.dataset.confirmed) return;
+        const btn = form.querySelector('button[type=submit]');
+        if (btn && !btn.disabled) {
+          btn.disabled = true;
+          btn.dataset.originalHtml = btn.innerHTML;
+          btn.innerHTML = '<span class="spinner"></span><span>' + (btn.dataset.loadingText || 'Chargement…') + '</span>';
+        }
+      });
+    });
+  })();
+  </script>
+
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

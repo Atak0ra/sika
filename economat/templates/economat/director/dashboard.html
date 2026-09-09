@@ -1,0 +1,426 @@
+{% extends "economat/director/_base_director.html" %}
+{% load economat_tags %}
+{% block title %}Tableau de bord — SikaSchool{% endblock %}
+
+{% block extra_head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+{% endblock %}
+
+{% block director_content %}
+
+<!-- ================================================================
+     EN-TÊTE : Titre + Sélecteurs année / école
+================================================================ -->
+<div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:.75rem;margin-bottom:1.5rem;">
+  <div>
+    <h1 style="font-size:1.25rem;font-weight:700;letter-spacing:-0.02em;margin-bottom:.2rem;">Control Center Financier</h1>
+    <p style="font-size:.8125rem;color:#9397a8;">
+      {% if school %}{{ school.name }} &mdash; {% endif %}
+      {% if school_year %}
+        Année <strong style="color:#1a1d29;">{{ school_year.label }}</strong>
+        {% if school_year.status == 'DRAFT' %}<span style="font-size:.7rem;color:#d97706;margin-left:.35rem;">En préparation</span>{% endif %}
+        {% if school_year.status == 'CLOSED' %}<span style="font-size:.7rem;color:#9397a8;margin-left:.35rem;">Clôturée</span>{% endif %}
+      {% else %}
+        <span style="color:#d97706;"><svg style="width:1em;height:1em;stroke:#d97706;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;vertical-align:-0.12em;" viewBox="0 0 24 24"><use href="#icon-alert-circle"/></svg> Aucune année scolaire active</span>
+      {% endif %}
+    </p>
+  </div>
+  <div style="display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;">
+    <!-- Sélecteur année -->
+    <form method="get" id="yearForm" style="display:flex;gap:.35rem;align-items:center;">
+      {% if school %}<input type="hidden" name="school" value="{{ school.id }}">{% endif %}
+      <select name="year" class="form-select" style="min-height:36px;font-size:.8125rem;width:auto;"
+              onchange="document.getElementById('yearForm').submit()">
+        {% for y in available_years %}
+        <option value="{{ y }}" {% if y == school_year %}selected{% endif %}>{{ y }}</option>
+        {% endfor %}
+      </select>
+    </form>
+    {% if school and school_year %}
+    <a href="{% url 'economat:export_renvoyables' school.id school_year.id %}"
+       class="btn-secondary" style="font-size:.8125rem;padding:.4rem .75rem;border-color:#fecaca;color:#b91c1c;"
+       title="Exporter la liste des alertes prioritaires en CSV">
+      <svg class="icon" style="width:.9em;height:.9em;"><use href="#icon-list"/></svg>
+      Exporter les alertes
+    </a>
+    {% endif %}
+  </div>
+</div>
+
+{% if bi %}
+
+<!-- KPI — Ligne 1 : taux (hero) + encaissé + prévisionnel -->
+<div style="display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:.875rem;margin-bottom:.75rem;">
+
+  <!-- TAUX DE RECOUVREMENT — hero metric -->
+  <div class="card" style="padding:1.75rem;display:flex;flex-direction:column;justify-content:space-between;gap:1.25rem;">
+    <div>
+      <div style="font-size:.7375rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#9397a8;margin-bottom:.5rem;">Taux de recouvrement</div>
+      <div style="display:flex;align-items:flex-end;gap:.4rem;line-height:1;">
+        <span style="font-size:3rem;font-weight:800;letter-spacing:-0.04em;font-variant-numeric:tabular-nums;
+          {% if bi.kpi.perf_level == 'good' %}color:#059669;{% elif bi.kpi.perf_level == 'warning' %}color:#d97706;{% else %}color:#dc2626;{% endif %}">{{ bi.kpi.recovery_rate }}</span>
+        <span style="font-size:1.5rem;font-weight:700;color:#9397a8;margin-bottom:.4rem;">%</span>
+      </div>
+      <div style="font-size:.8125rem;color:#9397a8;margin-top:.35rem;">
+        {% if bi.kpi.perf_level == 'good' %}Objectif atteint{% elif bi.kpi.perf_level == 'warning' %}À surveiller{% else %}Action requise{% endif %}
+        &mdash; {{ bi.kpi.total_students }} élève{{ bi.kpi.total_students|pluralize }}
+      </div>
+    </div>
+    <div>
+      <div style="display:flex;justify-content:space-between;font-size:.72rem;color:#c4c7d0;margin-bottom:.4rem;"><span>0 %</span><span>100 %</span></div>
+      <div style="height:8px;background:#f4f4f5;border-radius:99px;overflow:hidden;">
+        <div style="height:100%;border-radius:99px;width:{{ bi.kpi.recovery_rate }}%;transition:width .5s ease;
+          {% if bi.kpi.perf_level == 'good' %}background:#10b981;{% elif bi.kpi.perf_level == 'warning' %}background:#f59e0b;{% else %}background:#ef4444;{% endif %}"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ENCAISSÉ -->
+  <div class="card" style="padding:1.5rem;display:flex;flex-direction:column;justify-content:space-between;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;">
+      <span style="font-size:.7375rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#9397a8;">Encaissé</span>
+      <div style="width:2rem;height:2rem;border-radius:8px;background:#ecfdf5;display:flex;align-items:center;justify-content:center;">
+        <svg style="width:1rem;height:1rem;stroke:#059669;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><use href="#icon-trending-up"/></svg>
+      </div>
+    </div>
+    <div>
+      <div style="font-size:1.75rem;font-weight:800;letter-spacing:-0.03em;font-variant-numeric:tabular-nums;color:#059669;line-height:1.1;">{{ bi.kpi.collected_year|spacemil }}</div>
+      <div style="font-size:.75rem;color:#9397a8;margin-top:.3rem;">FCFA encaissés cette année</div>
+    </div>
+  </div>
+
+  <!-- PRÉVISIONNEL -->
+  <div class="card" style="padding:1.5rem;display:flex;flex-direction:column;justify-content:space-between;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;">
+      <span style="font-size:.7375rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#9397a8;">Prévisionnel</span>
+      <div style="width:2rem;height:2rem;border-radius:8px;background:#eef2ff;display:flex;align-items:center;justify-content:center;">
+        <svg style="width:1rem;height:1rem;stroke:#4f46e5;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><use href="#icon-bar-chart"/></svg>
+      </div>
+    </div>
+    <div>
+      <div style="font-size:1.75rem;font-weight:800;letter-spacing:-0.03em;font-variant-numeric:tabular-nums;color:#1a1d29;line-height:1.1;">{{ bi.kpi.total_expected|spacemil }}</div>
+      <div style="font-size:.75rem;color:#9397a8;margin-top:.3rem;">FCFA attendus sur l'année</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- KPI — Ligne 2 : métriques secondaires compactes -->
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:.875rem;margin-bottom:1.5rem;">
+
+  <!-- AUJOURD'HUI -->
+  <div style="background:#fff;border:1px solid #ecedf1;border-radius:12px;padding:1rem 1.25rem;display:flex;align-items:center;gap:.9rem;">
+    <div style="width:2.25rem;height:2.25rem;border-radius:9px;background:#f0f9ff;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+      <svg style="width:1.1rem;height:1.1rem;stroke:#0284c7;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><use href="#icon-wallet"/></svg>
+    </div>
+    <div>
+      <div style="font-size:.7375rem;font-weight:600;color:#9397a8;text-transform:uppercase;letter-spacing:.05em;">Aujourd'hui</div>
+      <div style="font-size:1.25rem;font-weight:700;font-variant-numeric:tabular-nums;color:#1a1d29;letter-spacing:-0.02em;margin-top:.1rem;">{{ bi.kpi.collected_today|fcfa_long }}</div>
+    </div>
+  </div>
+
+  <!-- RESTE -->
+  <div style="background:{% if bi.kpi.remaining > 0 %}#fef2f2{% else %}#f0fdf4{% endif %};border:1px solid {% if bi.kpi.remaining > 0 %}#fecaca{% else %}#bbf7d0{% endif %};border-radius:12px;padding:1rem 1.25rem;display:flex;align-items:center;gap:.9rem;">
+    <div style="width:2.25rem;height:2.25rem;border-radius:9px;background:{% if bi.kpi.remaining > 0 %}rgba(239,68,68,.1){% else %}rgba(16,185,129,.1){% endif %};display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+      <svg style="width:1.1rem;height:1.1rem;stroke:{% if bi.kpi.remaining > 0 %}#b91c1c{% else %}#059669{% endif %};fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24">
+        {% if bi.kpi.remaining > 0 %}<use href="#icon-alert-circle"/>{% else %}<use href="#icon-check-circle"/>{% endif %}
+      </svg>
+    </div>
+    <div>
+      <div style="font-size:.7375rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:{% if bi.kpi.remaining > 0 %}#b91c1c{% else %}#059669{% endif %};">{% if bi.kpi.remaining > 0 %}Reste à recouvrer{% else %}Tout encaissé{% endif %}</div>
+      <div style="font-size:1.25rem;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-0.02em;margin-top:.1rem;color:{% if bi.kpi.remaining > 0 %}#b91c1c{% else %}#059669{% endif %};">{{ bi.kpi.remaining|fcfa_long }}</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ================================================================
+     RANGÉE 2 : GRAPHIQUES
+================================================================ -->
+<div style="display:grid;grid-template-columns:1.4fr 1fr;gap:1rem;margin-bottom:1.5rem;">
+
+  <!-- Graphique 1 : Prévisionnel vs Réel (courbes) -->
+  <div class="card" style="padding:1.25rem 1.5rem;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+      <h2 style="font-size:.875rem;font-weight:700;">Prévisionnel vs Réel</h2>
+      <div style="display:flex;gap:.85rem;font-size:.72rem;color:#9397a8;align-items:center;">
+        <span style="display:flex;align-items:center;gap:.35rem;">
+          <span style="width:.75rem;height:.75rem;border-radius:50%;background:#4f46e5;display:inline-block;"></span>Attendu
+        </span>
+        <span style="display:flex;align-items:center;gap:.35rem;">
+          <span style="width:.75rem;height:.75rem;border-radius:50%;background:#10b981;display:inline-block;"></span>Encaissé
+        </span>
+      </div>
+    </div>
+    <div style="position:relative;height:220px;">
+      <canvas id="chartPeriod"></canvas>
+    </div>
+  </div>
+
+  <!-- Graphique 2 : Taux de recouvrement par classe -->
+  <div class="card" style="padding:1.25rem 1.5rem;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+      <div>
+        <h2 style="font-size:.875rem;font-weight:700;">Recouvrement par classe</h2>
+        <p style="font-size:.72rem;color:#9397a8;margin-top:.15rem;">Les 12 classes les moins performantes en premier</p>
+      </div>
+      <div style="display:flex;gap:.85rem;font-size:.72rem;color:#9397a8;align-items:center;">
+        <span style="display:flex;align-items:center;gap:.35rem;">
+          <span style="width:1.2rem;height:2px;border-top:2px dashed rgba(99,102,241,.6);display:inline-block;"></span>Objectif
+        </span>
+        <span style="display:flex;align-items:center;gap:.35rem;">
+          <span style="width:.75rem;height:.75rem;border-radius:3px;background:#10b981;display:inline-block;"></span>≥ 80 %
+        </span>
+        <span style="display:flex;align-items:center;gap:.35rem;">
+          <span style="width:.75rem;height:.75rem;border-radius:3px;background:#f59e0b;display:inline-block;"></span>50–80 %
+        </span>
+        <span style="display:flex;align-items:center;gap:.35rem;">
+          <span style="width:.75rem;height:.75rem;border-radius:3px;background:#ef4444;display:inline-block;"></span>< 50 %
+        </span>
+      </div>
+    </div>
+    <div style="position:relative;height:260px;">
+      <canvas id="chartClass"></canvas>
+    </div>
+  </div>
+
+</div>
+
+<!-- Widget alertes compact — renvoi vers la page dédiée -->
+{% if school and school_year %}
+<a href="{% url 'economat:alerts' school.id school_year.id %}"
+   style="display:flex;align-items:center;justify-content:space-between;
+          padding:1rem 1.5rem;background:#fff;border:1px solid #ecedf1;
+          border-radius:14px;box-shadow:0 1px 2px rgba(16,24,40,.04);
+          text-decoration:none;transition:box-shadow .15s,border-color .15s;"
+   onmouseover="this.style.boxShadow='0 4px 16px rgba(16,24,40,.08)';this.style.borderColor='#d1d5db'"
+   onmouseout="this.style.boxShadow='0 1px 2px rgba(16,24,40,.04)';this.style.borderColor='#ecedf1'">
+  <div style="display:flex;align-items:center;gap:.75rem;">
+    <div style="width:2.25rem;height:2.25rem;border-radius:9px;display:flex;align-items:center;justify-content:center;
+                background:{% if bi.total_critical > 0 %}#fef2f2{% elif bi.total_late > 0 %}#fff7ed{% else %}#ecfdf5{% endif %};">
+      <svg style="width:1.1rem;height:1.1rem;stroke:{% if bi.total_critical > 0 %}#b91c1c{% elif bi.total_late > 0 %}#d97706{% else %}#059669{% endif %};fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24">
+        {% if bi.total_critical > 0 or bi.total_late > 0 %}<use href="#icon-alert-circle"/>{% else %}<use href="#icon-check-circle"/>{% endif %}
+      </svg>
+    </div>
+    <div>
+      <div style="font-size:.875rem;font-weight:700;color:#1a1d29;">
+        {% if bi.total_critical > 0 or bi.total_late > 0 %}
+          {{ bi.total_late|add:bi.total_critical }} élève{{ bi.total_late|add:bi.total_critical|pluralize }} avec des impayés
+        {% else %}
+          Tous les paiements sont à jour
+        {% endif %}
+      </div>
+      <div style="font-size:.775rem;color:#9397a8;margin-top:.15rem;">Voir le détail des alertes de paiement →</div>
+    </div>
+  </div>
+  <div style="display:flex;gap:1.25rem;">
+    {% if bi.total_late > 0 %}
+    <div style="text-align:center;">
+      <div style="font-size:1.375rem;font-weight:800;color:#d97706;letter-spacing:-0.02em;font-variant-numeric:tabular-nums;">{{ bi.total_late }}</div>
+      <div style="font-size:.7rem;font-weight:600;color:#d97706;text-transform:uppercase;letter-spacing:.04em;">En retard</div>
+    </div>
+    {% endif %}
+    {% if bi.total_critical > 0 %}
+    {% if bi.total_late > 0 %}<div style="width:1px;background:#ecedf1;"></div>{% endif %}
+    <div style="text-align:center;">
+      <div style="font-size:1.375rem;font-weight:800;color:#b91c1c;letter-spacing:-0.02em;font-variant-numeric:tabular-nums;">{{ bi.total_critical }}</div>
+      <div style="font-size:.7rem;font-weight:600;color:#b91c1c;text-transform:uppercase;letter-spacing:.04em;">Alertes prioritaires</div>
+    </div>
+    {% endif %}
+    {% if bi.total_late == 0 and bi.total_critical == 0 %}
+    <div style="font-size:.8125rem;color:#059669;font-weight:600;">Aucune alerte</div>
+    {% endif %}
+  </div>
+</a>
+{% endif %}
+
+
+{% else %}
+<!-- Pas de données -->
+<div style="text-align:center;padding:5rem 2rem;border:1.5px dashed #ecedf1;border-radius:16px;">
+  <svg class="icon" style="width:3rem;height:3rem;color:#d1d5db;margin-bottom:1rem;"><use href="#icon-building"/></svg>
+  <p style="font-weight:600;color:#52556b;margin-bottom:.375rem;">Aucune donnée disponible</p>
+  <p style="font-size:.875rem;color:#9397a8;">Configurez votre école, ses niveaux et inscrivez des élèves pour voir le dashboard.</p>
+</div>
+{% endif %}
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+/* ================================================================
+
+/* ================================================================
+   CHART.JS : Graphique 1 — Prévisionnel cumulé vs Réel cumulé
+================================================================ */
+(function() {
+  var labels   = {{ period_labels|safe }};
+  var expected = {{ period_expected|safe }};
+  var real     = {{ period_real|safe }};
+  if (!labels.length) return;
+
+  new Chart(document.getElementById('chartPeriod'), {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [
+        {
+          label: 'Attendu (cumulé)',
+          data: expected,
+          borderColor: '#4f46e5',
+          backgroundColor: 'rgba(79,70,229,.07)',
+          borderWidth: 2.5,
+          pointRadius: 4,
+          pointHoverRadius: 6,
+          fill: true,
+          tension: 0.35,
+        },
+        {
+          label: 'Encaissé (cumulé)',
+          data: real,
+          borderColor: '#10b981',
+          backgroundColor: 'rgba(16,185,129,.07)',
+          borderWidth: 2.5,
+          pointRadius: 4,
+          pointHoverRadius: 6,
+          fill: true,
+          tension: 0.35,
+          borderDash: [],
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          mode: 'index',
+          intersect: false,
+          callbacks: {
+            label: function(ctx) {
+              return ctx.dataset.label + ' : ' + ctx.parsed.y.toLocaleString('fr-FR') + ' FCFA';
+            }
+          }
+        }
+      },
+      scales: {
+        x: { grid: { color: '#f4f5f7' }, ticks: { font: { size: 11 } } },
+        y: {
+          grid: { color: '#f4f5f7' },
+          ticks: {
+            font: { size: 11 },
+            callback: function(v) {
+              if (v >= 1000000) return (v/1000000).toFixed(1) + 'M';
+              if (v >= 1000) return (v/1000).toFixed(0) + 'k';
+              return v;
+            }
+          }
+        }
+      }
+    }
+  });
+})();
+
+/* ================================================================
+   CHART.JS : Graphique 2 — Objectif vs Recouvré par classe (barres horizontales)
+================================================================ */
+(function() {
+  var allLabels = {{ class_labels|safe }};
+  var allObj    = {{ class_objectives|safe }};
+  var allColl   = {{ class_collected|safe }};
+  var allRates  = {{ class_rates|safe }};
+  if (!allLabels.length) return;
+
+  // Trier par taux croissant, limiter à 12
+  var combined = allLabels.map(function(l, i) {
+    return { label: l, obj: allObj[i], coll: allColl[i], rate: allRates[i] };
+  });
+  combined.sort(function(a, b) { return a.rate - b.rate; });
+  var d = combined.slice(0, 12);
+
+  var labels = d.map(function(x) { return x.label; });
+  var obj    = d.map(function(x) { return x.obj; });
+  var coll   = d.map(function(x) { return x.coll; });
+  var rates  = d.map(function(x) { return x.rate; });
+
+  // Couleur de la barre selon le taux
+  var bgColl = rates.map(function(r) {
+    if (r >= 80) return 'rgba(16,185,129,.8)';
+    if (r >= 50) return 'rgba(245,158,11,.8)';
+    return 'rgba(239,68,68,.8)';
+  });
+
+  new Chart(document.getElementById('chartClass'), {
+    data: {
+      labels: labels,
+      datasets: [
+        // Dataset 1 : barres = montant recouvré
+        {
+          type: 'bar',
+          label: 'Recouvré',
+          data: coll,
+          backgroundColor: bgColl,
+          borderRadius: 5,
+          borderSkipped: false,
+          order: 2,
+          yAxisID: 'y',
+        },
+        // Dataset 2 : ligne pointillée = objectif
+        {
+          type: 'line',
+          label: 'Objectif',
+          data: obj,
+          borderColor: 'rgba(99,102,241,.5)',
+          borderDash: [4, 3],
+          borderWidth: 1.5,
+          pointRadius: 3,
+          pointBackgroundColor: 'rgba(99,102,241,.6)',
+          fill: false,
+          order: 1,
+          yAxisID: 'y',
+          tension: 0,
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          mode: 'index',
+          intersect: false,
+          callbacks: {
+            label: function(ctx) {
+              var r = rates[ctx.dataIndex];
+              if (ctx.dataset.label === 'Recouvré') {
+                return 'Recouvré : ' + ctx.parsed.y.toLocaleString('fr-FR') + ' FCFA (' + r + '%)';
+              }
+              return 'Objectif : ' + ctx.parsed.y.toLocaleString('fr-FR') + ' FCFA';
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          grid: { display: false },
+          ticks: { font: { size: 10 }, maxRotation: 35, minRotation: 25 }
+        },
+        y: {
+          grid: { color: '#f4f5f7' },
+          ticks: {
+            font: { size: 10 },
+            callback: function(v) {
+              if (v >= 1000000) return (v/1000000).toFixed(1) + 'M';
+              if (v >= 1000)    return (v/1000).toFixed(0) + 'k';
+              return v;
+            }
+          }
+        }
+      }
+    }
+  });
+})();
+</script>
+{% endblock %}

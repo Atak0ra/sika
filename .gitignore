@@ -1,0 +1,43 @@
+# Environnement virtuel
+.venv/
+venv/
+env/
+
+# Variables d'environnement sensibles
+.env
+
+# Base de données SQLite
+*.sqlite3
+db.sqlite3
+
+# Cache Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+
+# Distribution / packaging
+*.egg-info/
+dist/
+build/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# macOS
+.DS_Store
+.AppleDouble
+
+# Logs
+*.log
+
+# Migrations (optionnel : à décommenter si vous ne voulez pas versionner les migrations)
+# analytics/migrations/0*.py
+
+# Couverture de tests
+.coverage
+htmlcov/

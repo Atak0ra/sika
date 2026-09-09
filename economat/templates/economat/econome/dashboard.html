@@ -1,0 +1,314 @@
+{% extends "economat/base.html" %}
+{% load economat_tags %}
+{% block title %}Encaissement — Économe{% endblock %}
+{% block content %}
+
+{% if receipt %}
+<!-- ================================================================
+     REÇU D'ENCAISSEMENT — affiché après enregistrement, prêt à imprimer
+================================================================ -->
+<div id="receiptPanel"
+     style="margin-bottom:2rem;display:flex;flex-direction:column;align-items:center;">
+  <div id="receiptPrint"
+       style="background:#fff;border:1px solid #ecedf1;border-radius:16px;
+              padding:1.75rem 1.75rem;max-width:380px;width:100%;
+              box-shadow:0 4px 20px rgba(10,10,20,.07);">
+    <!-- Header -->
+    <div style="text-align:center;padding-bottom:1rem;margin-bottom:1rem;border-bottom:1px dashed #e4e4e7;">
+      <div style="width:2.5rem;height:2.5rem;border-radius:50%;background:#ecfdf5;
+                  display:flex;align-items:center;justify-content:center;margin:0 auto .6rem;">
+        <svg class="icon" style="width:1.2rem;height:1.2rem;color:#059669;"><use href="#icon-check-circle"/></svg>
+      </div>
+      <div style="font-weight:700;font-size:.9375rem;color:#1a1d29;">{{ receipt.school_name }}</div>
+      <div style="font-size:.775rem;color:#9397a8;margin-top:.2rem;">Reçu d’encaissement</div>
+    </div>
+    <!-- Détails -->
+    <dl style="display:flex;flex-direction:column;gap:.6rem;">
+      {% for label, value in receipt.rows|default:'' %}
+      {% endfor %}
+      <div style="display:flex;justify-content:space-between;align-items:baseline;">
+        <dt style="font-size:.8125rem;color:#9397a8;">N° reçu</dt>
+        <dd style="font-size:.8125rem;font-weight:600;font-variant-numeric:tabular-nums;">{{ receipt.receipt_number }}</dd>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:baseline;">
+        <dt style="font-size:.8125rem;color:#9397a8;">Élève</dt>
+        <dd style="font-size:.8125rem;font-weight:600;">{{ receipt.student_name }}</dd>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:baseline;">
+        <dt style="font-size:.8125rem;color:#9397a8;">Classe</dt>
+        <dd style="font-size:.8125rem;">{{ receipt.class_name|default:"—" }}</dd>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:baseline;">
+        <dt style="font-size:.8125rem;color:#9397a8;">Date</dt>
+        <dd style="font-size:.8125rem;font-variant-numeric:tabular-nums;">{{ receipt.payment_date }}</dd>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:baseline;">
+        <dt style="font-size:.8125rem;color:#9397a8;">Moyen</dt>
+        <dd style="font-size:.8125rem;">{{ receipt.method }}</dd>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:baseline;">
+        <dt style="font-size:.8125rem;color:#9397a8;">Année scolaire</dt>
+        <dd style="font-size:.8125rem;">{{ receipt.school_year }}</dd>
+      </div>
+    </dl>
+    <!-- Total -->
+    <div style="margin-top:1rem;padding-top:1rem;border-top:1px dashed #e4e4e7;">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-size:.8125rem;color:#9397a8;">Montant versé</span>
+        <span style="font-size:1.5rem;font-weight:700;font-variant-numeric:tabular-nums;color:#1a1d29;">{{ receipt.amount_paid|fcfa_long }}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:.5rem;">
+        <span style="font-size:.775rem;color:#9397a8;">Reste à payer — {{ receipt.new_balance|fcfa_long }}</span>
+        <span class="badge
+          {% if receipt.payment_status == 'SOLDE' %}badge-success
+          {% elif receipt.payment_status == 'EN_RETARD' %}badge-warning
+          {% elif receipt.payment_status == 'NON_PAYE' %}badge-neutral
+          {% else %}badge-info{% endif %}">
+          {{ receipt.payment_status_label }}
+        </span>
+      </div>
+    </div>
+    <div style="text-align:center;font-size:.75rem;color:#c4c7d0;margin-top:1rem;padding-top:.75rem;border-top:1px dashed #e4e4e7;">
+      Encaissé par {{ receipt.recorded_by }}
+    </div>
+  </div>
+
+  <div style="display:flex;gap:.6rem;margin-top:.9rem;">
+    <button onclick="window.print()" class="btn-secondary">
+      <svg class="icon" style="width:.9em;height:.9em;"><use href="#icon-printer"/></svg> Imprimer
+    </button>
+    <button onclick="document.getElementById('receiptPanel').remove()" class="btn-secondary">
+      <svg class="icon" style="width:.9em;height:.9em;"><use href="#icon-x"/></svg> Fermer
+    </button>
+  </div>
+</div>
+{% endif %}
+
+<!-- ================================================================
+     INTERFACE PRINCIPALE
+================================================================ -->
+<div style="display:grid;grid-template-columns:2fr 1fr;gap:1.5rem;align-items:start;" id="entryScreen">
+
+  <!-- ============== FORMULAIRE D'ENCAISSEMENT ============== -->
+  <div class="card" style="padding:1.75rem;">
+    <div style="display:flex;align-items:center;gap:.65rem;margin-bottom:1.5rem;">
+      <div style="width:2.25rem;height:2.25rem;border-radius:10px;background:#eef2ff;color:#4f46e5;
+                  display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+        <svg class="icon" style="width:1.2rem;height:1.2rem;"><use href="#icon-wallet"/></svg>
+      </div>
+      <div>
+        <h1 style="font-size:1rem;font-weight:700;letter-spacing:-0.01em;">Saisie d’encaissement</h1>
+        <p style="font-size:.775rem;color:#9397a8;margin-top:.1rem;">Renseignez les informations du paiement</p>
+      </div>
+    </div>
+
+    <!-- Recherche élève -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:1.25rem;">
+      <div style="position:relative;">
+        <label class="field-label">Classe</label>
+        <select id="classFilter" class="form-select">
+          <option value="">Toutes les classes</option>
+          {% for c in classes %}
+          <option value="{{ c.id }}">{{ c.level.name }} — {{ c.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div style="position:relative;">
+        <label class="field-label">Rechercher un élève</label>
+        <div style="position:relative;">
+          <svg class="icon" style="position:absolute;left:.7rem;top:50%;transform:translateY(-50%);
+                                   width:1rem;height:1rem;color:#9397a8;pointer-events:none;"><use href="#icon-search"/></svg>
+          <input type="text" id="studentSearchInput"
+                 placeholder="Nom ou prénom…"
+                 class="form-input" style="padding-left:2.2rem;"
+                 autocomplete="off">
+        </div>
+        <ul id="searchResults"
+            style="position:absolute;top:100%;left:0;right:0;background:#fff;
+                   border:1px solid #ecedf1;border-radius:10px;margin-top:.3rem;
+                   box-shadow:0 8px 24px rgba(10,10,20,.1);z-index:30;
+                   max-height:220px;overflow-y:auto;list-style:none;padding:0;margin:0;"
+            class="hidden"></ul>
+      </div>
+    </div>
+
+    <!-- Élève sélectionné -->
+    <div id="selectedStudentBadge"
+         style="display:none;align-items:center;gap:.5rem;padding:.55rem .8rem;
+                background:#eef2ff;border:1px solid #c7d2fe;border-radius:8px;
+                font-size:.84375rem;font-weight:600;color:#4338ca;margin-bottom:1.25rem;">
+      <svg class="icon" style="width:.9em;height:.9em;"><use href="#icon-check-circle"/></svg>
+      <span id="selectedStudent"></span>
+      <button type="button" id="clearStudent"
+              style="margin-left:auto;color:#9397a8;background:none;border:none;cursor:pointer;
+                     display:flex;align-items:center;" aria-label="Retirer">
+        <svg class="icon" style="width:.9em;height:.9em;"><use href="#icon-x"/></svg>
+      </button>
+    </div>
+
+    <form method="post" id="paymentForm"
+          action="{% url 'economat:record_payment' %}"
+          style="display:flex;flex-direction:column;gap:1rem;">
+      {% csrf_token %}
+      {{ form.student_id }}
+
+      <!-- Montant + Date -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;">
+        <div>
+          <label class="field-label">{{ form.amount_fcfa.label }}</label>
+          {{ form.amount_fcfa }}
+          {% if form.amount_fcfa.errors %}<p class="field-error">{{ form.amount_fcfa.errors.0 }}</p>{% endif %}
+        </div>
+        <div>
+          <label class="field-label">{{ form.payment_date.label }}</label>
+          {{ form.payment_date }}
+        </div>
+      </div>
+
+      <!-- Moyen + Année -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;">
+        <div>
+          <label class="field-label">{{ form.method.label }}</label>
+          {{ form.method }}
+        </div>
+        <div>
+          <label class="field-label">{{ form.school_year.label }}</label>
+          {{ form.school_year }}
+        </div>
+      </div>
+
+      <div>
+        <label class="field-label">{{ form.notes.label }}</label>
+        {{ form.notes }}
+      </div>
+
+      <div style="padding-top:.25rem;">
+        <button type="submit" id="paymentSubmitBtn" class="btn-primary"
+                style="width:100%;padding:.8rem;font-size:.9375rem;"
+                data-loading-text="Enregistrement…">
+          <svg class="icon" style="width:1em;height:1em;"><use href="#icon-save"/></svg>
+          Enregistrer l’encaissement
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- ============== HISTORIQUE RÉCENT ============== -->
+  <div class="card" style="padding:1.5rem;">
+    <h2 style="font-size:.875rem;font-weight:700;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem;">
+      <svg class="icon" style="width:.95em;height:.95em;color:#9397a8;"><use href="#icon-list"/></svg>
+      Derniers encaissements
+    </h2>
+    {% if recent_payments %}
+    <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.1rem;">
+      {% for p in recent_payments %}
+      <li style="padding:.65rem 0;{% if not forloop.last %}border-bottom:1px solid #f4f5f7;{% endif %}">
+        <div style="font-size:.84375rem;font-weight:600;color:#1a1d29;">{{ p.student }}</div>
+        <div style="font-size:.7875rem;color:#9397a8;margin-top:.15rem;display:flex;justify-content:space-between;">
+          <span style="font-variant-numeric:tabular-nums;">{{ p.amount|fcfa_long }}</span>
+          <span>{{ p.payment_date }}</span>
+        </div>
+        <div style="font-size:.7375rem;color:#c4c7d0;margin-top:.1rem;font-variant-numeric:tabular-nums;">{{ p.receipt_number }}</div>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <div style="text-align:center;padding:2rem 0;">
+      <svg class="icon" style="width:1.5rem;height:1.5rem;color:#d1d5db;margin-bottom:.5rem;"><use href="#icon-list"/></svg>
+      <p style="font-size:.84375rem;color:#9397a8;">Aucun paiement enregistré.</p>
+    </div>
+    {% endif %}
+  </div>
+
+</div>
+
+<script>
+/* ================================================================
+   Autocomplétion de recherche d'élève
+================================================================ */
+const searchInput  = document.getElementById('studentSearchInput');
+const searchList   = document.getElementById('searchResults');
+const studentField = document.querySelector('input[name="student_id"]');
+const selectedBadge= document.getElementById('selectedStudentBadge');
+const selectedSpan = document.getElementById('selectedStudent');
+const clearBtn     = document.getElementById('clearStudent');
+const classFilter  = document.getElementById('classFilter');
+let debounce;
+
+function selectStudent(id, label) {
+  studentField.value = id;
+  selectedSpan.textContent = label;
+  selectedBadge.style.display = 'flex';
+  searchInput.value = '';
+  searchList.classList.add('hidden');
+}
+
+clearBtn.addEventListener('click', () => {
+  studentField.value = '';
+  selectedBadge.style.display = 'none';
+  searchInput.value = '';
+  searchInput.focus();
+});
+
+searchInput.addEventListener('input', () => {
+  clearTimeout(debounce);
+  const q = searchInput.value.trim();
+  if (q.length < 2) { searchList.classList.add('hidden'); return; }
+  debounce = setTimeout(() => {
+    const params = new URLSearchParams({ q });
+    if (classFilter.value) params.set('class_id', classFilter.value);
+    fetch('{% url "economat:student_search_api" %}?' + params)
+      .then(r => r.json())
+      .then(data => {
+        searchList.innerHTML = '';
+        if (!data.results.length) { searchList.classList.add('hidden'); return; }
+        data.results.forEach(s => {
+          const li = document.createElement('li');
+          li.style.cssText = 'padding:.55rem 1rem;cursor:pointer;font-size:.84375rem;
+            transition:background .1s;border-bottom:1px solid #f4f5f7;';
+          li.innerHTML = `<span style="font-weight:600;color:#1a1d29">${s.name}</span>`
+            + (s.class ? `<span style="color:#9397a8;margin-left:.4rem;font-size:.8rem">${s.class}</span>` : '');
+          li.onmouseenter = () => li.style.background = '#f4f5f9';
+          li.onmouseleave = () => li.style.background = '';
+          li.addEventListener('click', () => selectStudent(s.id, s.name + (s.class ? ' — ' + s.class : '')));
+          searchList.appendChild(li);
+        });
+        searchList.classList.remove('hidden');
+      });
+  }, 280);
+});
+document.addEventListener('click', e => {
+  if (!searchInput.contains(e.target) && !searchList.contains(e.target))
+    searchList.classList.add('hidden');
+});
+
+/* ================================================================
+   Confirmation si montant important (> 100 000 FCFA)
+================================================================ */
+document.getElementById('paymentForm').addEventListener('submit', function(e) {
+  if (this.dataset.confirmed) return;  // déjà confirmé
+  const amount = parseInt(document.querySelector('input[name="amount_fcfa"]').value || '0', 10);
+  if (amount >= 100000) {
+    e.preventDefault();
+    const studentName = selectedSpan.textContent || 'élève';
+    const fmt = amount.toLocaleString('fr-FR');
+    window.confirmDialog({
+      title: 'Confirmer l’encaissement',
+      message: `Valider un versement de \u00a0${fmt}\u00a0FCFA pour ${studentName} ?`,
+      confirmLabel: 'Confirmer',
+      danger: false,
+    }).then(ok => {
+      if (!ok) return;
+      this.dataset.confirmed = 'true';
+      this.requestSubmit();
+    });
+  }
+});
+</script>
+
+<style>
+  @media (max-width: 768px) {
+    #entryScreen { grid-template-columns: 1fr !important; }
+  }
+</style>
+{% endblock %}
