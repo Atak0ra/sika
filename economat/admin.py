@@ -179,6 +179,6 @@ class PaymentAdmin(admin.ModelAdmin):
         return format_html('<strong>{}</strong> FCFA', f"{obj.amount:,}".replace(",","\u202f"))
 
 
-admin.site.site_header = "🏫 SikaSchool — Administration"
-admin.site.site_title  = "SikaSchool Admin"
+admin.site.site_header = "🏫 Sukulu — Administration"
+admin.site.site_title  = "Sukulu Admin"
 admin.site.index_title = "Panneau de gestion"

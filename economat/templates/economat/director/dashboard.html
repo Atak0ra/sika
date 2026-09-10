@@ -1,6 +1,6 @@
 {% extends "economat/director/_base_director.html" %}
 {% load economat_tags %}
-{% block title %}Tableau de bord — SikaSchool{% endblock %}
+{% block title %}Tableau de bord — Sukulu{% endblock %}
 
 {% block extra_head %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
@@ -13,7 +13,7 @@
 ================================================================ -->
 <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:.75rem;margin-bottom:1.5rem;">
   <div>
-    <h1 style="font-size:1.25rem;font-weight:700;letter-spacing:-0.02em;margin-bottom:.2rem;">Control Center Financier</h1>
+    <h1 style="font-size:1.25rem;font-weight:700;letter-spacing:-0.02em;margin-bottom:.2rem;">Tableau de bord</h1>
     <p style="font-size:.8125rem;color:#9397a8;">
       {% if school %}{{ school.name }} {% endif %}
       {% if school_year %}

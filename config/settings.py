@@ -37,7 +37,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    # SikaSchool — architecture hexagonale / DDD
+    # Sukulu — architecture hexagonale / DDD
     "economat",
 ]
 
@@ -143,7 +143,7 @@ if not DEBUG:
     SESSION_COOKIE_SECURE        = True
     CSRF_COOKIE_SECURE           = True
 
-# ── Authentification / SikaSchool ──────────────────────────────────────────────
+# ── Authentification / Sukulu ──────────────────────────────────────────────
 LOGIN_URL           = "/eco/login/"
 LOGIN_REDIRECT_URL  = "/eco/ecoles/"
 LOGOUT_REDIRECT_URL = "/eco/"

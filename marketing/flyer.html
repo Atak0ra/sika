@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Sukulu — Flyer commercial</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --brand: #4f46e5; --brand-d: #4338ca; --brand-l: #eef2ff; --brand-m: #c7d2fe;
+  --text-1: #1a1d29; --text-2: #52556b; --text-3: #9397a8;
+  --border: #ecedf1; --surface: #ffffff; --bg: #f8f8fc;
+  --green: #059669; --green-l: #ecfdf5;
+  --orange: #d97706; --orange-l: #fff7ed;
+  --red: #dc2626; --red-l: #fef2f2;
+}
+html, body { width: 794px; font-family: 'Inter', system-ui, sans-serif; -webkit-font-smoothing: antialiased; color: var(--text-1); background: var(--bg); }
+.page { width: 794px; min-height: 1123px; background: var(--bg); display: flex; flex-direction: column; overflow: hidden; }
+
+/* HEADER */
+.header { background: linear-gradient(135deg, #312e81 0%, #4f46e5 55%, #6366f1 100%); padding: 40px 48px 36px; position: relative; overflow: hidden; }
+.header::before { content:''; position:absolute; top:-80px; right:-80px; width:340px; height:340px; border-radius:50%; background:rgba(255,255,255,.06); }
+.header::after  { content:''; position:absolute; bottom:-60px; left:30%; width:220px; height:220px; border-radius:50%; background:rgba(255,255,255,.04); }
+.header-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:32px; position:relative; z-index:1; }
+.logo { display:flex; align-items:center; gap:10px; }
+.logo-icon { width:40px; height:40px; background:rgba(255,255,255,.2); border-radius:12px; display:flex; align-items:center; justify-content:center; }
+.logo-icon svg { width:22px; height:22px; }
+.logo-name { font-size:22px; font-weight:800; color:#fff; letter-spacing:-0.03em; }
+.logo-tag  { font-size:10px; font-weight:600; color:rgba(255,255,255,.6); letter-spacing:.08em; text-transform:uppercase; margin-top:1px; }
+.badge-new { background:rgba(255,255,255,.15); border:1px solid rgba(255,255,255,.25); color:#fff; font-size:10px; font-weight:600; padding:4px 12px; border-radius:999px; letter-spacing:.04em; text-transform:uppercase; }
+.hero-text { position:relative; z-index:1; }
+.hero-title { font-size:34px; font-weight:800; color:#fff; line-height:1.15; letter-spacing:-0.03em; margin-bottom:14px; }
+.hero-title em { font-style:normal; color:#a5b4fc; }
+.hero-sub { font-size:14px; color:rgba(255,255,255,.78); line-height:1.65; max-width:500px; }
+
+/* PAIN BAND */
+.pain-band { background:#fff; border-bottom:1px solid var(--border); padding:18px 48px; display:flex; align-items:center; gap:20px; flex-wrap:wrap; }
+.pain-label { font-size:10px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--text-3); white-space:nowrap; }
+.pain-items { display:flex; gap:6px; flex-wrap:wrap; }
+.pain-pill { background:var(--red-l); color:var(--red); font-size:11px; font-weight:600; padding:4px 10px; border-radius:6px; display:flex; align-items:center; gap:4px; }
+.pain-pill::before { content:'✕'; font-size:9px; opacity:.7; }
+.arrow-sep { color:var(--brand); font-size:20px; flex-shrink:0; }
+.sol-pill { background:var(--green-l); color:var(--green); font-size:11px; font-weight:600; padding:4px 10px; border-radius:6px; display:flex; align-items:center; gap:4px; }
+.sol-pill::before { content:'✓'; font-size:10px; }
+
+/* BODY */
+.body-cols { display:grid; grid-template-columns:1fr 1fr; gap:0; padding:24px 48px; flex:1; }
+.col-left { padding-right:20px; }
+.col-right { padding-left:20px; border-left:1px solid var(--border); }
+.section-label { font-size:10px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:var(--brand); margin-bottom:14px; }
+
+/* ARGS */
+.args { display:flex; flex-direction:column; gap:12px; margin-bottom:18px; }
+.arg { display:flex; gap:11px; align-items:flex-start; }
+.arg-icon { width:32px; height:32px; border-radius:9px; background:var(--brand-l); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.arg-icon svg { width:15px; height:15px; stroke:var(--brand); fill:none; stroke-width:1.75; stroke-linecap:round; stroke-linejoin:round; }
+.arg-title { font-size:12px; font-weight:700; color:var(--text-1); margin-bottom:2px; }
+.arg-desc  { font-size:11px; color:var(--text-2); line-height:1.5; }
+
+/* ROLES */
+.roles { display:flex; flex-direction:column; gap:7px; }
+.role-card { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:9px 12px; display:flex; align-items:center; gap:10px; }
+.role-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+.role-title { font-size:12px; font-weight:700; color:var(--text-1); }
+.role-desc  { font-size:10.5px; color:var(--text-2); margin-top:1px; }
+
+/* MOCKUP */
+.mockup { background:var(--surface); border:1px solid var(--border); border-radius:12px; overflow:hidden; box-shadow:0 2px 12px rgba(16,24,40,.07); }
+.mockup-bar { background:#f4f5f9; border-bottom:1px solid var(--border); padding:7px 12px; display:flex; align-items:center; gap:5px; }
+.dot { width:7px; height:7px; border-radius:50%; }
+.dot-r{background:#fc6058;} .dot-y{background:#fec02f;} .dot-g{background:#2ac940;}
+.mockup-title { font-size:10px; color:var(--text-3); margin-left:auto; font-weight:500; }
+.mockup-body { padding:12px; }
+.kpi-row { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; margin-bottom:10px; }
+.kpi-card { background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:8px 9px; }
+.kpi-label { font-size:9px; font-weight:600; color:var(--text-3); text-transform:uppercase; letter-spacing:.04em; margin-bottom:3px; }
+.kpi-value { font-size:15px; font-weight:700; color:var(--text-1); letter-spacing:-.02em; font-variant-numeric:tabular-nums; }
+.kpi-sub   { font-size:9px; color:var(--text-3); margin-top:2px; }
+.kpi-good{color:var(--green);} .kpi-warn{color:var(--orange);}
+.chart-area { background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:8px 10px; margin-bottom:8px; }
+.chart-label-row { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+.chart-lbl { font-size:9.5px; font-weight:600; color:var(--text-2); }
+.chart-badge { background:var(--green-l); color:var(--green); font-size:8.5px; font-weight:700; padding:2px 7px; border-radius:999px; }
+.bars { display:flex; align-items:flex-end; gap:4px; height:48px; }
+.bar-group { display:flex; gap:2px; align-items:flex-end; flex:1; }
+.bar { flex:1; border-radius:3px 3px 0 0; min-height:4px; }
+.bar-plan{background:#c7d2fe;} .bar-real{background:var(--brand);}
+.bar-x { display:flex; gap:4px; margin-top:3px; }
+.bar-x-lbl { flex:1; text-align:center; font-size:7.5px; color:var(--text-3); }
+.form-mock { display:flex; flex-direction:column; gap:9px; }
+.step-row { display:flex; align-items:center; gap:7px; margin-bottom:2px; }
+.step-n { width:18px; height:18px; background:var(--brand); color:#fff; font-size:9px; font-weight:700; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.step-lbl { font-size:10px; font-weight:600; color:var(--text-2); text-transform:uppercase; letter-spacing:.04em; }
+.fake-input { height:30px; background:var(--bg); border:1.5px solid var(--border); border-radius:7px; display:flex; align-items:center; padding:0 10px; font-size:11px; color:var(--text-3); gap:6px; }
+.fake-input.filled { background:#f0fdf4; border-color:#bbf7d0; color:#15803d; font-weight:600; }
+.fake-input svg { width:11px; height:11px; flex-shrink:0; }
+.fake-row { display:grid; grid-template-columns:1fr 1fr; gap:6px; }
+.amount-input { height:34px; background:var(--bg); border:1.5px solid var(--border); border-radius:7px; display:flex; align-items:center; padding:0 10px; font-size:14px; font-weight:700; color:var(--text-1); font-variant-numeric:tabular-nums; }
+.amount-input span { font-size:9px; font-weight:600; color:var(--text-3); margin-left:auto; }
+.method-pills { display:grid; grid-template-columns:repeat(4,1fr); gap:4px; }
+.m-pill { border:1.5px solid var(--border); border-radius:7px; padding:5px 4px; text-align:center; font-size:9px; font-weight:500; color:var(--text-2); }
+.m-pill.active { border-color:var(--brand); background:var(--brand-l); color:var(--brand); font-weight:600; }
+.fake-btn { height:32px; background:var(--brand); border-radius:8px; display:flex; align-items:center; justify-content:center; gap:6px; color:#fff; font-size:11px; font-weight:700; margin-top:2px; }
+.fake-btn svg { width:11px; height:11px; stroke:currentColor; fill:none; stroke-width:2.5; stroke-linecap:round; stroke-linejoin:round; }
+
+/* FOOTER */
+.footer { background:var(--text-1); padding:18px 48px; display:flex; align-items:center; justify-content:space-between; gap:20px; margin-top:auto; }
+.footer-brand { font-size:16px; font-weight:800; color:#fff; letter-spacing:-.02em; }
+.footer-tagline { font-size:10px; color:rgba(255,255,255,.5); margin-top:2px; }
+.footer-contacts { display:flex; gap:20px; align-items:center; }
+.footer-name  { font-size:11px; font-weight:600; color:#fff; }
+.footer-info  { font-size:11px; color:rgba(255,255,255,.6); margin-top:1px; }
+.footer-link  { font-size:11px; font-weight:600; color:#a5b4fc; }
+.footer-sep { width:1px; height:30px; background:rgba(255,255,255,.12); }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header class="header">
+    <div class="header-top">
+      <div class="logo">
+        <div class="logo-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+            <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+          </svg>
+        </div>
+        <div>
+          <div class="logo-name">Sukulu</div>
+          <div class="logo-tag">Gestion scolaire</div>
+        </div>
+      </div>
+      <div class="badge-new">Disponible maintenant</div>
+    </div>
+    <div class="hero-text">
+      <h1 class="hero-title">La gestion des frais de scolarité,<br><em>enfin simple.</em></h1>
+      <p class="hero-sub">Inscriptions, encaissements, alertes de retard, tableau de bord financier &mdash; tout ce dont votre école a besoin, sur une seule plateforme accessible depuis n'importe quel appareil.</p>
+    </div>
+  </header>
+
+  <div class="pain-band">
+    <span class="pain-label">Fini le</span>
+    <div class="pain-items">
+      <span class="pain-pill">Cahier papier</span>
+      <span class="pain-pill">Reçus à la main</span>
+      <span class="pain-pill">Retards non détectés</span>
+      <span class="pain-pill">Tableaux Excel</span>
+    </div>
+    <span class="arrow-sep">&rarr;</span>
+    <div class="pain-items">
+      <span class="sol-pill">Suivi en temps réel</span>
+      <span class="sol-pill">Reçu automatique</span>
+      <span class="sol-pill">Alertes instantanées</span>
+    </div>
+  </div>
+
+  <div class="body-cols">
+    <div class="col-left">
+      <div class="section-label">Ce que vous gagnez</div>
+      <div class="args">
+        <div class="arg">
+          <div class="arg-icon"><svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M6 12h.01M18 12h.01"/></svg></div>
+          <div><div class="arg-title">Recouvrement suivi à la trace</div><div class="arg-desc">Taux de recouvrement, montants encaissés, objectifs par classe — tout en un coup d&rsquo;œil sur le tableau de bord.</div></div>
+        </div>
+        <div class="arg">
+          <div class="arg-icon"><svg viewBox="0 0 24 24"><path d="M12 2v20M2 12h20"/><circle cx="12" cy="12" r="9"/></svg></div>
+          <div><div class="arg-title">Encaissement en 3 clics</div><div class="arg-desc">L&rsquo;économe saisit le nom de l&rsquo;élève, le montant, le moyen de paiement — le reçu est généré instantanément.</div></div>
+        </div>
+        <div class="arg">
+          <div class="arg-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
+          <div><div class="arg-title">Alertes automatiques des retards</div><div class="arg-desc">Chaque élève en retard apparaît automatiquement avec le montant dû et les jours de retard.</div></div>
+        </div>
+        <div class="arg">
+          <div class="arg-icon"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+          <div><div class="arg-title">Un espace dédié par rôle</div><div class="arg-desc">Directeur, économe, secrétaire — chacun accède uniquement à ce qui le concerne, depuis n&rsquo;importe quel appareil.</div></div>
+        </div>
+      </div>
+      <div class="section-label" style="margin-top:6px;">Les rôles disponibles</div>
+      <div class="roles">
+        <div class="role-card"><div class="role-dot" style="background:#4f46e5;"></div><div><div class="role-title">Directeur</div><div class="role-desc">Tableau de bord financier, structure, tarifs, alertes retard, chat IA</div></div></div>
+        <div class="role-card"><div class="role-dot" style="background:#059669;"></div><div><div class="role-title">Économe</div><div class="role-desc">Saisie des encaissements, reçus automatiques, suivi des opérations</div></div></div>
+        <div class="role-card"><div class="role-dot" style="background:#d97706;"></div><div><div class="role-title">Secrétaire</div><div class="role-desc">Inscriptions élèves, gestion des classes et niveaux</div></div></div>
+      </div>
+    </div>
+    <div class="col-right">
+      <div class="section-label">Aperçu de l&rsquo;application</div>
+
+      <div class="mockup" style="margin-bottom:12px;">
+        <div class="mockup-bar"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div><span class="mockup-title">Tableau de bord &middot; 2024-2025</span></div>
+        <div class="mockup-body">
+          <div class="kpi-row">
+            <div class="kpi-card"><div class="kpi-label">Encaissé</div><div class="kpi-value">4 820 000</div><div class="kpi-sub kpi-good">&uarr; 73%</div></div>
+            <div class="kpi-card"><div class="kpi-label">Reste</div><div class="kpi-value">1 780 000</div><div class="kpi-sub kpi-warn">27% restant</div></div>
+            <div class="kpi-card"><div class="kpi-label">En retard</div><div class="kpi-value" style="color:var(--red);">14</div><div class="kpi-sub">élèves</div></div>
+          </div>
+          <div class="chart-area">
+            <div class="chart-label-row"><span class="chart-lbl">Recouvrement par période</span><span class="chart-badge">73% atteint</span></div>
+            <div class="bars">
+              <div class="bar-group"><div class="bar bar-plan" style="height:38px;"></div><div class="bar bar-real" style="height:35px;"></div></div>
+              <div class="bar-group"><div class="bar bar-plan" style="height:43px;"></div><div class="bar bar-real" style="height:39px;"></div></div>
+              <div class="bar-group"><div class="bar bar-plan" style="height:30px;"></div><div class="bar bar-real" style="height:27px;"></div></div>
+              <div class="bar-group"><div class="bar bar-plan" style="height:44px;"></div><div class="bar bar-real" style="height:41px;"></div></div>
+              <div class="bar-group"><div class="bar bar-plan" style="height:36px;"></div><div class="bar bar-real" style="height:29px;"></div></div>
+            </div>
+            <div class="bar-x">
+              <div class="bar-x-lbl">Oct.</div><div class="bar-x-lbl">Nov.</div><div class="bar-x-lbl">Déc.</div><div class="bar-x-lbl">Jan.</div><div class="bar-x-lbl">Fév.</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:12px;font-size:9px;color:var(--text-3);">
+            <span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:6px;background:#c7d2fe;border-radius:2px;display:inline-block;"></span>Prévu</span>
+            <span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:6px;background:var(--brand);border-radius:2px;display:inline-block;"></span>Encaissé</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="mockup">
+        <div class="mockup-bar"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div><span class="mockup-title">Encaissement &middot; Économe</span></div>
+        <div class="mockup-body">
+          <div class="form-mock">
+            <div><div class="step-row"><div class="step-n">1</div><div class="step-lbl">Élève</div></div><div class="fake-input filled"><svg viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Aminata KONATE (CM2 A)</div></div>
+            <div><div class="step-row"><div class="step-n">2</div><div class="step-lbl">Montant et date</div></div><div class="fake-row"><div class="amount-input">45&nbsp;000 <span>FCFA</span></div><div class="fake-input">10 / 09 / 2026</div></div></div>
+            <div><div class="step-row"><div class="step-n">3</div><div class="step-lbl">Moyen</div></div><div class="method-pills"><div class="m-pill active">Espèces</div><div class="m-pill">Mobile</div><div class="m-pill">Virement</div><div class="m-pill">Chèque</div></div></div>
+            <div class="fake-btn"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Valider l&rsquo;encaissement</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div><div class="footer-brand">Sukulu</div><div class="footer-tagline">Gestion des frais de scolarité en FCFA</div></div>
+    <div class="footer-contacts">
+      <div><div class="footer-name">Stéphane de SOUZA</div><div class="footer-info">+228 92 17 87 26</div></div>
+      <div class="footer-sep"></div>
+      <div><div class="footer-link">sika-opal.vercel.app</div><div class="footer-info" style="font-size:9.5px;">Accès sur invitation</div></div>
+    </div>
+  </footer>
+
+</div>
+</body>
+</html>
