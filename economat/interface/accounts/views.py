@@ -162,5 +162,7 @@ def _redirect_for_role(role: str, school_id: str):
     """Redirige vers l'espace métier selon le rôle."""
     if role == "DIRECTOR":
         return redirect("economat:director_dashboard")
-    # Secrétaire et Économe → interface de saisie/inscriptions
+    if role == "SECRETARY":
+        return redirect("economat:director_dashboard")
+    # Économe → interface encaissement uniquement
     return redirect("economat:econome_dashboard")

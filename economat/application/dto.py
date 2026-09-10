@@ -168,10 +168,11 @@ class RecordPaymentResult:
 
 @dataclass(frozen=True)
 class AskDirectorChatCommand:
-    question:   str
-    school_id:  str
-    year_id:    str
-    history:    List[dict] = field(default_factory=list)
+    question:          str
+    school_id:         str
+    year_id:           str
+    school_year_label: str = ""
+    history:           List[dict] = field(default_factory=list)
 
 @dataclass
 class AskDirectorChatResult:

@@ -25,21 +25,26 @@ from economat.application.ports.llm_port import LLMPort, ChatMessage
 # Contexte métier injecté dans le prompt LLM pour améliorer la qualité du SQL
 _ECONOMAT_CONTEXT = """
 Tu analyses les données d'un système de gestion d'économat scolaire en Afrique de l'Ouest.
-Tables principales :
-- economat_student  : élèves (id, first_name, last_name, class_id, level_id, school_id, status, enrollment_date)
-- economat_class    : classes (id, name, level_id, capacity)
-- economat_level    : niveaux scolaires (id, name, annual_fee, payment_mode)
-- economat_payment  : paiements enregistrés (id, student_id, amount, payment_date, method, receipt_number, state, school_year)
-- economat_school   : écoles (id, name, city, country)
 
-Vocabulaire métier :
-- "frais" ou "scolarité" = annual_fee (montant en FCFA)
-- "en retard" = élèves dont le total payé est inférieur aux échéances passées
-- "soldé" = élèves ayant payé le montant total annuel
-- "économe" = celui qui enregistre les paiements
-- "directeur" = utilisateur qui consulte les statistiques
-- Les montants sont en FCFA (entiers, pas de décimales).
-Génère du SQL SQLite valide, en lecture seule uniquement (SELECT).
+Schéma réel des tables (SQLite) :
+- economat_school      : écoles        (id UUID, name, city, country, tolerance_days)
+- economat_school_year : années sco.   (id UUID, school_id→school, label ex."2025-2026", status ACTIVE/DRAFT/CLOSED)
+- economat_level       : niveaux       (id UUID, school_year_id→school_year, name, annual_fee entier FCFA, payment_mode)
+- economat_class       : classes       (id UUID, level_id→level, name, capacity)
+- economat_student     : identité élève (id UUID, school_id→school, first_name, last_name, date_of_birth)
+- economat_enrollment  : inscription   (id UUID, student_id→student, school_year_id→school_year,
+                                        level_id→level, class_id→class, enrollment_date, status ACTIVE/INACTIVE/PROMOTED)
+- economat_payment     : paiements     (id UUID, enrollment_id→enrollment, amount entier FCFA,
+                                        payment_date, method ESPECES/MOBILE/VIREMENT/CHEQUE,
+                                        receipt_number, state VALID/CANCELLED, created_at)
+
+Règles importantes :
+- Un élève = une ligne dans economat_student. Son inscription annuelle = economat_enrollment.
+- Pour compter les élèves d'une année : COUNT sur economat_enrollment WHERE school_year_id=? AND status='ACTIVE'.
+- Pour les paiements : SUM(amount) sur economat_payment WHERE state='VALID'.
+- Les montants sont en FCFA (entiers).
+- Toujours filtrer par school_year_id pour isoler une année scolaire.
+- Génère du SQL SQLite valide, SELECT uniquement (pas d'INSERT/UPDATE/DELETE).
 """.strip()
 
 
@@ -66,10 +71,12 @@ class AskDirectorChatQuery:
             if "role" in m and "content" in m
         ]
 
-        # La question enrichie avec l'année scolaire filtre
+        # La question enrichie avec le contexte de l'année scolaire et de l'école
         enriched_question = (
             f"{command.question}\n"
-            f"[Filtrer sur l'année scolaire : {command.school_year}]"
+            f"[Contexte : school_id='{command.school_id}', year_id='{command.year_id}'"
+            + (f", année scolaire='{command.school_year_label}'" if command.school_year_label else "")
+            + "]"
         )
 
         # Chemin de la base SQLite (partagée — même db.sqlite3 que tout le projet)

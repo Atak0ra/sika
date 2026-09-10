@@ -430,8 +430,8 @@
       width: 220px;
       flex-shrink: 0;
       position: sticky;
-      top: 72px;
-      max-height: calc(100vh - 80px);
+      top: 92px; /* header 56px + bandeau année 36px */
+      max-height: calc(100vh - 100px);
       overflow-y: auto;
     }
 
@@ -701,8 +701,74 @@
   </header>
 
   <!-- ============================================================
-       TOASTS (injectables par Django messages)
+       BANDEAU ANNÉE SCOLAIRE — visible sur les pages directeur/secrétaire
+       Conditionné par la présence de school + school_year dans le contexte
   ============================================================ -->
+  {% if school and school_year %}
+  <div style="background:#fff;border-bottom:1px solid var(--border);
+              padding:.4rem 2rem;display:flex;align-items:center;gap:.75rem;
+              font-size:.8125rem;min-height:36px;">
+
+    <!-- Icône + nom de l'école -->
+    <svg style="width:.95rem;height:.95rem;stroke:#9397a8;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;" viewBox="0 0 24 24">
+      <path d="M3 21h18M4 21V10l8-5 8 5v11M9 21v-6h6v6"/>
+    </svg>
+    <span style="font-weight:600;color:var(--text-1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px;">
+      {{ school.name }}
+    </span>
+
+    <span style="color:var(--border);font-size:.9rem;">|</span>
+
+    <!-- Icône calendrier + label "Année scolaire active" -->
+    <svg style="width:.9rem;height:.9rem;stroke:#9397a8;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;" viewBox="0 0 24 24">
+      <rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 9h18"/>
+    </svg>
+    <span style="color:var(--text-3);font-size:.75rem;font-weight:500;white-space:nowrap;">Année&nbsp;scolaire</span>
+
+    <!-- Sélecteur d'année — pill coloré selon le statut -->
+    {% if all_years|length > 1 %}
+    <form method="get" action="{% url 'economat:director_dashboard' %}" id="yearSwitchForm" style="display:flex;align-items:center;gap:.4rem;">
+      <input type="hidden" name="school" value="{{ school.id }}">
+      <select name="year" onchange="document.getElementById('yearSwitchForm').submit()"
+              style="appearance:none;-webkit-appearance:none;
+                     background:{% if school_year.status == 'ACTIVE' %}#ecfdf5{% elif school_year.status == 'DRAFT' %}#fff7ed{% else %}#f4f4f5{% endif %};
+                     color:{% if school_year.status == 'ACTIVE' %}#059669{% elif school_year.status == 'DRAFT' %}#d97706{% else %}#6b7280{% endif %};
+                     border:1.5px solid {% if school_year.status == 'ACTIVE' %}#a7f3d0{% elif school_year.status == 'DRAFT' %}#fed7aa{% else %}#e4e4e7{% endif %};
+                     border-radius:999px;padding:.2rem .65rem .2rem .55rem;
+                     font-size:.78rem;font-weight:700;cursor:pointer;
+                     font-family:inherit;line-height:1.5;">
+        {% for y in all_years %}
+        <option value="{{ y.id }}" {% if y.id == school_year.id %}selected{% endif %}>
+          {{ y.label }}{% if y.status == 'ACTIVE' %} ✓{% elif y.status == 'DRAFT' %} (brouillon){% elif y.status == 'CLOSED' %} (clôturée){% endif %}
+        </option>
+        {% endfor %}
+      </select>
+    </form>
+    {% else %}
+    <span style="display:inline-flex;align-items:center;gap:.3rem;
+                 padding:.2rem .65rem;border-radius:999px;font-size:.78rem;font-weight:700;
+                 background:{% if school_year.status == 'ACTIVE' %}#ecfdf5{% elif school_year.status == 'DRAFT' %}#fff7ed{% else %}#f4f4f5{% endif %};
+                 color:{% if school_year.status == 'ACTIVE' %}#059669{% elif school_year.status == 'DRAFT' %}#d97706{% else %}#6b7280{% endif %};
+                 border:1.5px solid {% if school_year.status == 'ACTIVE' %}#a7f3d0{% elif school_year.status == 'DRAFT' %}#fed7aa{% else %}#e4e4e7{% endif %};">
+      {{ school_year.label }}
+      {% if school_year.status == 'ACTIVE' %}
+      <svg style="width:.65rem;height:.65rem;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;" viewBox="0 0 24 24"><path d="M4 12.5 9.5 18 20 7"/></svg>
+      {% endif %}
+    </span>
+    {% endif %}
+
+    {% if school_year.status == 'CLOSED' %}
+    <span style="font-size:.72rem;color:#b91c1c;font-weight:600;">
+      — Lecture seule
+    </span>
+    {% elif school_year.status == 'DRAFT' %}
+    <span style="font-size:.72rem;color:#d97706;font-weight:500;">
+      — En préparation
+    </span>
+    {% endif %}
+
+  </div>
+  {% endif %}
   <div id="toastContainer" role="region" aria-label="Notifications" aria-live="polite"></div>
 
   {% if messages %}

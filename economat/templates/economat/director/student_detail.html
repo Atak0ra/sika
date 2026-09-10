@@ -5,11 +5,11 @@
 
 <!-- Fil d'Ariane -->
 <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:1.25rem;font-size:.8125rem;color:#9397a8;">
-  <a href="{% url 'economat:students_list' school.id school_year.id %}"
+  <a href="{% url 'economat:class_detail' school.id school_year.id enrollment.klass.id %}"
      style="color:#9397a8;text-decoration:none;display:flex;align-items:center;gap:.3rem;transition:color .12s;"
      onmouseover="this.style.color='#4f46e5'" onmouseout="this.style.color='#9397a8'">
     <svg style="width:.9em;height:.9em;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><path d="M15 19 9 12l6-7"/></svg>
-    Liste des élèves
+    {{ enrollment.klass.name }}
   </a>
   <span style="color:#ecedf1;">/</span>
   <span style="color:#1a1d29;font-weight:600;">{{ student.first_name }} {{ student.last_name|upper }}</span>

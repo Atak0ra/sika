@@ -69,7 +69,13 @@ def _sidebar_ctx(school, year):
         "sidebar_levels": sidebar_levels,
     }
 
-def _sidebar_levels(year):
+def _user_role(request) -> str:
+    """Retourne le rôle de l'utilisateur connecté ('DIRECTOR', 'SECRETARY', 'ECONOME' ou '')."""
+    from economat.infrastructure.models import MembershipModel as _MM
+    m = _MM.objects.filter(user=request.user, is_active=True).first()
+    return m.role if m else ""
+
+
     """Retourne la liste [{level, classes}] pour l'arborescence de la sidebar."""
     if not year:
         return []
@@ -84,7 +90,7 @@ def _sidebar_levels(year):
 @login_required
 def dashboard(request):
     result  = get_list_memberships_query().execute(user_id=str(request.user.pk))
-    my_ids  = [m["school_id"] for m in result.memberships if m["role"] == "DIRECTOR"]
+    my_ids  = [m["school_id"] for m in result.memberships if m["role"] in ("DIRECTOR", "SECRETARY")]
     schools = SchoolModel.objects.prefetch_related("school_years").filter(id__in=my_ids)
 
     school_id_p = request.GET.get("school")
@@ -136,7 +142,7 @@ def dashboard(request):
         "period_labels": period_labels, "period_expected": period_expected, "period_real": period_real,
         "class_labels": class_labels, "class_objectives": class_objectives,
         "class_collected": class_collected, "class_rates": class_rates,
-        "sidebar_levels": _sidebar_levels(active_year_orm),
+        "user_role": _user_role(request), "sidebar_levels": _sidebar_levels(active_year_orm),
         "page_title": "Tableau de bord — Directeur",
     })
 
@@ -184,7 +190,7 @@ def manage_years(request, school_id: str, membership=None):
         "all_years": all_years, "form": form,
         "active_nav": "annees",
         "school_year": _active_year(school_id),
-        "sidebar_levels": _sidebar_levels(_active_year(school_id)),
+        "user_role": _user_role(request), "sidebar_levels": _sidebar_levels(_active_year(school_id)),
         "page_title": f"Années scolaires — {school.name}",
     })
 
@@ -250,7 +256,7 @@ def add_level(request, school_id: str, year_id: str, membership=None):
         "school": school, "year": year, "schools": _director_schools(request.user),
         "active_nav": "niveaux", "form": form, "levels": levels,
         "school_year": year, "all_years": SchoolYearModel.objects.filter(school_id=school.id).order_by("-label"),
-        "sidebar_levels": _sidebar_levels(year),
+        "user_role": _user_role(request), "sidebar_levels": _sidebar_levels(year),
         "page_title": f"Niveaux — {year.label}",
     })
 
@@ -284,7 +290,7 @@ def add_class(request, school_id: str, year_id: str, level_id: str, membership=N
         "schools": _director_schools(request.user),
         "active_nav": "niveaux", "form": form, "classes": classes,
         "school_year": year, "all_years": SchoolYearModel.objects.filter(school_id=school.id).order_by("-label"),
-        "sidebar_levels": _sidebar_levels(year),
+        "user_role": _user_role(request), "sidebar_levels": _sidebar_levels(year),
         "page_title": f"Classes {level.name} — {year.label}",
     })
 
@@ -317,7 +323,7 @@ def configure_pricing(request, school_id: str, year_id: str, membership=None):
         "school": school, "year": year, "schools": _director_schools(request.user),
         "active_nav": "tarifs", "school_year": year,
         "all_years": SchoolYearModel.objects.filter(school_id=school.id).order_by("-label"),
-        "sidebar_levels": _sidebar_levels(year),
+        "user_role": _user_role(request), "sidebar_levels": _sidebar_levels(year),
         "page_title": f"Tarifs — {year.label}",
     })
 
@@ -394,7 +400,7 @@ def students_list(request, school_id: str, year_id: str, membership=None):
         "levels": levels, "classes": classes,
         "total_all": total_all, "total_active": total_active, "total_inactive": total_inactive,
         "all_years": SchoolYearModel.objects.filter(school_id=school.id).order_by("-label"),
-        "sidebar_levels": _sidebar_levels(year),
+        "user_role": _user_role(request), "sidebar_levels": _sidebar_levels(year),
         "page_title": f"Élèves — {year.label}",
     })
 
@@ -434,7 +440,7 @@ def register_student(request, school_id: str, year_id: str, membership=None):
         "schools": _director_schools(request.user),
         "active_nav": "eleves", "school_year": year,
         "all_years": SchoolYearModel.objects.filter(school_id=school.id).order_by("-label"),
-        "sidebar_levels": _sidebar_levels(year),
+        "user_role": _user_role(request), "sidebar_levels": _sidebar_levels(year),
         "page_title": f"Nouvel élève — {year.label}",
     })
 
@@ -504,8 +510,9 @@ def student_detail(request, school_id: str, year_id: str, enrollment_id: str, me
         "paid_year": paid_year, "total_due": total_due,
         "balance": balance, "pay_status": pay_status, "pay_badge": pay_badge,
         "history": history,
+        "active_class_id": str(enrollment.klass_id),
         "all_years": SchoolYearModel.objects.filter(school_id=school.id).order_by("-label"),
-        "sidebar_levels": _sidebar_levels(year),
+        "user_role": _user_role(request), "sidebar_levels": _sidebar_levels(year),
         "page_title": f"{student.first_name} {student.last_name.upper()}",
     })
 
@@ -563,7 +570,7 @@ def class_detail(request, school_id: str, year_id: str, class_id: str, membershi
         "active_nav": "eleves",
         "active_class_id": str(class_id),
         "all_years": SchoolYearModel.objects.filter(school_id=school.id).order_by("-label"),
-        "sidebar_levels": _sidebar_levels(year),
+        "user_role": _user_role(request), "sidebar_levels": _sidebar_levels(year),
         "page_title": f"{klass.name} — {year.label}",
     })
 
@@ -650,7 +657,7 @@ def alerts(request, school_id: str, year_id: str, membership=None):
         "schools": _director_schools(request.user),
         "active_nav": "alertes", "school_year": year, "bi": bi_data,
         "all_years": SchoolYearModel.objects.filter(school_id=school.id).order_by("-label"),
-        "sidebar_levels": _sidebar_levels(year),
+        "user_role": _user_role(request), "sidebar_levels": _sidebar_levels(year),
         "page_title": f"Alertes — {year.label}",
     })
 
@@ -702,7 +709,7 @@ def school_settings(request, school_id: str, membership=None):
         "form": form, "active_nav": "settings",
         "school_year": _active_year(school_id),
         "all_years": SchoolYearModel.objects.filter(school_id=school.id).order_by("-label"),
-        "sidebar_levels": _sidebar_levels(_active_year(school_id)),
+        "user_role": _user_role(request), "sidebar_levels": _sidebar_levels(_active_year(school_id)),
         "page_title": f"Paramètres — {school.name}",
     })
 
@@ -723,7 +730,10 @@ def chat(request, school_id: str, year_id: str, membership=None):
     if request.method == "POST" and form.is_valid():
         result = get_ask_director_chat_query().execute(AskDirectorChatCommand(
             question=form.cleaned_data["question"],
-            school_id=school_id, year_id=year_id, history=chat_history,
+            school_id=school_id,
+            year_id=year_id,
+            school_year_label=year.label,
+            history=chat_history,
         ))
         chat_history.append({"role":"user","content":form.cleaned_data["question"]})
         chat_history.append({
@@ -742,6 +752,6 @@ def chat(request, school_id: str, year_id: str, membership=None):
         "active_nav": "chat", "school_year": year,
         "form": form, "chat_history": chat_history,
         "all_years": SchoolYearModel.objects.filter(school_id=school.id).order_by("-label"),
-        "sidebar_levels": _sidebar_levels(year),
+        "user_role": _user_role(request), "sidebar_levels": _sidebar_levels(year),
         "page_title": f"Chat IA — {year.label}",
     })
