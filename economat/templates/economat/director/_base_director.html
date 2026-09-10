@@ -121,26 +121,57 @@
 
         {% if sidebar_levels %}
         <div class="sb-tree">
-          {% for item in sidebar_levels %}
-          <div class="sb-level">
-            <button type="button" class="sb-level-btn{% if active_class_id %} open{% endif %}" onclick="sbToggle(this)">
-              <svg class="sb-level-icon" viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
-              {{ item.level.name }}
-              <svg class="sb-chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
-            </button>
-            <div class="sb-classes{% if active_class_id %} open{% endif %}">
-              <div class="sb-classes-inner">
-                {% for klass in item.classes %}
-                <a href="{% url 'economat:class_detail' school.id school_year.id klass.id %}"
-                   class="sb-class-link {% if active_class_id == klass.id|stringformat:'s' %}active{% endif %}">
-                  <span class="sb-class-dot"></span>
-                  {{ klass.name }}
-                </a>
-                {% endfor %}
+
+          <!-- ── Parent "Niveaux" ─────────────────────────────── -->
+          <button type="button" class="sb-level-btn" id="sbNiveauxBtn"
+                  onclick="sbToggleNiveaux()" style="padding-left:.55rem;">
+            <svg class="sb-level-icon" viewBox="0 0 24 24">
+              <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+              <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+            </svg>
+            Niveaux
+            <span style="margin-left:auto;font-size:.7rem;color:#9397a8;
+                         font-variant-numeric:tabular-nums;">{{ sidebar_levels|length }}</span>
+            <svg class="sb-chevron" id="sbNiveauxChevron" viewBox="0 0 24 24">
+              <polyline points="6 9 12 15 18 9"/>
+            </svg>
+          </button>
+
+          <!-- ── Contenu déroulable ───────────────────────────── -->
+          <div id="sbNiveauxPanel" class="sb-classes" style="padding-left:.5rem;">
+            <div class="sb-classes-inner" style="padding-top:.15rem;">
+              {% for item in sidebar_levels %}
+              <div class="sb-level">
+                <button type="button"
+                        class="sb-level-btn {% if active_class_id and item.classes|length > 0 %}{% for klass in item.classes %}{% if active_class_id == klass.id|stringformat:'s' %}open{% endif %}{% endfor %}{% endif %}"
+                        onclick="sbToggle(this)"
+                        style="padding-left:.35rem;font-size:.8125rem;">
+                  <span style="width:.35rem;height:.35rem;border-radius:50%;background:#c7d2fe;
+                               flex-shrink:0;display:inline-block;"></span>
+                  {{ item.level.name }}
+                  <span style="margin-left:auto;font-size:.68rem;color:#9397a8;
+                               font-variant-numeric:tabular-nums;">{{ item.classes|length }}</span>
+                  <svg class="sb-chevron" viewBox="0 0 24 24">
+                    <polyline points="6 9 12 15 18 9"/>
+                  </svg>
+                </button>
+                <div class="sb-classes {% if active_class_id and item.classes|length > 0 %}{% for klass in item.classes %}{% if active_class_id == klass.id|stringformat:'s' %}open{% endif %}{% endfor %}{% endif %}"
+                     style="padding-left:.75rem;">
+                  <div class="sb-classes-inner">
+                    {% for klass in item.classes %}
+                    <a href="{% url 'economat:class_detail' school.id school_year.id klass.id %}"
+                       class="sb-class-link {% if active_class_id == klass.id|stringformat:'s' %}active{% endif %}">
+                      <span class="sb-class-dot"></span>
+                      {{ klass.name }}
+                    </a>
+                    {% endfor %}
+                  </div>
+                </div>
               </div>
+              {% endfor %}
             </div>
           </div>
-          {% endfor %}
+
         </div>
         {% endif %}
 
@@ -248,6 +279,35 @@ function sbToggle(btn) {
   btn.classList.toggle('open', !isOpen);
   panel.classList.toggle('open', !isOpen);
 }
+
+/* ── Parent Niveaux (double accordéon) ── */
+var _sbNiveauxPanel   = document.getElementById('sbNiveauxPanel');
+var _sbNiveauxBtn     = document.getElementById('sbNiveauxBtn');
+var _sbNiveauxChevron = document.getElementById('sbNiveauxChevron');
+var _SB_KEY = 'sb_niveaux_open';
+
+function _sbNiveauxSetState(open) {
+  if (!_sbNiveauxPanel) return;
+  _sbNiveauxPanel.classList.toggle('open', open);
+  if (_sbNiveauxBtn)     _sbNiveauxBtn.classList.toggle('open', open);
+  if (_sbNiveauxChevron) _sbNiveauxChevron.style.transform = open ? 'rotate(180deg)' : '';
+  try { localStorage.setItem(_SB_KEY, open ? '1' : '0'); } catch(e) {}
+}
+
+function sbToggleNiveaux() {
+  var isOpen = _sbNiveauxPanel && _sbNiveauxPanel.classList.contains('open');
+  _sbNiveauxSetState(!isOpen);
+}
+
+// Initialisation : ouvrir si une classe est active OU si l'état sauvegardé = ouvert
+(function() {
+  if (!_sbNiveauxPanel) return;
+  var hasActiveClass = _sbNiveauxPanel.querySelector('.sb-class-link.active');
+  var stored = '';
+  try { stored = localStorage.getItem(_SB_KEY); } catch(e) {}
+  var shouldOpen = hasActiveClass || stored === '1';
+  _sbNiveauxSetState(!!shouldOpen);
+})();
 
 /* ======================================================
    Sidebar hamburger
