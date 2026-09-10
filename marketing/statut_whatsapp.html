@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Sukulu — Statut WhatsApp</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{
+  width:1080px;
+  font-family:'Inter',sans-serif;
+  -webkit-font-smoothing:antialiased;
+  background:#1e1b4b;
+}
+.page{
+  width:1080px;
+  height:1920px;
+  background:linear-gradient(160deg,#1e1b4b 0%,#3730a3 35%,#4f46e5 65%,#6d28d9 100%);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  position:relative;
+  overflow:hidden;
+}
+/* Cercles déco */
+.page::before{
+  content:'';
+  position:absolute;top:-180px;right:-180px;
+  width:700px;height:700px;border-radius:50%;
+  background:rgba(255,255,255,.04);
+}
+.page::after{
+  content:'';
+  position:absolute;bottom:-200px;left:-150px;
+  width:600px;height:600px;border-radius:50%;
+  background:rgba(255,255,255,.04);
+}
+.deco-circle{
+  position:absolute;top:600px;left:-100px;
+  width:300px;height:300px;border-radius:50%;
+  background:rgba(255,255,255,.03);
+}
+
+/* Zone sécurité haut : 230px vides */
+.safe-top{height:230px;flex-shrink:0;}
+
+/* Contenu */
+.content{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  padding:0 80px;
+  position:relative;z-index:1;
+  width:100%;
+}
+
+/* Logo */
+.logo-row{
+  display:flex;align-items:center;gap:16px;
+  margin-bottom:56px;
+  align-self:flex-start;
+}
+.logo-mark{
+  width:60px;height:60px;border-radius:18px;
+  background:rgba(255,255,255,.18);
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+}
+.logo-mark svg{width:34px;height:34px;}
+.logo-name{font-size:36px;font-weight:900;color:#fff;letter-spacing:-.04em;}
+
+/* Accroche */
+.accroche{
+  font-size:72px;
+  font-weight:900;
+  color:#fff;
+  line-height:1.08;
+  letter-spacing:-.04em;
+  align-self:flex-start;
+  margin-bottom:28px;
+}
+.accroche em{font-style:normal;color:#a5b4fc;}
+
+/* Sous-titre */
+.pills{
+  display:flex;gap:12px;
+  align-self:flex-start;
+  margin-bottom:64px;
+  flex-wrap:wrap;
+}
+.pill{
+  background:rgba(255,255,255,.12);
+  border:1px solid rgba(255,255,255,.2);
+  color:rgba(255,255,255,.9);
+  font-size:22px;font-weight:600;
+  padding:10px 24px;border-radius:999px;
+  letter-spacing:-.01em;
+}
+
+/* Mockup dashboard */
+.mk{
+  width:100%;
+  background:#fff;
+  border-radius:20px;
+  overflow:hidden;
+  box-shadow:0 24px 80px rgba(0,0,0,.35),0 8px 24px rgba(0,0,0,.2);
+  margin-bottom:72px;
+}
+.mk-bar{
+  background:#f4f5f9;
+  border-bottom:1px solid #ecedf1;
+  padding:14px 20px;
+  display:flex;align-items:center;gap:8px;
+}
+.dot{width:12px;height:12px;border-radius:50%;}
+.dr{background:#fc6058;}.dy{background:#fec02f;}.dg{background:#2ac940;}
+.mk-lbl{font-size:16px;color:#9397a8;margin-left:auto;font-weight:500;}
+.mk-body{padding:20px;}
+
+/* KPIs */
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;}
+.kpi{background:#f8f8fc;border:1px solid #ecedf1;border-radius:12px;padding:14px 16px;}
+.kl{font-size:15px;font-weight:600;color:#9397a8;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px;}
+.kv{font-size:28px;font-weight:800;color:#1a1d29;letter-spacing:-.03em;font-variant-numeric:tabular-nums;}
+.ks{font-size:14px;margin-top:3px;}
+.cg{color:#059669;}.co{color:#d97706;}.cr{color:#dc2626;}
+
+/* Barres */
+.bw{background:#f8f8fc;border:1px solid #ecedf1;border-radius:12px;padding:14px 16px;}
+.bl-t{font-size:15px;font-weight:600;color:#52556b;margin-bottom:12px;}
+.bars{display:flex;align-items:flex-end;gap:6px;height:80px;}
+.bg{display:flex;gap:3px;align-items:flex-end;flex:1;}
+.b{flex:1;border-radius:4px 4px 0 0;}
+.bp{background:#c7d2fe;}.br{background:#4f46e5;}
+.bx{display:flex;gap:6px;margin-top:5px;}
+.bxl{flex:1;text-align:center;font-size:12px;color:#9397a8;}
+
+/* Contact */
+.contact{
+  background:rgba(255,255,255,.1);
+  border:1px solid rgba(255,255,255,.2);
+  border-radius:20px;
+  padding:32px 48px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:8px;
+  width:100%;
+  backdrop-filter:blur(10px);
+}
+.contact-name{
+  font-size:36px;font-weight:800;color:#fff;
+  letter-spacing:-.02em;
+}
+.contact-phone{
+  font-size:44px;font-weight:900;color:#fff;
+  letter-spacing:-.02em;
+  font-variant-numeric:tabular-nums;
+}
+.contact-label{
+  font-size:18px;font-weight:500;color:rgba(255,255,255,.55);
+  margin-bottom:4px;
+}
+
+/* Zone sécurité bas : 250px vides */
+.safe-bot{height:250px;flex-shrink:0;}
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="deco-circle"></div>
+
+  <!-- Marge sécurité haut (heure + photo profil WhatsApp) -->
+  <div class="safe-top"></div>
+
+  <div class="content">
+
+    <!-- Logo -->
+    <div class="logo-row">
+      <div class="logo-mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+          <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+        </svg>
+      </div>
+      <div class="logo-name">Sukulu</div>
+    </div>
+
+    <!-- Accroche -->
+    <div class="accroche">
+      Finis les cahiers.<br>
+      Votre école<br>
+      <em>enfin connectée.</em>
+    </div>
+
+    <!-- Pills -->
+    <div class="pills">
+      <span class="pill">Encaissements</span>
+      <span class="pill">Alertes</span>
+      <span class="pill">Suivi financier</span>
+    </div>
+
+    <!-- Mockup dashboard -->
+    <div class="mk">
+      <div class="mk-bar">
+        <div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div>
+        <span class="mk-lbl">Tableau de bord · 2024-2025</span>
+      </div>
+      <div class="mk-body">
+        <div class="kpis">
+          <div class="kpi"><div class="kl">Encaissé</div><div class="kv">4 820 000</div><div class="ks cg">↑ 73%</div></div>
+          <div class="kpi"><div class="kl">Reste</div><div class="kv">1 780 000</div><div class="ks co">27%</div></div>
+          <div class="kpi"><div class="kl">Retards</div><div class="kv cr">14</div><div class="ks">élèves</div></div>
+        </div>
+        <div class="bw">
+          <div class="bl-t">Recouvrement par période</div>
+          <div class="bars">
+            <div class="bg"><div class="b bp" style="height:60px"></div><div class="b br" style="height:55px"></div></div>
+            <div class="bg"><div class="b bp" style="height:72px"></div><div class="b br" style="height:65px"></div></div>
+            <div class="bg"><div class="b bp" style="height:48px"></div><div class="b br" style="height:43px"></div></div>
+            <div class="bg"><div class="b bp" style="height:78px"></div><div class="b br" style="height:71px"></div></div>
+            <div class="bg"><div class="b bp" style="height:64px"></div><div class="b br" style="height:52px"></div></div>
+          </div>
+          <div class="bx">
+            <div class="bxl">Oct.</div><div class="bxl">Nov.</div><div class="bxl">Déc.</div>
+            <div class="bxl">Jan.</div><div class="bxl">Fév.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Contact -->
+    <div class="contact">
+      <div class="contact-label">Contactez-nous</div>
+      <div class="contact-name">Stéphane de SOUZA</div>
+      <div class="contact-phone">+228 92 17 87 26</div>
+    </div>
+
+  </div>
+
+  <!-- Marge sécurité bas (barre Répondre WhatsApp) -->
+  <div class="safe-bot"></div>
+</div>
+</body>
+</html>
