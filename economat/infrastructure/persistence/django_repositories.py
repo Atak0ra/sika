@@ -15,7 +15,7 @@ from economat.domain.enrollment.value_objects import EnrollmentId
 from economat.domain.payment.entities import Payment
 from economat.domain.payment.value_objects import PaymentId
 from economat.domain.school.entities import School, SchoolYear
-from economat.domain.school.value_objects import ClassId, LevelId, SchoolId, SchoolYearId
+from economat.domain.school.value_objects import ClassId, SchoolId, SchoolYearId
 from economat.domain.student.entities import Student
 from economat.domain.student.value_objects import StudentId
 from economat.infrastructure.models import (

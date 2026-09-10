@@ -82,7 +82,7 @@ def get_record_payment_use_case():
     from economat.application.use_cases.record_payment import RecordPaymentUseCase
     r = _repos()
     return RecordPaymentUseCase(
-        student_repo=r["student"], school_repo=r["school"],
+        student_repo=r["student"],
         year_repo=r["year"], enrollment_repo=r["enrollment"],
         payment_repo=r["payment"],
     )

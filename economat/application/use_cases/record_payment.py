@@ -2,11 +2,10 @@
 application/use_cases/record_payment.py — REFONTE (passe par Enrollment).
 """
 from __future__ import annotations
-import datetime
 
 from economat.application.dto import RecordPaymentCommand, RecordPaymentResult
 from economat.application.ports.repositories import (
-    EnrollmentRepository, PaymentRepository, SchoolRepository, SchoolYearRepository, StudentRepository,
+    EnrollmentRepository, PaymentRepository, SchoolYearRepository, StudentRepository,
 )
 from economat.domain.payment.entities import Payment, PaymentState
 from economat.domain.payment.payment_status import PaymentStatusCalculator
@@ -18,11 +17,10 @@ from economat.domain.student.value_objects import StudentId
 
 
 class RecordPaymentUseCase:
-    def __init__(self, student_repo: StudentRepository, school_repo: SchoolRepository,
+    def __init__(self, student_repo: StudentRepository,
                  year_repo: SchoolYearRepository, enrollment_repo: EnrollmentRepository,
                  payment_repo: PaymentRepository) -> None:
         self._students    = student_repo
-        self._schools     = school_repo
         self._years       = year_repo
         self._enrollments = enrollment_repo
         self._payments    = payment_repo
@@ -75,7 +73,6 @@ class RecordPaymentUseCase:
         existing = self._payments.find_by_enrollment(enrollment.id)
 
         # 6. Construire l'entité Payment
-        school    = self._schools.find_by_id(student.school_id)
         receipt_n = self._payments.last_receipt_number(student.school_id) + 1
         receipt   = f"REC-{student.school_id.value[:8].upper()}-{receipt_n:04d}"
 

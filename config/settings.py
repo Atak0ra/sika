@@ -37,8 +37,6 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    # Application métier
-    "analytics",
     # SikaSchool — architecture hexagonale / DDD
     "economat",
 ]
@@ -128,13 +126,22 @@ MEDIA_ROOT = BASE_DIR / "media"
 # ── Clé primaire par défaut ───────────────────────────────────────────────────
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-# ── Chemin vers la base SQLite interne (utilisé par llm_service + db_connector)
+# ── Chemin vers la base SQLite interne (utilisé par le chat IA directeur)
 # Reste utile en local (DATABASE_URL absent) ; sans objet en prod Postgres.
 SQLITE_DB_PATH = str(BASE_DIR / "db.sqlite3")
 
 # Taille max des uploads (50 MB)
 DATA_UPLOAD_MAX_MEMORY_SIZE = 52_428_800
 FILE_UPLOAD_MAX_MEMORY_SIZE = 52_428_800
+
+# ── Sécurité HTTPS (prod Vercel — uniquement si DEBUG=False) ─────────────────
+if not DEBUG:
+    SECURE_SSL_REDIRECT          = True
+    SECURE_HSTS_SECONDS          = 31_536_000   # 1 an
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD          = True
+    SESSION_COOKIE_SECURE        = True
+    CSRF_COOKIE_SECURE           = True
 
 # ── Authentification / SikaSchool ──────────────────────────────────────────────
 LOGIN_URL           = "/eco/login/"

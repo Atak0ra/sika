@@ -4,10 +4,10 @@ application/use_cases/financial_dashboard.py — REFONTE (SchoolYear + Enrollmen
 from __future__ import annotations
 import datetime
 from collections import defaultdict
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Dict, List, Optional
 
-from economat.application.ports.repositories import (
+from economat.application.ports.repositories import (  # noqa: F401 — imports documentaires (ports DDD)
     EnrollmentRepository, PaymentRepository, SchoolRepository,
     SchoolYearRepository, StudentRepository,
 )

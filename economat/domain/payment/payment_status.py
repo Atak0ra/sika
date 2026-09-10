@@ -24,7 +24,7 @@ import datetime
 from dataclasses import dataclass
 from typing import List, Optional
 
-from ..shared.value_objects import Money, Currency
+from ..shared.value_objects import Money
 from ..school.payment_schedule import PaymentSchedule
 from .entities import Payment
 from .value_objects import PaymentStatus

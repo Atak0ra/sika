@@ -6,7 +6,7 @@ Double protection :
   2. Rejet immédiat de toute tentative DML/DDL/administration.
 
 Utilisation :
-    from analytics.sql_guard import validate_read_only, UnsafeSQLError
+    from economat.infrastructure.ai.sql_guard import validate_read_only, UnsafeSQLError
 
     try:
         clean_sql = validate_read_only(raw_sql_from_llm)

@@ -21,7 +21,7 @@ from economat.application.dto_identity import CreateSchoolCommand, CreateSchoolR
 from economat.application.ports.identity_repositories import MembershipRepository
 from economat.application.ports.repositories import SchoolRepository
 from economat.domain.identity.entities import Membership
-from economat.domain.identity.value_objects import MembershipId, Role
+from economat.domain.identity.value_objects import Role
 from economat.domain.school.entities import School
 from economat.domain.school.value_objects import SchoolId
 from economat.domain.shared.errors import DomainError

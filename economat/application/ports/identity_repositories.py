@@ -12,7 +12,7 @@ from abc import ABC, abstractmethod
 from typing import List, Optional
 
 from economat.domain.identity.entities import Membership
-from economat.domain.identity.value_objects import MembershipId, Role
+from economat.domain.identity.value_objects import MembershipId
 from economat.domain.school.value_objects import SchoolId
 
 

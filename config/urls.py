@@ -10,7 +10,4 @@ urlpatterns = [
 
     # ── / → landing de l'économat
     path("", RedirectView.as_view(url="/eco/", permanent=False), name="home"),
-
-    # ── App RAG Analytics (Chat Text-to-SQL, accès direct)
-    path("analytics/", include("analytics.urls")),
 ]

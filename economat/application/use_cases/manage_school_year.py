@@ -8,8 +8,7 @@ Use Cases de gestion du cycle de vie des années scolaires.
   - CloseSchoolYearUseCase    : clôturer l'année active
 """
 from __future__ import annotations
-import datetime, uuid
-from typing import Optional
+import uuid
 
 from economat.application.dto import (
     ActivateSchoolYearCommand, CloseSchoolYearCommand,
@@ -20,9 +19,7 @@ from economat.domain.school.entities import SchoolYear, Level, Class, SchoolYear
 from economat.domain.school.value_objects import (
     ClassId, LevelId, SchoolId, SchoolYearId,
 )
-from economat.domain.school.payment_schedule import PaymentMode
 from economat.domain.shared.errors import DomainError, EntityNotFoundError
-from economat.domain.shared.value_objects import Currency, Money
 
 
 class CreateSchoolYearUseCase:
@@ -89,7 +86,7 @@ class ActivateSchoolYearUseCase:
         try:
             school = self._schools.find_by_id(SchoolId(cmd.school_id))
             if school is None:
-                raise EntityNotFoundError(f"École introuvable.")
+                raise EntityNotFoundError("École introuvable.")
 
             # Vérifier qu'aucune autre année n'est déjà active
             current_active = self._years.find_active(SchoolId(cmd.school_id))

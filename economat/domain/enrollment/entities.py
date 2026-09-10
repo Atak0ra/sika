@@ -16,7 +16,6 @@ Règles métier :
 from __future__ import annotations
 import datetime
 from dataclasses import dataclass, field
-from typing import Optional
 
 from ..school.value_objects import ClassId, LevelId, SchoolId, SchoolYearId
 from ..student.value_objects import StudentId

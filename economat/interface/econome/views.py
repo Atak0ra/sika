@@ -4,7 +4,6 @@ interface/econome/views.py — REFONTE (passe par Enrollment + year_id).
 from __future__ import annotations
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.db.models import Sum
 from django.http import JsonResponse
 from django.shortcuts import redirect, render
 from django.views.decorators.http import require_GET, require_POST

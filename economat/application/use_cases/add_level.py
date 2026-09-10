@@ -5,7 +5,7 @@ from economat.application.ports.repositories import SchoolYearRepository
 from economat.application.ports.identity_repositories import MembershipRepository
 from economat.domain.school.entities import Level
 from economat.domain.school.payment_schedule import PaymentMode
-from economat.domain.school.value_objects import LevelId, SchoolYearId
+from economat.domain.school.value_objects import LevelId, SchoolId, SchoolYearId
 from economat.domain.shared.errors import DomainError, DuplicateEntityError, EntityNotFoundError
 from economat.domain.shared.value_objects import Money, Currency
 from economat.domain.identity.entities import UnauthorizedError
@@ -25,11 +25,10 @@ class AddLevelUseCase:
             return AddLevelResult(success=False, error_message=f"Erreur inattendue : {e}")
 
     def _execute(self, cmd: AddLevelCommand) -> AddLevelResult:
-        from economat.domain.school.value_objects import SchoolId
         year_id = SchoolYearId(cmd.year_id)
 
         membership = self._memberships.find_by_user_and_school(
-            cmd.user_id, __import__('economat.domain.school.value_objects', fromlist=['SchoolId']).SchoolId(cmd.school_id)
+            cmd.user_id, SchoolId(cmd.school_id)
         )
         if membership is None:
             raise EntityNotFoundError("Vous n'êtes pas membre de cette école.")

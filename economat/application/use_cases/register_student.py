@@ -14,9 +14,9 @@ from economat.application.ports.repositories import (
 from economat.domain.enrollment.entities import Enrollment
 from economat.domain.enrollment.value_objects import EnrollmentStatus
 from economat.domain.school.value_objects import ClassId, LevelId, SchoolId, SchoolYearId
-from economat.domain.shared.errors import DomainError, DuplicateEntityError, EntityNotFoundError
+from economat.domain.shared.errors import DomainError, EntityNotFoundError
 from economat.domain.student.entities import Student
-from economat.domain.student.value_objects import StudentId, StudentName
+from economat.domain.student.value_objects import StudentName
 
 
 class RegisterStudentUseCase:
@@ -42,7 +42,7 @@ class RegisterStudentUseCase:
         # 1. Vérifier que l'année scolaire est active ou DRAFT
         year = self._years.find_by_id(year_id)
         if year is None:
-            raise EntityNotFoundError(f"Année scolaire introuvable.")
+            raise EntityNotFoundError("Année scolaire introuvable.")
         if year.is_closed:
             raise DomainError("Impossible d'inscrire un élève dans une année clôturée.")
 
@@ -50,7 +50,7 @@ class RegisterStudentUseCase:
         level = year.get_level(LevelId(cmd.level_id))
         klass = level.find_class(ClassId(cmd.class_id))
         if klass is None:
-            raise EntityNotFoundError(f"Classe introuvable dans ce niveau.")
+            raise EntityNotFoundError("Classe introuvable dans ce niveau.")
 
         # 3. Créer l'identité Student
         if not cmd.first_name.strip() or not cmd.last_name.strip():

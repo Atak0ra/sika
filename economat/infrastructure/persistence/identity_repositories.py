@@ -13,7 +13,7 @@ from economat.application.ports.identity_repositories import MembershipRepositor
 from economat.domain.identity.entities import Membership
 from economat.domain.identity.value_objects import MembershipId, Role
 from economat.domain.school.value_objects import SchoolId
-from economat.infrastructure.models import MembershipModel, SchoolModel
+from economat.infrastructure.models import MembershipModel
 
 
 class DjangoUserRepository(UserRepository):

@@ -11,9 +11,8 @@ après la connexion.
 """
 
 from __future__ import annotations
-from typing import List
 
-from economat.application.dto_identity import MembershipInfo, MySchoolsResult
+from economat.application.dto_identity import MySchoolsResult
 from economat.application.ports.identity_repositories import MembershipRepository
 from economat.application.ports.repositories import SchoolRepository
 

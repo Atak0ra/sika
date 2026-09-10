@@ -238,7 +238,7 @@ def _setup_full():
     yr = FakeYearRepo(); er = FakeEnrollmentRepo(); pr = FakePaymentRepo()
     sr.save(student); scr.save(school); yr.save(year); er.save(enrollment)
     uc = RecordPaymentUseCase(
-        student_repo=sr, school_repo=scr, year_repo=yr,
+        student_repo=sr, year_repo=yr,
         enrollment_repo=er, payment_repo=pr,
     )
     return uc, pr, student, year, enrollment

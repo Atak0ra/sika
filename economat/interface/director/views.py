@@ -25,12 +25,12 @@ from economat.composition import (
 )
 from economat.infrastructure.models import (
     ClassModel, EnrollmentModel, LevelModel, PaymentModel,
-    SchoolModel, SchoolYearModel, StudentModel,
+    SchoolModel, SchoolYearModel,
 )
 from economat.interface.decorators import require_membership, require_role
 from economat.domain.identity.value_objects import Role
 from .forms import (
-    AddClassForm, AddLevelForm, CloseYearForm, ConfigurePricingForm, CreateSchoolYearForm,
+    AddClassForm, AddLevelForm, ConfigurePricingForm, CreateSchoolYearForm,
     DirectorChatForm, RegisterStudentForm, SchoolSettingsForm,
 )
 

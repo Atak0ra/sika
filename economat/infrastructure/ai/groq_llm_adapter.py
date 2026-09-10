@@ -3,7 +3,6 @@ infrastructure/ai/groq_llm_adapter.py
 =======================================
 Adapter LLM — implémentation du port LLMPort via Groq + LangChain.
 
-Réutilise le pattern de analytics/llm_service.py mais :
 - Implémente l'interface LLMPort (contrat du domaine/application).
 - Accepte un system_context métier injecté (vocabulaire économat).
 - Filtre les tables pour ne cibler que les tables economat_*.
@@ -22,10 +21,10 @@ from langchain_classic.chains import create_sql_query_chain
 from langchain_groq import ChatGroq
 from langchain_core.messages import HumanMessage, SystemMessage
 
-from analytics.sql_guard import validate_read_only, UnsafeSQLError
+from economat.infrastructure.ai.sql_guard import validate_read_only, UnsafeSQLError
 from economat.application.ports.llm_port import ChatMessage, LLMPort, LLMQueryResult
 
-_SKIP_PREFIXES = ("sqlite_%", "django_%", "auth_%", "analytics_%", "contenttypes%", "sessions_%")
+_SKIP_PREFIXES = ("sqlite_%", "django_%", "auth_%", "contenttypes%", "sessions_%")
 
 
 def _make_llm(api_key: str) -> ChatGroq:

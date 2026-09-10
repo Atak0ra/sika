@@ -59,7 +59,7 @@ class Money:
                 f"Un montant monétaire ne peut pas être négatif (reçu {amount})."
             )
         if not isinstance(currency, Currency):
-            raise TypeError(f"currency doit être une instance de Currency.")
+            raise TypeError("currency doit être une instance de Currency.")
         object.__setattr__(self, "_amount", amount)
         object.__setattr__(self, "_currency", currency)
 

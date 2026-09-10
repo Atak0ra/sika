@@ -10,7 +10,6 @@ from __future__ import annotations
 import datetime
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Optional
 
 from ..shared.value_objects import Money
 from ..shared.errors import ZeroAmountError

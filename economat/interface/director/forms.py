@@ -1,5 +1,4 @@
 from django import forms
-from django.utils import timezone
 
 PAYMENT_MODE_CHOICES = [
     ("TRANCHES", "3 tranches (40% + 30% + 30%)"),
