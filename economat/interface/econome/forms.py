@@ -12,8 +12,7 @@ PAYMENT_METHOD_CHOICES = [
 class RecordPaymentForm(forms.Form):
     student_id = forms.CharField(
         label="Identifiant élève", max_length=36,
-        widget=forms.TextInput(attrs={"placeholder":"UUID de l'élève",
-                                       "autocomplete":"off","class":"form-input"}),
+        widget=forms.HiddenInput(),
     )
     amount_fcfa = forms.IntegerField(
         label="Montant (FCFA)", min_value=1,

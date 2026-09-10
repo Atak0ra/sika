@@ -58,7 +58,7 @@
         <span style="font-size:1.5rem;font-weight:700;font-variant-numeric:tabular-nums;color:#1a1d29;">{{ receipt.amount_paid|fcfa_long }}</span>
       </div>
       <div style="display:flex;justify-content:space-between;align-items:center;margin-top:.5rem;">
-        <span style="font-size:.775rem;color:#9397a8;">Reste à payer — {{ receipt.new_balance|fcfa_long }}</span>
+        <span style="font-size:.775rem;color:#9397a8;">Reste à payer : {{ receipt.new_balance|fcfa_long }}</span>
         <span class="badge
           {% if receipt.payment_status == 'SOLDE' %}badge-success
           {% elif receipt.payment_status == 'EN_RETARD' %}badge-warning
@@ -193,7 +193,7 @@
         <select id="classFilter" class="form-select">
           <option value="">Toutes les classes</option>
           {% for c in classes %}
-          <option value="{{ c.id }}">{{ c.level.name }} — {{ c.name }}</option>
+          <option value="{{ c.id }}">{{ c.level.name }} – {{ c.name }}</option>
           {% endfor %}
         </select>
       </div>
@@ -490,7 +490,7 @@ searchInput.addEventListener('input', () => {
           li.onmouseleave = () => li.style.background = '';
           li.addEventListener('mousedown', e => {
             e.preventDefault();
-            selectStudent(s.id, s.name + (s.class ? ' \u2014 ' + s.class : ''));
+            selectStudent(s.id, s.name + (s.class ? ' (' + s.class + ')' : ''));
           });
           searchList.appendChild(li);
         });
