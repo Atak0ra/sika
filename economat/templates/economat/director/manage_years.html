@@ -47,12 +47,14 @@
         </button>
       </form>
       {% endif %}
+      {% if year.status != 'DRAFT' %}
+      <a href="{% url 'economat:students_list' school.id year.id %}" class="btn-secondary" style="font-size:.8125rem;padding:.4rem .75rem;">
+        <svg class="icon" style="width:.85em;height:.85em;"><use href="#icon-users"/></svg> Consulter
+      </a>
+      {% endif %}
       {% if year.status == 'ACTIVE' %}
       <a href="{% url 'economat:add_level' school.id year.id %}" class="btn-secondary" style="font-size:.8125rem;padding:.4rem .75rem;">
         <svg class="icon" style="width:.85em;height:.85em;"><use href="#icon-book"/></svg> Niveaux
-      </a>
-      <a href="{% url 'economat:students_list' school.id year.id %}" class="btn-secondary" style="font-size:.8125rem;padding:.4rem .75rem;">
-        <svg class="icon" style="width:.85em;height:.85em;"><use href="#icon-users"/></svg> Élèves
       </a>
       <form method="post" action="{% url 'economat:close_year' school.id year.id %}">
         {% csrf_token %}

@@ -150,6 +150,38 @@ def dashboard(request):
 
 # ─ Gestion des années scolaires ─────────────────────────────────────────────────
 
+
+# ─ Switch année depuis le bandeau ───────────────────────────────────────────
+
+@login_required
+@require_membership
+def switch_year(request, school_id: str, membership=None):
+    """Reçoit year_id + next (URL courante), remplace le year_id dans l'URL et redirige."""
+    import re as _re
+    year_id  = request.GET.get("year_id", "").strip()
+    next_url = request.GET.get("next", "").strip()
+
+    if not year_id:
+        return redirect("economat:director_dashboard")
+
+    # Vérifie que l'année appartient bien à cette école
+    year = SchoolYearModel.objects.filter(pk=year_id, school_id=school_id).first()
+    if not year:
+        return redirect("economat:director_dashboard")
+
+    # Tous les year_ids de cette école pour identifier lequel remplacer dans l'URL
+    UUID_RE = r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
+    if next_url:
+        year_ids = set(str(y) for y in SchoolYearModel.objects
+                       .filter(school_id=school_id).values_list("id", flat=True))
+        for uid in _re.findall(UUID_RE, next_url):
+            if uid in year_ids and uid != year_id:
+                return redirect(next_url.replace(uid, year_id, 1))
+
+    # Fallback : liste des élèves de la nouvelle année
+    return redirect("economat:students_list", school_id=school_id, year_id=year_id)
+
+
 @login_required
 @require_membership
 @require_role(Role.DIRECTOR)

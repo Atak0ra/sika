@@ -727,9 +727,9 @@
 
     <!-- Sélecteur d'année — pill coloré selon le statut -->
     {% if all_years|length > 1 %}
-    <form method="get" action="{% url 'economat:director_dashboard' %}" id="yearSwitchForm" style="display:flex;align-items:center;gap:.4rem;">
-      <input type="hidden" name="school" value="{{ school.id }}">
-      <select name="year" onchange="document.getElementById('yearSwitchForm').submit()"
+    <form method="get" action="{% url 'economat:switch_year' school.id %}" id="yearSwitchForm" style="display:flex;align-items:center;gap:.4rem;">
+      <input type="hidden" name="next" value="{{ request.path }}">
+      <select name="year_id" onchange="document.getElementById('yearSwitchForm').submit()"
               style="appearance:none;-webkit-appearance:none;
                      background:{% if school_year.status == 'ACTIVE' %}#ecfdf5{% elif school_year.status == 'DRAFT' %}#fff7ed{% else %}#f4f4f5{% endif %};
                      color:{% if school_year.status == 'ACTIVE' %}#059669{% elif school_year.status == 'DRAFT' %}#d97706{% else %}#6b7280{% endif %};
