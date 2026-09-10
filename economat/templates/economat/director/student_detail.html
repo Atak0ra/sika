@@ -15,7 +15,7 @@
   <span style="color:#1a1d29;font-weight:600;">{{ student.first_name }} {{ student.last_name|upper }}</span>
 </div>
 
-<div style="display:grid;grid-template-columns:320px 1fr;gap:1.25rem;align-items:start;">
+<div class="rg-sidebar" style="gap:1.25rem;">
 
   <!-- ====== COLONNE GAUCHE : infos + solde année en cours ====== -->
   <div style="display:flex;flex-direction:column;gap:1rem;">
@@ -141,6 +141,7 @@
 
       <!-- Liste des paiements -->
       {% if entry.payments %}
+      <div class="table-wrap">
       <table style="width:100%;border-collapse:collapse;font-size:.8125rem;">
         <thead>
           <tr style="background:#f9fafb;">
@@ -165,6 +166,7 @@
           {% endfor %}
         </tbody>
       </table>
+      </div>
       {% else %}
       <div style="padding:1.25rem;text-align:center;color:#9397a8;font-size:.8375rem;">Aucun paiement enregistré pour cette année.</div>
       {% endif %}

@@ -3,43 +3,57 @@ management/commands/seed_demo.py
 ==================================
 Commande Django : python manage.py seed_demo
 
-Crée des données de démo réalistes pour le Collège NDA :
-  - Niveaux CP à 3ème (10 niveaux)
+Crée une base de démo complète pour l'école BEGONIA (Lomé, Togo) :
+  - École BEGONIA + année scolaire 2025-2026 (ACTIVE)
+  - Niveaux CP à 3ème (9 niveaux)
   - 2 classes par niveau (A et B)
-  - ~20 élèves par classe avec noms africains
+  - ~20 élèves par classe, noms togolais (Ewé / Kabyè)
   - Tarifs distincts primaire / collège
-  - Paiements variés (soldés, en retard, en cours)
+  - Paiements variés (soldés, en retard, en cours, rien payé)
+  - Un compte Directeur + un compte Économe
 """
 import datetime
 import random
 import uuid
 
+from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand
 from django.db import transaction
 
 from economat.infrastructure.models import (
-    ClassModel, EnrollmentModel, LevelModel,
+    ClassModel, EnrollmentModel, LevelModel, MembershipModel,
     PaymentModel, SchoolModel, SchoolYearModel, StudentModel,
 )
 
 
-# ─ Données de référence ───────────────────────────────────────────────────────────
+# ─ Données de référence — Togo ────────────────────────────────────────────────
 
+SCHOOL_NAME = "BEGONIA"
+SCHOOL_CITY = "Lomé"
+YEAR_LABEL  = "2025-2026"
+YEAR_START  = datetime.date(2025, 10, 1)
+YEAR_END    = datetime.date(2026, 7, 31)
+
+DIRECTOR_USERNAME = "directeur.begonia"
+DIRECTOR_PASSWORD = "Begonia2025!"
+ECONOME_USERNAME  = "econome.begonia"
+ECONOME_PASSWORD  = "Begonia2025!"
+
+# Prénoms togolais (Ewé / Kabyè), garçons et filles — mélange prénoms "de jour"
+# (jours de naissance, très courants au Togo) et prénoms usuels.
 PRENOMS = [
-    "Aminata", "Fatou", "Mariama", "Aissatou", "Kadiatou",
-    "Fatoumata", "Hawa", "Oumou", "Binta", "Rokhaya",
-    "Moussa", "Ibrahima", "Mamadou", "Alpha", "Oumar",
-    "Seydou", "Abdoulaye", "Cheikh", "Lamine", "Boubacar",
-    "Adama", "Samba", "Modibo", "Aliou", "Thierno",
-    "Ndaye", "Coumba", "Bineta", "Yacine", "Astou",
+    "Komlan", "Kodjo", "Kossi", "Koffi", "Kwami", "Kwasi", "Yao", "Ayité",
+    "Edem", "Elom", "Sena", "Fabrice", "Dela", "Mawuli", "Amefia", "Selom",
+    "Ayawa", "Akouvi", "Akossiwa", "Adjoa", "Abra", "Ama", "Afi", "Efua",
+    "Enyonam", "Yawa", "Kekeli", "Essohanam", "Fafa", "Sitou", "Nafissatou",
+    "Essowè", "Tchaa", "Bakoma", "Pidèwa", "Kondi", "Kolani", "Alassane",
 ]
 
 NOMS = [
-    "Diallo", "Bah", "Barry", "Camara", "Conde",
-    "Sylla", "Toure", "Kouyate", "Sow", "Keita",
-    "Traore", "Coulibaly", "Diabate", "Konate", "Sangare",
-    "Ndiaye", "Diop", "Fall", "Mbaye", "Thiam",
-    "Sene", "Sarr", "Faye", "Gueye", "Dione",
+    "Gnassingbé", "Gbeasor", "Aziaka", "Sogbossi", "Amenyah", "Kponton",
+    "Amouzou", "Djobo", "Tchamie", "Kpodar", "Dosseh", "Sossou", "Klu",
+    "Adjovi", "Ayivi", "Amegan", "Tossou", "Dossou", "Agbeko", "Amewou",
+    "Bakonde", "Kolani", "Tchagnaou", "Napo-Koura", "Djeri", "Assih",
 ]
 
 METHODS = ["ESPECES", "ESPECES", "ESPECES", "MOBILE_MONEY", "MOBILE_MONEY", "VIREMENT"]
@@ -61,12 +75,12 @@ LEVELS = [
 
 
 class Command(BaseCommand):
-    help = "Injecte des données de démo réalistes (niveaux, classes, élèves, paiements)"
+    help = "Injecte une base de démo complète pour l'école BEGONIA (Togo)"
 
     def add_arguments(self, parser):
         parser.add_argument(
             "--reset", action="store_true",
-            help="Supprime toutes les données economat avant de réinsérer"
+            help="Supprime élèves/inscriptions/paiements/classes/niveaux avant de réinsérer"
         )
 
     @transaction.atomic
@@ -79,19 +93,45 @@ class Command(BaseCommand):
             ClassModel.objects.all().delete()
             LevelModel.objects.all().delete()
 
-        # ─ Récupérer l’école et l’année active ───────────────────────
-        school = SchoolModel.objects.first()
-        if not school:
-            self.stdout.write(self.style.ERROR("Aucune école trouvée. Créez-en une d’abord."))
-            return
+        # ─ École + année scolaire ──────────────────────────────────────
+        school, created = SchoolModel.objects.get_or_create(
+            name=SCHOOL_NAME,
+            defaults={"city": SCHOOL_CITY, "country": "Togo", "currency": "XOF"},
+        )
+        self.stdout.write(
+            (self.style.SUCCESS("Créée") if created else self.style.WARNING("Existante"))
+            + f" — École : {school.name} ({school.city}, {school.country})"
+        )
 
-        year = SchoolYearModel.objects.filter(school=school, status="ACTIVE").first()
-        if not year:
-            self.stdout.write(self.style.ERROR("Aucune année ACTIVE trouvée."))
-            return
+        year, created = SchoolYearModel.objects.get_or_create(
+            school=school, label=YEAR_LABEL,
+            defaults={"start_date": YEAR_START, "end_date": YEAR_END, "status": "ACTIVE"},
+        )
+        if not created and year.status != "ACTIVE":
+            year.status = "ACTIVE"
+            year.save(update_fields=["status"])
+        self.stdout.write(
+            (self.style.SUCCESS("Créée") if created else self.style.WARNING("Existante"))
+            + f" — Année : {year.label} ({year.status})"
+        )
 
-        self.stdout.write(f"École    : {school.name}")
-        self.stdout.write(f"Année     : {year.label} (début {year.start_date})")
+        # ─ Comptes Directeur + Économe ──────────────────────────────────
+        director = self._get_or_create_account(
+            DIRECTOR_USERNAME, DIRECTOR_PASSWORD, "Kokou", "AMEGAN",
+        )
+        MembershipModel.objects.get_or_create(
+            user=director, school=school,
+            defaults={"role": "DIRECTOR", "display_name": "Kokou AMEGAN",
+                      "login": DIRECTOR_USERNAME, "is_active": True},
+        )
+        econome = self._get_or_create_account(
+            ECONOME_USERNAME, ECONOME_PASSWORD, "Afi", "DOSSOU",
+        )
+        MembershipModel.objects.get_or_create(
+            user=econome, school=school,
+            defaults={"role": "ECONOME", "display_name": "Afi DOSSOU",
+                      "login": ECONOME_USERNAME, "is_active": True},
+        )
         self.stdout.write("")
 
         year_start = year.start_date
@@ -121,7 +161,6 @@ class Command(BaseCommand):
                     prenom = random.choice(PRENOMS)
                     nom    = random.choice(NOMS)
 
-                    # Vérifier qu’une inscription n’existe pas déjà dans cette classe
                     student = StudentModel.objects.create(
                         id=uuid.uuid4(),
                         first_name=prenom, last_name=nom.upper(),
@@ -154,6 +193,20 @@ class Command(BaseCommand):
         self.stdout.write(self.style.SUCCESS(
             f"DONE — {total_enrollments} inscriptions, {total_payments} paiements"
         ))
+        self.stdout.write("")
+        self.stdout.write("Comptes de démo :")
+        self.stdout.write(f"  Directeur — identifiant : {DIRECTOR_USERNAME}  mot de passe : {DIRECTOR_PASSWORD}")
+        self.stdout.write(f"  Économe   — identifiant : {ECONOME_USERNAME}  mot de passe : {ECONOME_PASSWORD}")
+
+    def _get_or_create_account(self, username, password, first_name, last_name):
+        user, created = User.objects.get_or_create(
+            username=username,
+            defaults={"first_name": first_name, "last_name": last_name},
+        )
+        if created:
+            user.set_password(password)
+            user.save()
+        return user
 
 
 def _random_dob(level_type: str) -> datetime.date:

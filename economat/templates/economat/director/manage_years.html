@@ -83,7 +83,7 @@
     {% csrf_token %}
     <input type="hidden" name="create_year" value="1">
 
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.75rem;">
+    <div class="rg-3" style="gap:.75rem;">
       <div style="grid-column:1/-1;">
         <label class="field-label">{{ form.label.label }}</label>
         {{ form.label }}

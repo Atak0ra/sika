@@ -20,7 +20,7 @@
 {% if bi %}
 
 <!-- Compteurs globaux -->
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:.875rem;margin-bottom:1.25rem;">
+<div class="rg-2" style="margin-bottom:1.25rem;">
   <div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:12px;padding:1rem 1.25rem;display:flex;align-items:center;gap:.85rem;">
     <div style="width:2.25rem;height:2.25rem;border-radius:9px;background:rgba(245,158,11,.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
       <svg style="width:1.1rem;height:1.1rem;stroke:#d97706;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><use href="#icon-alert-circle"/></svg>
@@ -65,7 +65,7 @@
   </div>
 
   {% if bi.alert_students %}
-  <div style="overflow-x:auto;">
+  <div class="table-wrap">
     <table style="width:100%;border-collapse:collapse;font-size:.8125rem;" id="alertsTable">
       <thead>
         <tr style="border-bottom:1.5px solid #ecedf1;">

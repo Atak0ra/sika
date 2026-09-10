@@ -1,19 +1,53 @@
 {% extends "economat/base.html" %}
+{% block extra_head %}
+<style>
+  .sidebar-toggle {
+    display:none; align-items:center; justify-content:center;
+    width:2.25rem; height:2.25rem; border-radius:8px;
+    background:var(--surface); border:1px solid var(--border);
+    box-shadow:var(--shadow-xs); cursor:pointer; color:var(--text-1); margin-bottom:1rem;
+  }
+  .sidebar-toggle svg{width:1.15rem;height:1.15rem;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;}
+  .sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(10,10,20,.3);backdrop-filter:blur(2px);z-index:29;}
+  .sidebar-overlay.is-open{display:block;}
+  .director-sidebar{width:220px;flex-shrink:0;position:sticky;top:72px;max-height:calc(100vh - 80px);overflow-y:auto;}
+  .director-layout{display:flex;align-items:flex-start;gap:1.5rem;}
+  .director-main{flex:1;min-width:0;}
+  .sidebar-close-btn{display:none;}
+  @media(max-width:1024px){
+    .sidebar-toggle{display:inline-flex;}
+    .director-layout{flex-direction:column;gap:0;}
+    .director-sidebar{
+      position:fixed;top:0;left:0;bottom:0;width:260px;max-height:100vh;z-index:30;
+      transform:translateX(-100%);transition:transform .22s cubic-bezier(.4,0,.2,1);
+      border-radius:0;background:#fff;border-right:1px solid #ecedf1;
+      box-shadow:4px 0 24px rgba(10,10,20,.1);padding:.5rem 0;
+    }
+    .director-sidebar.is-open{transform:translateX(0);}
+    .director-main{width:100%;}
+    .sidebar-close-btn{display:flex;}
+  }
+</style>
+{% endblock %}
+
 {% block content %}
-<div style="display:flex;align-items:flex-start;gap:1.5rem;">
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+<button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()" aria-label="Ouvrir le menu" aria-expanded="false">
+  <svg viewBox="0 0 24 24"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+</button>
 
-  <!-- SIDEBAR -->
-  <aside style="width:220px;flex-shrink:0;position:sticky;top:80px;">
+<div class="director-layout">
+  <aside class="director-sidebar" id="directorSidebar">
     <div style="background:#fff;border:1px solid #ecedf1;border-radius:14px;padding:.75rem .65rem;box-shadow:0 1px 2px rgba(16,24,40,.04);">
-
-      <!-- Nom de l'école -->
+      <button onclick="closeSidebar()" aria-label="Fermer" class="sidebar-close-btn"
+              style="align-items:center;justify-content:flex-end;width:100%;padding:.25rem .4rem .5rem;background:none;border:none;cursor:pointer;color:var(--text-3);">
+        <svg style="width:1.1rem;height:1.1rem;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
       {% if school %}
       <div style="padding:.4rem .55rem .5rem;margin-bottom:.4rem;">
         <div style="font-size:.7375rem;font-weight:600;color:#9397a8;text-transform:uppercase;letter-spacing:.05em;">École</div>
         <div style="font-size:.8375rem;font-weight:700;color:#1a1d29;margin-top:.2rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ school.name }}</div>
       </div>
-
-      <!-- Année scolaire -->
       <div style="margin-bottom:.5rem;">
         {% if school_year %}
         <a href="{% url 'economat:manage_years' school.id %}"
@@ -46,90 +80,65 @@
         {% endif %}
       </div>
       {% endif %}
-
       <div style="height:1px;background:#ecedf1;margin:.35rem 0 .5rem;"></div>
-
       <nav style="display:flex;flex-direction:column;gap:.15rem;">
         <a href="{% url 'economat:director_dashboard' %}"
-           class="nav-link {% if active_nav == 'dashboard' %}nav-link-active{% endif %}"
-           style="font-size:.84375rem;">
-          <svg class="icon" style="width:1em;height:1em;"><use href="#icon-bar-chart"/></svg>
-          Tableau de bord
+           class="nav-link {% if active_nav == 'dashboard' %}nav-link-active{% endif %}" style="font-size:.84375rem;">
+          <svg class="icon" style="width:1em;height:1em;"><use href="#icon-bar-chart"/></svg> Tableau de bord
         </a>
-
         {% if school_year %}
         <a href="{% url 'economat:alerts' school.id school_year.id %}"
-           class="nav-link {% if active_nav == 'alertes' %}nav-link-active{% endif %}"
-           style="font-size:.84375rem;">
-          <svg class="icon" style="width:1em;height:1em;"><use href="#icon-alert-circle"/></svg>
-          Alertes
+           class="nav-link {% if active_nav == 'alertes' %}nav-link-active{% endif %}" style="font-size:.84375rem;">
+          <svg class="icon" style="width:1em;height:1em;"><use href="#icon-alert-circle"/></svg> Alertes
           {% if bi_total_alerts %}
-          <span style="margin-left:auto;font-size:.68rem;font-weight:700;padding:.1rem .4rem;border-radius:999px;
-                        background:#fef2f2;color:#b91c1c;">{{ bi_total_alerts }}</span>
+          <span style="margin-left:auto;font-size:.68rem;font-weight:700;padding:.1rem .4rem;border-radius:999px;background:#fef2f2;color:#b91c1c;">{{ bi_total_alerts }}</span>
           {% endif %}
         </a>
         {% endif %}
-
         {% if school %}
         <a href="{% url 'economat:manage_years' school.id %}"
-           class="nav-link {% if active_nav == 'annees' %}nav-link-active{% endif %}"
-           style="font-size:.84375rem;">
-          <svg class="icon" style="width:1em;height:1em;"><use href="#icon-settings"/></svg>
-          Années scolaires
+           class="nav-link {% if active_nav == 'annees' %}nav-link-active{% endif %}" style="font-size:.84375rem;">
+          <svg class="icon" style="width:1em;height:1em;"><use href="#icon-settings"/></svg> Années scolaires
         </a>
         {% endif %}
-
         {% if school_year %}
         <div style="height:1px;background:#ecedf1;margin:.2rem 0;"></div>
         <a href="{% url 'economat:add_level' school.id school_year.id %}"
-           class="nav-link {% if active_nav == 'niveaux' %}nav-link-active{% endif %}"
-           style="font-size:.84375rem;">
-          <svg class="icon" style="width:1em;height:1em;"><use href="#icon-book"/></svg>
-          Niveaux
+           class="nav-link {% if active_nav == 'niveaux' %}nav-link-active{% endif %}" style="font-size:.84375rem;">
+          <svg class="icon" style="width:1em;height:1em;"><use href="#icon-book"/></svg> Niveaux
         </a>
         <a href="{% url 'economat:configure_pricing' school.id school_year.id %}"
-           class="nav-link {% if active_nav == 'tarifs' %}nav-link-active{% endif %}"
-           style="font-size:.84375rem;">
-          <svg class="icon" style="width:1em;height:1em;"><use href="#icon-coins"/></svg>
-          Tarifs
+           class="nav-link {% if active_nav == 'tarifs' %}nav-link-active{% endif %}" style="font-size:.84375rem;">
+          <svg class="icon" style="width:1em;height:1em;"><use href="#icon-coins"/></svg> Tarifs
         </a>
         <a href="{% url 'economat:students_list' school.id school_year.id %}"
-           class="nav-link {% if active_nav == 'eleves' %}nav-link-active{% endif %}"
-           style="font-size:.84375rem;">
-          <svg class="icon" style="width:1em;height:1em;"><use href="#icon-users"/></svg>
-          Élèves
+           class="nav-link {% if active_nav == 'eleves' %}nav-link-active{% endif %}" style="font-size:.84375rem;">
+          <svg class="icon" style="width:1em;height:1em;"><use href="#icon-users"/></svg> Élèves
         </a>
         <a href="{% url 'economat:team' school.id %}"
-           class="nav-link {% if active_nav == 'equipe' %}nav-link-active{% endif %}"
-           style="font-size:.84375rem;">
-          <svg class="icon" style="width:1em;height:1em;"><use href="#icon-user-plus"/></svg>
-          Équipe
+           class="nav-link {% if active_nav == 'equipe' %}nav-link-active{% endif %}" style="font-size:.84375rem;">
+          <svg class="icon" style="width:1em;height:1em;"><use href="#icon-user-plus"/></svg> Équipe
         </a>
         <a href="{% url 'economat:school_settings' school.id %}"
-           class="nav-link {% if active_nav == 'settings' %}nav-link-active{% endif %}"
-           style="font-size:.84375rem;">
-          <svg class="icon" style="width:1em;height:1em;"><use href="#icon-settings"/></svg>
-          Paramètres
+           class="nav-link {% if active_nav == 'settings' %}nav-link-active{% endif %}" style="font-size:.84375rem;">
+          <svg class="icon" style="width:1em;height:1em;"><use href="#icon-settings"/></svg> Paramètres
         </a>
         <div style="height:1px;background:#ecedf1;margin:.2rem 0;"></div>
-        <button type="button" id="sidebarChatOpen"
-                class="nav-link" style="font-size:.84375rem;width:100%;text-align:left;"
+        <button type="button" id="sidebarChatOpen" class="nav-link"
+                style="font-size:.84375rem;width:100%;text-align:left;"
                 data-url="{% url 'economat:director_chat' school.id school_year.id %}"
                 data-name="{{ school.name }} — {{ school_year.label }}">
-          <svg class="icon" style="width:1em;height:1em;"><use href="#icon-sparkles"/></svg>
-          Chat IA
+          <svg class="icon" style="width:1em;height:1em;"><use href="#icon-sparkles"/></svg> Chat IA
           <span style="margin-left:auto;font-size:.7rem;background:#eef2ff;color:#4338ca;padding:.1rem .4rem;border-radius:999px;font-weight:600;">IA</span>
         </button>
         {% endif %}
       </nav>
     </div>
   </aside>
-
-  <!-- CONTENU -->
-  <div style="flex:1;min-width:0;">{% block director_content %}{% endblock %}</div>
+  <div class="director-main">{% block director_content %}{% endblock %}</div>
 </div>
 
-<!-- CHAT DRAWER (inchangé) -->
+<!-- CHAT DRAWER -->
 <div id="chatOverlay" style="position:fixed;inset:0;background:rgba(10,10,20,.3);backdrop-filter:blur(2px);display:none;z-index:40;" onclick="closeChat()"></div>
 <aside id="chatDrawer" style="position:fixed;top:0;right:0;height:100%;width:100%;max-width:400px;background:#fff;border-left:1px solid #ecedf1;z-index:50;display:flex;flex-direction:column;box-shadow:-8px 0 32px rgba(10,10,20,.1);transform:translateX(100%);transition:transform .22s cubic-bezier(.4,0,.2,1);">
   <div style="display:flex;align-items:center;justify-content:space-between;padding:.875rem 1.1rem;border-bottom:1px solid #ecedf1;">
@@ -158,6 +167,15 @@
 </aside>
 
 <script>
+const directorSidebar=document.getElementById('directorSidebar');
+const sidebarOverlay=document.getElementById('sidebarOverlay');
+const sidebarToggle=document.getElementById('sidebarToggle');
+function openSidebar(){directorSidebar.classList.add('is-open');sidebarOverlay.classList.add('is-open');if(sidebarToggle)sidebarToggle.setAttribute('aria-expanded','true');document.body.style.overflow='hidden';}
+function closeSidebar(){directorSidebar.classList.remove('is-open');sidebarOverlay.classList.remove('is-open');if(sidebarToggle)sidebarToggle.setAttribute('aria-expanded','false');document.body.style.overflow='';}
+function toggleSidebar(){directorSidebar.classList.contains('is-open')?closeSidebar():openSidebar();}
+if(directorSidebar){directorSidebar.querySelectorAll('.nav-link').forEach(link=>{link.addEventListener('click',()=>{if(window.innerWidth<=1024)closeSidebar();});});}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeSidebar();closeChat();}});
+
 const chatDrawer=document.getElementById('chatDrawer');
 const chatOverlay=document.getElementById('chatOverlay');
 const schoolNameEl=document.getElementById('chatSchoolName');
@@ -165,7 +183,6 @@ const messagesEl=document.getElementById('drawerMessages');
 const chatForm=document.getElementById('chatForm');
 const chatInput=document.getElementById('chatQuestion');
 let currentUrl=null;
-
 function appendBubble(role,text,data){
   const row=document.createElement('div');
   row.style.cssText='display:flex;'+(role==='user'?'justify-content:flex-end;':'justify-content:flex-start;');
@@ -186,24 +203,18 @@ function appendBubble(role,text,data){
   }
   row.appendChild(bubble);messagesEl.appendChild(row);messagesEl.scrollTop=messagesEl.scrollHeight;
 }
-
 window.closeChat=function(){chatDrawer.style.transform='translateX(100%)';chatOverlay.style.display='none';};
-
 function openChat(url,name){
   currentUrl=url;schoolNameEl.textContent=name;
   messagesEl.innerHTML='';chatDrawer.style.transform='translateX(0)';chatOverlay.style.display='block';chatInput.focus();
   fetch(url).then(r=>r.text()).then(html=>{
     const doc=new DOMParser().parseFromString(html,'text/html');
     const hist=doc.getElementById('chatMessages');
-    if(hist&&hist.children.length){
-      Array.from(hist.children).forEach(el=>messagesEl.appendChild(el.cloneNode(true)));
-    }else{
-      appendBubble('assistant','Posez une question sur vos données.');
-    }
+    if(hist&&hist.children.length){Array.from(hist.children).forEach(el=>messagesEl.appendChild(el.cloneNode(true)));}
+    else{appendBubble('assistant','Posez une question sur vos donn\u00e9es.');}
     messagesEl.scrollTop=messagesEl.scrollHeight;
   }).catch(()=>appendBubble('assistant','Historique indisponible.'));
 }
-
 chatForm.addEventListener('submit',e=>{
   e.preventDefault();
   const q=chatInput.value.trim();
@@ -215,12 +226,10 @@ chatForm.addEventListener('submit',e=>{
     headers:{'Content-Type':'application/x-www-form-urlencoded','X-Requested-With':'XMLHttpRequest','X-CSRFToken':csrfInput?csrfInput.value:''},
     body:new URLSearchParams({question:q}),
   }).then(r=>r.json()).then(data=>appendBubble('assistant',data.message.content,data.message))
-  .catch(()=>appendBubble('assistant','Erreur. Réessayez.'))
+  .catch(()=>appendBubble('assistant','Erreur. R\u00e9essayez.'))
   .finally(()=>{sendBtn.disabled=false;chatInput.focus();});
 });
-
 const opener=document.getElementById('sidebarChatOpen');
 if(opener)opener.addEventListener('click',()=>openChat(opener.dataset.url,opener.dataset.name));
-document.addEventListener('keydown',e=>{if(e.key==='Escape')closeChat();});
 </script>
 {% endblock %}

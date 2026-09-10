@@ -17,7 +17,7 @@
   <div class="card" style="padding:1.75rem;">
     <form method="post" style="display:flex;flex-direction:column;gap:1rem;">
       {% csrf_token %}
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;">
+      <div class="rg-2" style="gap:.75rem;">
         {% for field in form %}{% if field.name == 'first_name' or field.name == 'last_name' %}
         <div>
           <label class="field-label">{{ field.label }}</label>

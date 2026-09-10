@@ -329,6 +329,100 @@
     @media (prefers-reduced-motion: reduce) { .toast { animation: none; } }
 
     /* ==== UTILITAIRES ==== */
+
+    /* ----------------------------------------------------------------
+       GRILLES RESPONSIVES
+       Utiliser ces classes pour remplacer les grid-template-columns
+       fixes dans les templates.
+    ---------------------------------------------------------------- */
+    .rg-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem;
+    }
+    .rg-3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: .875rem;
+    }
+    .rg-hero {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr 1fr;
+      gap: .875rem;
+    }
+    .rg-sidebar {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 1.25rem;
+      align-items: start;
+    }
+    .rg-charts {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr;
+      gap: 1rem;
+    }
+
+    /* Table scrollable horizontalement sur mobile */
+    .table-wrap {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    /* ----------------------------------------------------------------
+       BREAKPOINT 1024px — tablettes paysage et petits laptops
+    ---------------------------------------------------------------- */
+    @media (max-width: 1024px) {
+      .rg-sidebar {
+        grid-template-columns: 1fr;
+      }
+      .rg-charts {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* ----------------------------------------------------------------
+       BREAKPOINT 768px — tablettes portrait
+    ---------------------------------------------------------------- */
+    @media (max-width: 768px) {
+      .rg-hero,
+      .rg-3 {
+        grid-template-columns: 1fr;
+      }
+      main[role="main"], main {
+        padding: 1.25rem 1rem !important;
+      }
+    }
+
+    /* ----------------------------------------------------------------
+       BREAKPOINT 640px — mobiles
+    ---------------------------------------------------------------- */
+    @media (max-width: 640px) {
+      .rg-2 {
+        grid-template-columns: 1fr;
+      }
+      .rg-hero,
+      .rg-3 {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* ----------------------------------------------------------------
+       NAVBAR responsive
+    ---------------------------------------------------------------- */
+    .nav-username {
+      font-size: .8125rem;
+      color: var(--text-2);
+      font-weight: 500;
+    }
+    @media (max-width: 480px) {
+      .nav-username { display: none; }
+      header > div { padding: 0 1rem !important; }
+    }
+    @media (max-width: 768px) {
+      header > div { padding: 0 1.25rem !important; }
+      main { padding: 1.25rem 1rem !important; }
+    }
+
     .icon { width:1.1em; height:1.1em; stroke:currentColor; fill:none; stroke-width:1.75;
             stroke-linecap:round; stroke-linejoin:round; flex-shrink:0; vertical-align:-0.15em; }
     .tabular-nums { font-variant-numeric: tabular-nums; }
@@ -396,7 +490,7 @@
       <!-- Profil + déconnexion -->
       <div style="display:flex; align-items:center; gap:.75rem;">
         {% if request.user.is_authenticated %}
-        <span style="font-size:.8125rem; color:var(--text-2); font-weight:500;">
+        <span class="nav-username">
           {{ request.user.get_full_name|default:request.user.username }}
         </span>
         <a href="{% url 'economat:logout' %}"
