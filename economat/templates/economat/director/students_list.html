@@ -110,9 +110,7 @@
           <th style="text-align:left;padding:.65rem .75rem;font-size:.7375rem;font-weight:700;
                       color:#9397a8;letter-spacing:.04em;white-space:nowrap;">INSCRIPTION</th>
           <th style="text-align:center;padding:.65rem .75rem;font-size:.7375rem;font-weight:700;
-                      color:#9397a8;letter-spacing:.04em;white-space:nowrap;">STATUT</th>
-          <th style="text-align:center;padding:.65rem .75rem;font-size:.7375rem;font-weight:700;
-                      color:#9397a8;letter-spacing:.04em;white-space:nowrap;">PAIEMENT {{ school_year }}</th>
+                      color:#9397a8;letter-spacing:.04em;white-space:nowrap;">PAIEMENT {{ school_year.label }}</th>
         </tr>
       </thead>
       <tbody>
@@ -140,15 +138,6 @@
             {{ student.enrollment_date|date:"d/m/Y" }}
           </td>
 
-          <!-- Statut élève -->
-          <td style="padding:.7rem .75rem;text-align:center;">
-            {% if student.status == 'ACTIVE' %}
-            <span class="badge badge-success">Actif</span>
-            {% else %}
-            <span class="badge badge-neutral">Inactif</span>
-            {% endif %}
-          </td>
-
           <!-- Badge paiement rapide -->
           <td style="padding:.7rem .75rem;text-align:center;">
             {% with paid=student.paid_total fee=student.level.annual_fee %}
@@ -167,7 +156,7 @@
         </tr>
         {% empty %}
         <tr>
-          <td colspan="6" style="text-align:center;padding:3.5rem 1rem;color:#9397a8;">
+          <td colspan="5" style="text-align:center;padding:3.5rem 1rem;color:#9397a8;">
             <svg class="icon" style="width:2rem;height:2rem;margin-bottom:.5rem;color:#d1d5db;"><use href="#icon-users"/></svg>
             <p style="font-weight:500;margin-bottom:.25rem;color:#52556b;">Aucun élève trouvé</p>
             {% if q or level_id or class_id_f %}
