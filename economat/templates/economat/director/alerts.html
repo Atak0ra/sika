@@ -6,7 +6,7 @@
 <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:.75rem;margin-bottom:1.5rem;">
   <div>
     <h1 style="font-size:1.125rem;font-weight:700;letter-spacing:-0.02em;">Alertes de paiement</h1>
-    <p style="font-size:.8375rem;color:#9397a8;margin-top:.25rem;">{{ school.name }} — {{ year.label }}</p>
+    <p style="font-size:.8375rem;color:#9397a8;margin-top:.25rem;">{{ school.name }} {{ year.label }}</p>
   </div>
   {% if school and school_year and bi %}
   <a href="{% url 'economat:export_renvoyables' school.id school_year.id %}"
@@ -85,7 +85,7 @@
           <td style="padding:.65rem 1rem;font-weight:600;color:#1a1d29;">{{ a.full_name }}</td>
           <td style="padding:.65rem .75rem;">
             <span style="color:#1a1d29;">{{ a.level }}</span>
-            <span style="color:#9397a8;"> — {{ a.class_name }}</span>
+            <span style="color:#9397a8;"> {{ a.class_name }}</span>
           </td>
           <td style="padding:.65rem .75rem;text-align:right;font-variant-numeric:tabular-nums;font-weight:600;color:#b91c1c;">{{ a.overdue_amount|fcfa_long }}</td>
           <td style="padding:.65rem .75rem;text-align:center;font-variant-numeric:tabular-nums;">

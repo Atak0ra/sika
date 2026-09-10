@@ -76,7 +76,7 @@
     <option value="">Toutes les classes</option>
     {% for cl in classes %}
     <option value="{{ cl.id }}" {% if cl.id|stringformat:'s' == class_id_f %}selected{% endif %}>
-      {{ cl.level.name }} — {{ cl.name }}
+      {{ cl.level.name }} {{ cl.name }}
     </option>
     {% endfor %}
   </select>
@@ -182,7 +182,7 @@
     <p style="font-size:.8125rem;color:#9397a8;">
       <strong style="color:#1a1d29;">{{ page_obj.paginator.count }}</strong> élève{{ page_obj.paginator.count|pluralize }}
       {% if page_obj.paginator.num_pages > 1 %}
-      &mdash; Page <strong>{{ page_obj.number }}</strong> / {{ page_obj.paginator.num_pages }}
+      Page <strong>{{ page_obj.number }}</strong> / {{ page_obj.paginator.num_pages }}
       {% endif %}
     </p>
     {% if page_obj.paginator.num_pages > 1 %}

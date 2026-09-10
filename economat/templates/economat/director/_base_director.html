@@ -176,7 +176,7 @@
         <button type="button" id="sidebarChatOpen"
                 class="nav-link" style="font-size:.84375rem;width:100%;text-align:left;"
                 data-url="{% url 'economat:director_chat' school.id school_year.id %}"
-                data-name="{{ school.name }} — {{ school_year.label }}">
+                data-name="{{ school.name }} {{ school_year.label }}">
           <svg class="icon" style="width:1em;height:1em;"><use href="#icon-sparkles"/></svg>
           Chat IA
           <span style="margin-left:auto;font-size:.7rem;background:#eef2ff;color:#4338ca;padding:.1rem .4rem;border-radius:999px;font-weight:600;">IA</span>
@@ -233,7 +233,7 @@
       </button>
     </form>
     <p style="font-size:.7rem;color:#c4c7d0;margin-top:.45rem;text-align:center;">
-      Lecture seule — aucune modification
+      Lecture seule aucune modification
     </p>
   </div>
 </aside>

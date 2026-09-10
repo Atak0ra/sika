@@ -15,7 +15,7 @@
   <div>
     <h1 style="font-size:1.25rem;font-weight:700;letter-spacing:-0.02em;margin-bottom:.2rem;">Control Center Financier</h1>
     <p style="font-size:.8125rem;color:#9397a8;">
-      {% if school %}{{ school.name }} &mdash; {% endif %}
+      {% if school %}{{ school.name }} {% endif %}
       {% if school_year %}
         Année <strong style="color:#1a1d29;">{{ school_year.label }}</strong>
         {% if school_year.status == 'DRAFT' %}<span style="font-size:.7rem;color:#d97706;margin-left:.35rem;">En préparation</span>{% endif %}
@@ -63,7 +63,7 @@
       </div>
       <div style="font-size:.8125rem;color:#9397a8;margin-top:.35rem;">
         {% if bi.kpi.perf_level == 'good' %}Objectif atteint{% elif bi.kpi.perf_level == 'warning' %}À surveiller{% else %}Action requise{% endif %}
-        &mdash; {{ bi.kpi.total_students }} élève{{ bi.kpi.total_students|pluralize }}
+        {{ bi.kpi.total_students }} élève{{ bi.kpi.total_students|pluralize }}
       </div>
     </div>
     <div>
@@ -251,7 +251,7 @@
 /* ================================================================
 
 /* ================================================================
-   CHART.JS : Graphique 1 — Prévisionnel cumulé vs Réel cumulé
+   CHART.JS : Graphique 1 Prévisionnel cumulé vs Réel cumulé
 ================================================================ */
 (function() {
   var labels   = {{ period_labels|safe }};
@@ -323,7 +323,7 @@
 })();
 
 /* ================================================================
-   CHART.JS : Graphique 2 — Objectif vs Recouvré par classe (barres horizontales)
+   CHART.JS : Graphique 2 Objectif vs Recouvré par classe (barres horizontales)
 ================================================================ */
 (function() {
   var allLabels = {{ class_labels|safe }};

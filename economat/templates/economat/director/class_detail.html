@@ -12,7 +12,7 @@
       <span style="color:#52556b;">{{ level.name }}</span>
     </div>
     <h1 style="font-size:1.125rem;font-weight:700;letter-spacing:-0.02em;">{{ klass.name }}</h1>
-    <p style="font-size:.8125rem;color:#9397a8;margin-top:.2rem;">{{ school.name }} — {{ school_year.label }}</p>
+    <p style="font-size:.8125rem;color:#9397a8;margin-top:.2rem;">{{ school.name }} {{ school_year.label }}</p>
   </div>
   <a href="{% url 'economat:register_student' school.id school_year.id %}" class="btn-primary" style="font-size:.875rem;">
     <svg class="icon" style="width:.95em;height:.95em;"><use href="#icon-user-plus"/></svg>

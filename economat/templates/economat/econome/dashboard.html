@@ -5,7 +5,7 @@
 
 {% if receipt %}
 <!-- ================================================================
-     REÇU D'ENCAISSEMENT — affiché après enregistrement, prêt à imprimer
+     REÇU D'ENCAISSEMENT affiché après enregistrement, prêt à imprimer
 ================================================================ -->
 <div id="receiptPanel"
      style="margin-bottom:2rem;display:flex;flex-direction:column;align-items:center;">
@@ -85,7 +85,7 @@
 {% endif %}
 
 <!-- ================================================================
-     BANDEAU D'ACTIVITÉ — chiffres clés de l'économe
+     BANDEAU D'ACTIVITÉ chiffres clés de l'économe
 ================================================================ -->
 {% if stats %}
 <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.5rem;" id="statsStrip">
@@ -193,7 +193,7 @@
             <label class="field-label">Classe</label>
             <select id="classFilter" class="form-select">
               <option value="">Toutes</option>
-              {% for c in classes %}<option value="{{ c.id }}">{{ c.level.name }} — {{ c.name }}</option>{% endfor %}
+              {% for c in classes %}<option value="{{ c.id }}">{{ c.level.name }} {{ c.name }}</option>{% endfor %}
             </select>
           </div>
           <div style="position:relative;">
@@ -308,7 +308,7 @@
 
 <script>
 /* ================================================================
-   Boutons radio visuels — moyens de paiement
+   Boutons radio visuels moyens de paiement
 ================================================================ */
 function refreshMethodUI() {
   document.querySelectorAll('.method-radio').forEach(radio => {
@@ -333,7 +333,7 @@ document.querySelectorAll('.method-radio').forEach(r =>
 refreshMethodUI();
 
 /* ================================================================
-   Autocomplétion — recherche élève
+   Autocomplétion recherche élève
 ================================================================ */
 const searchInput   = document.getElementById('studentSearchInput');
 const searchList    = document.getElementById('searchResults');
