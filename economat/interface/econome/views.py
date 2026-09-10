@@ -2,8 +2,11 @@
 interface/econome/views.py — REFONTE (passe par Enrollment + year_id).
 """
 from __future__ import annotations
+import datetime
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.db.models import Count, Q, Sum
 from django.http import JsonResponse
 from django.shortcuts import redirect, render
 from django.views.decorators.http import require_GET, require_POST
@@ -23,6 +26,60 @@ def _get_user_active_year(request):
         return None, None
     year = SchoolYearModel.objects.filter(school_id=m.school_id, status="ACTIVE").first()
     return m.school, year
+
+
+def _activity_stats(active_year):
+    """
+    Indicateurs d'activité de l'économe — 3 requêtes SQL, pas de boucle Python.
+    Retourne un dict prêt pour le contexte template.
+    """
+    if not active_year:
+        return {}
+
+    today = datetime.date.today()
+    base_qs = PaymentModel.objects.filter(
+        state="VALID", enrollment__school_year=active_year
+    )
+
+    # Agrégats globaux (année entière + aujourd'hui) en une seule passe
+    agg = base_qs.aggregate(
+        total_year=Sum("amount"),
+        count_year=Count("id"),
+        students_year=Count("student_id", distinct=True),
+        total_today=Sum("amount", filter=Q(payment_date=today)),
+        count_today=Count("id",   filter=Q(payment_date=today)),
+    )
+
+    # Répartition par moyen de paiement
+    METHOD_LABELS = {
+        "ESPECES": "Espèces", "MOBILE_MONEY": "Mobile Money",
+        "VIREMENT": "Virement", "CHEQUE": "Chèque",
+    }
+    methods = [
+        {
+            "key":   r["method"],
+            "label": METHOD_LABELS.get(r["method"], r["method"]),
+            "total": r["total"] or 0,
+            "cnt":   r["cnt"],
+        }
+        for r in base_qs.values("method").annotate(
+            total=Sum("amount"), cnt=Count("id")
+        ).order_by("-total")
+    ]
+
+    enrolled_count = EnrollmentModel.objects.filter(
+        school_year=active_year, status="ACTIVE"
+    ).count()
+
+    return {
+        "total_year":     agg["total_year"]    or 0,
+        "count_year":     agg["count_year"]    or 0,
+        "students_year":  agg["students_year"] or 0,
+        "total_today":    agg["total_today"]   or 0,
+        "count_today":    agg["count_today"]   or 0,
+        "methods":        methods,
+        "enrolled_count": enrolled_count,
+    }
 
 
 @login_required
@@ -49,6 +106,7 @@ def dashboard(request):
         "school":          school,
         "school_year":     active_year,
         "classes":         classes,
+        "stats":           _activity_stats(active_year),
         "page_title":      "Saisie des encaissements",
     })
 
@@ -95,17 +153,16 @@ def record_payment(request):
 @require_GET
 def student_search_api(request):
     """Recherche AJAX : renvoie les inscriptions actives de l'année active."""
-    query   = request.GET.get("q", "").strip()
+    query    = request.GET.get("q", "").strip()
     class_id = request.GET.get("class_id", "").strip()
 
-    if len(query) < 2:
+    if len(query) < 1:
         return JsonResponse({"results": []})
 
     _, active_year = _get_user_active_year(request)
     if not active_year:
         return JsonResponse({"results": []})
 
-    from django.db.models import Q
     qs = EnrollmentModel.objects.filter(
         school_year=active_year, status="ACTIVE"
     ).filter(
@@ -117,8 +174,8 @@ def student_search_api(request):
 
     results = [
         {
-            "id": str(e.student_id),
-            "name": f"{e.student.first_name} {e.student.last_name.upper()}",
+            "id":    str(e.student_id),
+            "name":  f"{e.student.first_name} {e.student.last_name.upper()}",
             "class": e.klass.name if e.klass_id else "",
         }
         for e in qs[:10]
