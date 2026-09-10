@@ -414,13 +414,18 @@
       color: var(--text-2);
       font-weight: 500;
     }
+
+    /* MAIN — conteneur principal de page */
+    .main-content {
+      width: 100%;
+      padding: 1.5rem 2rem;
+    }
+
+    @media (max-width: 768px) {
+      .main-content { padding: 1.25rem 1rem; }
+    }
     @media (max-width: 480px) {
       .nav-username { display: none; }
-      header > div { padding: 0 1rem !important; }
-    }
-    @media (max-width: 768px) {
-      header > div { padding: 0 1.25rem !important; }
-      main { padding: 1.25rem 1rem !important; }
     }
 
     .icon { width:1.1em; height:1.1em; stroke:currentColor; fill:none; stroke-width:1.75;
@@ -547,7 +552,7 @@
   <!-- ============================================================
        CONTENU PRINCIPAL
   ============================================================ -->
-  <main style="width:100%; padding:1.5rem 2rem;">
+  <main class="main-content">
     {% block content %}{% endblock %}
   </main>
 

@@ -1,67 +1,164 @@
 {% extends "economat/base.html" %}
 {% block extra_head %}
 <style>
-  .sidebar-toggle {
-    display:none; align-items:center; justify-content:center;
-    width:2.25rem; height:2.25rem; border-radius:8px;
-    background:var(--surface); border:1px solid var(--border);
-    box-shadow:var(--shadow-xs); cursor:pointer; color:var(--text-1); margin-bottom:1rem;
+/* ==============================================================
+   LAYOUT DIRECTEUR
+   Desktop (>1024px)  : sidebar fixe 220px à gauche + contenu
+   Mobile  (≤1024px)  : sidebar en drawer, bouton hamburger
+============================================================== */
+
+/* --- Layout wrapper --- */
+.dir-layout {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.5rem;
+}
+
+/* --- Sidebar --- */
+.dir-sidebar {
+  width: 220px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 72px;
+  max-height: calc(100vh - 80px);
+  overflow-y: auto;
+}
+
+/* --- Contenu principal --- */
+.dir-main {
+  flex: 1;
+  min-width: 0;
+}
+
+/* --- Bouton hamburger (caché sur desktop) --- */
+.dir-hamburger {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 8px;
+  background: #fff;
+  border: 1px solid #ecedf1;
+  cursor: pointer;
+  margin-bottom: 1rem;
+  box-shadow: 0 1px 2px rgba(16,24,40,.04);
+}
+.dir-hamburger svg {
+  width: 1.1rem;
+  height: 1.1rem;
+  stroke: #1a1d29;
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+/* --- Overlay fond (mobile) --- */
+.dir-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(10,10,20,.35);
+  z-index: 49;
+}
+.dir-overlay.open { display: block; }
+
+/* --- Bouton fermer dans la sidebar (caché sur desktop) --- */
+.dir-sidebar-close {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: .4rem .4rem .6rem;
+  width: 100%;
+  justify-content: flex-end;
+  color: #9397a8;
+}
+.dir-sidebar-close svg {
+  width: 1rem;
+  height: 1rem;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+/* ======================
+   RESPONSIVE ≤ 1024px
+====================== */
+@media (max-width: 1024px) {
+  .dir-hamburger { display: inline-flex; }
+  .dir-sidebar-close { display: flex; }
+
+  .dir-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 270px;
+    max-height: 100vh;
+    z-index: 50;
+    transform: translateX(-100%);
+    transition: transform .22s cubic-bezier(.4,0,.2,1);
+    background: #fff;
+    border-radius: 0;
+    border-right: 1px solid #ecedf1;
+    box-shadow: 6px 0 24px rgba(10,10,20,.12);
+    padding: .25rem 0 1rem;
   }
-  .sidebar-toggle svg{width:1.15rem;height:1.15rem;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;}
-  .sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(10,10,20,.3);backdrop-filter:blur(2px);z-index:29;}
-  .sidebar-overlay.is-open{display:block;}
-  .director-sidebar{width:220px;flex-shrink:0;position:sticky;top:72px;max-height:calc(100vh - 80px);overflow-y:auto;}
-  .director-layout{display:flex;align-items:flex-start;gap:1.5rem;}
-  .director-main{flex:1;min-width:0;}
-  .sidebar-close-btn{display:none;}
-  @media(max-width:1024px){
-    .sidebar-toggle{display:inline-flex;}
-    .director-layout{flex-direction:column;gap:0;}
-    .director-sidebar{
-      position:fixed;top:0;left:0;bottom:0;width:260px;max-height:100vh;z-index:30;
-      transform:translateX(-100%);transition:transform .22s cubic-bezier(.4,0,.2,1);
-      border-radius:0;background:#fff;border-right:1px solid #ecedf1;
-      box-shadow:4px 0 24px rgba(10,10,20,.1);padding:.5rem 0;
-    }
-    .director-sidebar.is-open{transform:translateX(0);}
-    .director-main{width:100%;}
-    .sidebar-close-btn{display:flex;}
+
+  .dir-sidebar.open {
+    transform: translateX(0);
   }
+
+  .dir-layout {
+    display: block;
+  }
+}
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
-<button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()" aria-label="Ouvrir le menu" aria-expanded="false">
-  <svg viewBox="0 0 24 24"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+<!-- Overlay mobile -->
+<div class="dir-overlay" id="dirOverlay" onclick="dirCloseSidebar()"></div>
+
+<!-- Bouton hamburger -->
+<button class="dir-hamburger" id="dirHamburger" onclick="dirToggleSidebar()" aria-label="Menu">
+  <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
 </button>
 
-<div class="director-layout">
-  <aside class="director-sidebar" id="directorSidebar">
+<div class="dir-layout">
+
+  <!-- ====== SIDEBAR ====== -->
+  <aside class="dir-sidebar" id="dirSidebar">
     <div style="background:#fff;border:1px solid #ecedf1;border-radius:14px;padding:.75rem .65rem;box-shadow:0 1px 2px rgba(16,24,40,.04);">
-      <button onclick="closeSidebar()" aria-label="Fermer" class="sidebar-close-btn"
-              style="align-items:center;justify-content:flex-end;width:100%;padding:.25rem .4rem .5rem;background:none;border:none;cursor:pointer;color:var(--text-3);">
-        <svg style="width:1.1rem;height:1.1rem;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>
+
+      <!-- Bouton fermer (mobile) -->
+      <button class="dir-sidebar-close" onclick="dirCloseSidebar()" aria-label="Fermer le menu">
+        <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
+
       {% if school %}
       <div style="padding:.4rem .55rem .5rem;margin-bottom:.4rem;">
         <div style="font-size:.7375rem;font-weight:600;color:#9397a8;text-transform:uppercase;letter-spacing:.05em;">École</div>
         <div style="font-size:.8375rem;font-weight:700;color:#1a1d29;margin-top:.2rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ school.name }}</div>
       </div>
+
       <div style="margin-bottom:.5rem;">
         {% if school_year %}
-        <a href="{% url 'economat:manage_years' school.id %}"
+        <a href="{% url "economat:manage_years" school.id %}"
            style="display:block;padding:.5rem .55rem;border-radius:8px;text-decoration:none;transition:background .12s;"
-           onmouseover="this.style.background='#f4f5f9'" onmouseout="this.style.background=''">
+           onmouseover="this.style.background='#f4f5f9'" onmouseout="this.style.background=''"
+        >
           <div style="font-size:.7375rem;font-weight:600;color:#9397a8;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.2rem;">Année scolaire</div>
           <div style="display:flex;align-items:center;justify-content:space-between;gap:.35rem;">
             <span style="font-size:.9rem;font-weight:700;color:#1a1d29;letter-spacing:-0.01em;">{{ school_year.label }}</span>
             {% if school_year.status == 'ACTIVE' %}
-            <span style="font-size:.68rem;font-weight:600;padding:.1rem .45rem;border-radius:999px;background:#ecfdf5;color:#059669;white-space:nowrap;"><span style="width:.5em;height:.5em;border-radius:50%;background:#059669;display:inline-block;flex-shrink:0;margin-right:.15em;"></span> Active</span>
+            <span style="font-size:.68rem;font-weight:600;padding:.1rem .45rem;border-radius:999px;background:#ecfdf5;color:#059669;white-space:nowrap;">Active</span>
             {% elif school_year.status == 'DRAFT' %}
-            <span style="font-size:.68rem;font-weight:600;padding:.1rem .45rem;border-radius:999px;background:#fff7ed;color:#d97706;white-space:nowrap;"><span style="width:.5em;height:.5em;border-radius:50%;background:#d97706;display:inline-block;flex-shrink:0;margin-right:.15em;"></span> Préparation</span>
+            <span style="font-size:.68rem;font-weight:600;padding:.1rem .45rem;border-radius:999px;background:#fff7ed;color:#d97706;white-space:nowrap;">Préparation</span>
             {% else %}
-            <span style="font-size:.68rem;font-weight:600;padding:.1rem .45rem;border-radius:999px;background:#f4f4f5;color:#71717a;white-space:nowrap;"><span style="width:.5em;height:.5em;border-radius:50%;background:#9ca3af;display:inline-block;flex-shrink:0;margin-right:.15em;"></span> Clôturée</span>
+            <span style="font-size:.68rem;font-weight:600;padding:.1rem .45rem;border-radius:999px;background:#f4f4f5;color:#71717a;white-space:nowrap;">Clôturée</span>
             {% endif %}
           </div>
           {% if all_years|length > 1 %}
@@ -69,167 +166,277 @@
           {% endif %}
         </a>
         {% else %}
-        <a href="{% url 'economat:manage_years' school.id %}"
-           style="display:flex;align-items:center;gap:.4rem;padding:.55rem .65rem;border-radius:8px;
-                  font-size:.8125rem;font-weight:600;color:#d97706;text-decoration:none;
-                  background:#fff7ed;border:1px solid #fed7aa;transition:background .12s;"
-           onmouseover="this.style.background='#fef3c7'" onmouseout="this.style.background='#fff7ed'">
-          <svg style="width:1em;height:1em;stroke:#d97706;fill:none;stroke-width:2;flex-shrink:0" viewBox="0 0 24 24"><path d="M12 3.5 22 20.5H2Z"/><path d="M12 10v4M12 17.5h.01"/></svg>
+        <a href="{% url "economat:manage_years" school.id %}"
+           style="display:flex;align-items:center;gap:.4rem;padding:.55rem .65rem;border-radius:8px;font-size:.8125rem;font-weight:600;color:#d97706;text-decoration:none;background:#fff7ed;border:1px solid #fed7aa;">
           Créer l&rsquo;année scolaire
         </a>
         {% endif %}
       </div>
       {% endif %}
+
       <div style="height:1px;background:#ecedf1;margin:.35rem 0 .5rem;"></div>
+
       <nav style="display:flex;flex-direction:column;gap:.15rem;">
         <a href="{% url 'economat:director_dashboard' %}"
-           class="nav-link {% if active_nav == 'dashboard' %}nav-link-active{% endif %}" style="font-size:.84375rem;">
-          <svg class="icon" style="width:1em;height:1em;"><use href="#icon-bar-chart"/></svg> Tableau de bord
+           class="nav-link {% if active_nav == 'dashboard' %}nav-link-active{% endif %}"
+           style="font-size:.84375rem;">
+          <svg class="icon" style="width:1em;height:1em;"><use href="#icon-bar-chart"/></svg>
+          Tableau de bord
         </a>
+
         {% if school_year %}
         <a href="{% url 'economat:alerts' school.id school_year.id %}"
-           class="nav-link {% if active_nav == 'alertes' %}nav-link-active{% endif %}" style="font-size:.84375rem;">
-          <svg class="icon" style="width:1em;height:1em;"><use href="#icon-alert-circle"/></svg> Alertes
+           class="nav-link {% if active_nav == 'alertes' %}nav-link-active{% endif %}"
+           style="font-size:.84375rem;">
+          <svg class="icon" style="width:1em;height:1em;"><use href="#icon-alert-circle"/></svg>
+          Alertes
           {% if bi_total_alerts %}
           <span style="margin-left:auto;font-size:.68rem;font-weight:700;padding:.1rem .4rem;border-radius:999px;background:#fef2f2;color:#b91c1c;">{{ bi_total_alerts }}</span>
           {% endif %}
         </a>
         {% endif %}
+
         {% if school %}
         <a href="{% url 'economat:manage_years' school.id %}"
-           class="nav-link {% if active_nav == 'annees' %}nav-link-active{% endif %}" style="font-size:.84375rem;">
-          <svg class="icon" style="width:1em;height:1em;"><use href="#icon-settings"/></svg> Années scolaires
+           class="nav-link {% if active_nav == 'annees' %}nav-link-active{% endif %}"
+           style="font-size:.84375rem;">
+          <svg class="icon" style="width:1em;height:1em;"><use href="#icon-settings"/></svg>
+          Années scolaires
         </a>
         {% endif %}
+
         {% if school_year %}
         <div style="height:1px;background:#ecedf1;margin:.2rem 0;"></div>
         <a href="{% url 'economat:add_level' school.id school_year.id %}"
-           class="nav-link {% if active_nav == 'niveaux' %}nav-link-active{% endif %}" style="font-size:.84375rem;">
-          <svg class="icon" style="width:1em;height:1em;"><use href="#icon-book"/></svg> Niveaux
+           class="nav-link {% if active_nav == 'niveaux' %}nav-link-active{% endif %}"
+           style="font-size:.84375rem;">
+          <svg class="icon" style="width:1em;height:1em;"><use href="#icon-book"/></svg>
+          Niveaux
         </a>
         <a href="{% url 'economat:configure_pricing' school.id school_year.id %}"
-           class="nav-link {% if active_nav == 'tarifs' %}nav-link-active{% endif %}" style="font-size:.84375rem;">
-          <svg class="icon" style="width:1em;height:1em;"><use href="#icon-coins"/></svg> Tarifs
+           class="nav-link {% if active_nav == 'tarifs' %}nav-link-active{% endif %}"
+           style="font-size:.84375rem;">
+          <svg class="icon" style="width:1em;height:1em;"><use href="#icon-coins"/></svg>
+          Tarifs
         </a>
         <a href="{% url 'economat:students_list' school.id school_year.id %}"
-           class="nav-link {% if active_nav == 'eleves' %}nav-link-active{% endif %}" style="font-size:.84375rem;">
-          <svg class="icon" style="width:1em;height:1em;"><use href="#icon-users"/></svg> Élèves
+           class="nav-link {% if active_nav == 'eleves' %}nav-link-active{% endif %}"
+           style="font-size:.84375rem;">
+          <svg class="icon" style="width:1em;height:1em;"><use href="#icon-users"/></svg>
+          Élèves
         </a>
         <a href="{% url 'economat:team' school.id %}"
-           class="nav-link {% if active_nav == 'equipe' %}nav-link-active{% endif %}" style="font-size:.84375rem;">
-          <svg class="icon" style="width:1em;height:1em;"><use href="#icon-user-plus"/></svg> Équipe
+           class="nav-link {% if active_nav == 'equipe' %}nav-link-active{% endif %}"
+           style="font-size:.84375rem;">
+          <svg class="icon" style="width:1em;height:1em;"><use href="#icon-user-plus"/></svg>
+          Équipe
         </a>
         <a href="{% url 'economat:school_settings' school.id %}"
-           class="nav-link {% if active_nav == 'settings' %}nav-link-active{% endif %}" style="font-size:.84375rem;">
-          <svg class="icon" style="width:1em;height:1em;"><use href="#icon-settings"/></svg> Paramètres
+           class="nav-link {% if active_nav == 'settings' %}nav-link-active{% endif %}"
+           style="font-size:.84375rem;">
+          <svg class="icon" style="width:1em;height:1em;"><use href="#icon-settings"/></svg>
+          Paramètres
         </a>
         <div style="height:1px;background:#ecedf1;margin:.2rem 0;"></div>
-        <button type="button" id="sidebarChatOpen" class="nav-link"
-                style="font-size:.84375rem;width:100%;text-align:left;"
+        <button type="button" id="sidebarChatOpen"
+                class="nav-link" style="font-size:.84375rem;width:100%;text-align:left;"
                 data-url="{% url 'economat:director_chat' school.id school_year.id %}"
                 data-name="{{ school.name }} — {{ school_year.label }}">
-          <svg class="icon" style="width:1em;height:1em;"><use href="#icon-sparkles"/></svg> Chat IA
+          <svg class="icon" style="width:1em;height:1em;"><use href="#icon-sparkles"/></svg>
+          Chat IA
           <span style="margin-left:auto;font-size:.7rem;background:#eef2ff;color:#4338ca;padding:.1rem .4rem;border-radius:999px;font-weight:600;">IA</span>
         </button>
         {% endif %}
       </nav>
     </div>
   </aside>
-  <div class="director-main">{% block director_content %}{% endblock %}</div>
-</div>
+
+  <!-- ====== CONTENU ====== -->
+  <div class="dir-main">
+    {% block director_content %}{% endblock %}
+  </div>
+
+</div><!-- /.dir-layout -->
 
 <!-- CHAT DRAWER -->
-<div id="chatOverlay" style="position:fixed;inset:0;background:rgba(10,10,20,.3);backdrop-filter:blur(2px);display:none;z-index:40;" onclick="closeChat()"></div>
-<aside id="chatDrawer" style="position:fixed;top:0;right:0;height:100%;width:100%;max-width:400px;background:#fff;border-left:1px solid #ecedf1;z-index:50;display:flex;flex-direction:column;box-shadow:-8px 0 32px rgba(10,10,20,.1);transform:translateX(100%);transition:transform .22s cubic-bezier(.4,0,.2,1);">
-  <div style="display:flex;align-items:center;justify-content:space-between;padding:.875rem 1.1rem;border-bottom:1px solid #ecedf1;">
+<div id="chatOverlay"
+     style="position:fixed;inset:0;background:rgba(10,10,20,.3);backdrop-filter:blur(2px);display:none;z-index:40;"
+     onclick="closeChat()"></div>
+<aside id="chatDrawer"
+       style="position:fixed;top:0;right:0;height:100%;width:100%;max-width:400px;
+              background:#fff;border-left:1px solid #ecedf1;z-index:50;
+              display:flex;flex-direction:column;
+              box-shadow:-8px 0 32px rgba(10,10,20,.1);
+              transform:translateX(100%);
+              transition:transform .22s cubic-bezier(.4,0,.2,1);">
+  <div style="display:flex;align-items:center;justify-content:space-between;
+              padding:.875rem 1.1rem;border-bottom:1px solid #ecedf1;">
     <div>
-      <div style="font-size:.9rem;font-weight:700;letter-spacing:-0.01em;display:flex;align-items:center;gap:.5rem;">
+      <div style="font-size:.9rem;font-weight:700;letter-spacing:-0.01em;
+                  display:flex;align-items:center;gap:.5rem;">
         <svg class="icon" style="color:#4f46e5;"><use href="#icon-sparkles"/></svg> Chat IA
       </div>
       <div id="chatSchoolName" style="font-size:.75rem;color:#9397a8;margin-top:.1rem;"></div>
     </div>
-    <button id="chatClose" onclick="closeChat()" class="btn-secondary" style="padding:.4rem;">
+    <button onclick="closeChat()" class="btn-secondary" style="padding:.4rem;">
       <svg class="icon"><use href="#icon-x"/></svg>
     </button>
   </div>
-  <div id="drawerMessages" style="flex:1;overflow-y:auto;padding:1rem;display:flex;flex-direction:column;gap:.75rem;"></div>
+  <div id="drawerMessages"
+       style="flex:1;overflow-y:auto;padding:1rem;
+              display:flex;flex-direction:column;gap:.75rem;"></div>
   <div style="border-top:1px solid #ecedf1;padding:.75rem;background:#fbfbfd;">
     <form id="chatForm" style="display:flex;gap:.5rem;align-items:flex-end;">
       {% csrf_token %}
-      <input type="text" id="chatQuestion" name="question" placeholder="Posez une question…"
+      <input type="text" id="chatQuestion" name="question"
+             placeholder="Posez une question…"
              class="form-input" style="flex:1;min-height:42px;" autocomplete="off">
-      <button type="submit" class="btn-primary" style="height:42px;padding:.55rem .9rem;flex-shrink:0;" id="chatSendBtn">
+      <button type="submit" class="btn-primary"
+              style="height:42px;padding:.55rem .9rem;flex-shrink:0;" id="chatSendBtn">
         <svg class="icon"><use href="#icon-trending-up"/></svg>
       </button>
     </form>
-    <p style="font-size:.7rem;color:#c4c7d0;margin-top:.45rem;text-align:center;">Lecture seule — aucune modification</p>
+    <p style="font-size:.7rem;color:#c4c7d0;margin-top:.45rem;text-align:center;">
+      Lecture seule — aucune modification
+    </p>
   </div>
 </aside>
 
 <script>
-const directorSidebar=document.getElementById('directorSidebar');
-const sidebarOverlay=document.getElementById('sidebarOverlay');
-const sidebarToggle=document.getElementById('sidebarToggle');
-function openSidebar(){directorSidebar.classList.add('is-open');sidebarOverlay.classList.add('is-open');if(sidebarToggle)sidebarToggle.setAttribute('aria-expanded','true');document.body.style.overflow='hidden';}
-function closeSidebar(){directorSidebar.classList.remove('is-open');sidebarOverlay.classList.remove('is-open');if(sidebarToggle)sidebarToggle.setAttribute('aria-expanded','false');document.body.style.overflow='';}
-function toggleSidebar(){directorSidebar.classList.contains('is-open')?closeSidebar():openSidebar();}
-if(directorSidebar){directorSidebar.querySelectorAll('.nav-link').forEach(link=>{link.addEventListener('click',()=>{if(window.innerWidth<=1024)closeSidebar();});});}
-document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeSidebar();closeChat();}});
+/* ======================================================
+   Sidebar hamburger
+====================================================== */
+var _sidebar  = document.getElementById('dirSidebar');
+var _overlay  = document.getElementById('dirOverlay');
+var _burger   = document.getElementById('dirHamburger');
 
-const chatDrawer=document.getElementById('chatDrawer');
-const chatOverlay=document.getElementById('chatOverlay');
-const schoolNameEl=document.getElementById('chatSchoolName');
-const messagesEl=document.getElementById('drawerMessages');
-const chatForm=document.getElementById('chatForm');
-const chatInput=document.getElementById('chatQuestion');
-let currentUrl=null;
-function appendBubble(role,text,data){
-  const row=document.createElement('div');
-  row.style.cssText='display:flex;'+(role==='user'?'justify-content:flex-end;':'justify-content:flex-start;');
-  const bubble=document.createElement('div');
-  bubble.style.cssText='max-width:85%;padding:.6rem .85rem;border-radius:12px;font-size:.84375rem;white-space:pre-wrap;line-height:1.55;'
-    +(role==='user'?'background:#4f46e5;color:#fff;border-bottom-right-radius:4px;':'background:#f4f5f9;color:#1a1d29;border-bottom-left-radius:4px;');
-  bubble.textContent=text||'';
-  if(data&&data.columns&&data.columns.length){
-    const wrap=document.createElement('div');
-    wrap.style.cssText='margin-top:.6rem;overflow-x:auto;border-radius:8px;border:1px solid #ecedf1;';
-    const tbl=document.createElement('table');
-    tbl.style.cssText='width:100%;border-collapse:collapse;font-size:.75rem;';
-    const thead=document.createElement('tr');
-    data.columns.forEach(c=>{const th=document.createElement('th');th.style.cssText='padding:.35rem .6rem;background:#f8f9fb;font-weight:600;text-align:left;border-bottom:1px solid #ecedf1;white-space:nowrap;';th.textContent=c;thead.appendChild(th);});
-    tbl.appendChild(thead);
-    (data.rows||[]).forEach(r=>{const tr=document.createElement('tr');r.forEach(cell=>{const td=document.createElement('td');td.style.cssText='padding:.3rem .6rem;border-bottom:1px solid #f2f3f5;';td.textContent=cell;tr.appendChild(td);});tbl.appendChild(tr);});
-    wrap.appendChild(tbl);bubble.appendChild(wrap);
-  }
-  row.appendChild(bubble);messagesEl.appendChild(row);messagesEl.scrollTop=messagesEl.scrollHeight;
+function dirOpenSidebar() {
+  _sidebar.classList.add('open');
+  _overlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
 }
-window.closeChat=function(){chatDrawer.style.transform='translateX(100%)';chatOverlay.style.display='none';};
-function openChat(url,name){
-  currentUrl=url;schoolNameEl.textContent=name;
-  messagesEl.innerHTML='';chatDrawer.style.transform='translateX(0)';chatOverlay.style.display='block';chatInput.focus();
-  fetch(url).then(r=>r.text()).then(html=>{
-    const doc=new DOMParser().parseFromString(html,'text/html');
-    const hist=doc.getElementById('chatMessages');
-    if(hist&&hist.children.length){Array.from(hist.children).forEach(el=>messagesEl.appendChild(el.cloneNode(true)));}
-    else{appendBubble('assistant','Posez une question sur vos donn\u00e9es.');}
-    messagesEl.scrollTop=messagesEl.scrollHeight;
-  }).catch(()=>appendBubble('assistant','Historique indisponible.'));
+function dirCloseSidebar() {
+  _sidebar.classList.remove('open');
+  _overlay.classList.remove('open');
+  document.body.style.overflow = '';
 }
-chatForm.addEventListener('submit',e=>{
-  e.preventDefault();
-  const q=chatInput.value.trim();
-  if(!q||!currentUrl)return;
-  appendBubble('user',q);chatInput.value='';
-  const sendBtn=document.getElementById('chatSendBtn');sendBtn.disabled=true;
-  const csrfInput=chatForm.querySelector('[name=csrfmiddlewaretoken]');
-  fetch(currentUrl,{method:'POST',
-    headers:{'Content-Type':'application/x-www-form-urlencoded','X-Requested-With':'XMLHttpRequest','X-CSRFToken':csrfInput?csrfInput.value:''},
-    body:new URLSearchParams({question:q}),
-  }).then(r=>r.json()).then(data=>appendBubble('assistant',data.message.content,data.message))
-  .catch(()=>appendBubble('assistant','Erreur. R\u00e9essayez.'))
-  .finally(()=>{sendBtn.disabled=false;chatInput.focus();});
+function dirToggleSidebar() {
+  _sidebar.classList.contains('open') ? dirCloseSidebar() : dirOpenSidebar();
+}
+
+// Fermer au clic sur un lien nav (mobile)
+if (_sidebar) {
+  _sidebar.querySelectorAll('a.nav-link, button.nav-link').forEach(function(el) {
+    el.addEventListener('click', function() {
+      if (window.innerWidth <= 1024) dirCloseSidebar();
+    });
+  });
+}
+
+// Fermer avec Escape
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') { dirCloseSidebar(); window.closeChat && closeChat(); }
 });
-const opener=document.getElementById('sidebarChatOpen');
-if(opener)opener.addEventListener('click',()=>openChat(opener.dataset.url,opener.dataset.name));
+
+/* ======================================================
+   Chat Drawer
+====================================================== */
+var chatDrawer   = document.getElementById('chatDrawer');
+var chatOverlay  = document.getElementById('chatOverlay');
+var schoolNameEl = document.getElementById('chatSchoolName');
+var messagesEl   = document.getElementById('drawerMessages');
+var chatForm     = document.getElementById('chatForm');
+var chatInput    = document.getElementById('chatQuestion');
+var currentUrl   = null;
+
+function appendBubble(role, text, data) {
+  var row = document.createElement('div');
+  row.style.cssText = 'display:flex;' + (role === 'user' ? 'justify-content:flex-end;' : 'justify-content:flex-start;');
+  var bubble = document.createElement('div');
+  bubble.style.cssText = 'max-width:85%;padding:.6rem .85rem;border-radius:12px;font-size:.84375rem;white-space:pre-wrap;line-height:1.55;'
+    + (role === 'user'
+       ? 'background:#4f46e5;color:#fff;border-bottom-right-radius:4px;'
+       : 'background:#f4f5f9;color:#1a1d29;border-bottom-left-radius:4px;');
+  bubble.textContent = text || '';
+  if (data && data.columns && data.columns.length) {
+    var wrap = document.createElement('div');
+    wrap.style.cssText = 'margin-top:.6rem;overflow-x:auto;border-radius:8px;border:1px solid #ecedf1;';
+    var tbl = document.createElement('table');
+    tbl.style.cssText = 'width:100%;border-collapse:collapse;font-size:.75rem;';
+    var thead = document.createElement('tr');
+    data.columns.forEach(function(c) {
+      var th = document.createElement('th');
+      th.style.cssText = 'padding:.35rem .6rem;background:#f8f9fb;font-weight:600;text-align:left;border-bottom:1px solid #ecedf1;white-space:nowrap;';
+      th.textContent = c; thead.appendChild(th);
+    });
+    tbl.appendChild(thead);
+    (data.rows || []).forEach(function(r) {
+      var tr = document.createElement('tr');
+      r.forEach(function(cell) {
+        var td = document.createElement('td');
+        td.style.cssText = 'padding:.3rem .6rem;border-bottom:1px solid #f2f3f5;';
+        td.textContent = cell; tr.appendChild(td);
+      }); tbl.appendChild(tr);
+    });
+    wrap.appendChild(tbl); bubble.appendChild(wrap);
+  }
+  row.appendChild(bubble); messagesEl.appendChild(row);
+  messagesEl.scrollTop = messagesEl.scrollHeight;
+}
+
+window.closeChat = function() {
+  chatDrawer.style.transform = 'translateX(100%)';
+  chatOverlay.style.display = 'none';
+};
+
+function openChat(url, name) {
+  currentUrl = url;
+  schoolNameEl.textContent = name;
+  messagesEl.innerHTML = '';
+  chatDrawer.style.transform = 'translateX(0)';
+  chatOverlay.style.display = 'block';
+  chatInput.focus();
+  fetch(url).then(function(r) { return r.text(); }).then(function(html) {
+    var doc = new DOMParser().parseFromString(html, 'text/html');
+    var hist = doc.getElementById('chatMessages');
+    if (hist && hist.children.length) {
+      Array.from(hist.children).forEach(function(el) { messagesEl.appendChild(el.cloneNode(true)); });
+    } else {
+      appendBubble('assistant', 'Posez une question sur vos données.');
+    }
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+  }).catch(function() { appendBubble('assistant', 'Historique indisponible.'); });
+}
+
+chatForm.addEventListener('submit', function(e) {
+  e.preventDefault();
+  var q = chatInput.value.trim();
+  if (!q || !currentUrl) return;
+  appendBubble('user', q);
+  chatInput.value = '';
+  var sendBtn = document.getElementById('chatSendBtn');
+  sendBtn.disabled = true;
+  var csrfInput = chatForm.querySelector('[name=csrfmiddlewaretoken]');
+  fetch(currentUrl, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'X-Requested-With': 'XMLHttpRequest',
+      'X-CSRFToken': csrfInput ? csrfInput.value : ''
+    },
+    body: new URLSearchParams({ question: q })
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) { appendBubble('assistant', data.message.content, data.message); })
+  .catch(function() { appendBubble('assistant', 'Erreur. Réessayez.'); })
+  .finally(function() { sendBtn.disabled = false; chatInput.focus(); });
+});
+
+var opener = document.getElementById('sidebarChatOpen');
+if (opener) {
+  opener.addEventListener('click', function() {
+    openChat(opener.dataset.url, opener.dataset.name);
+  });
+}
 </script>
 {% endblock %}
