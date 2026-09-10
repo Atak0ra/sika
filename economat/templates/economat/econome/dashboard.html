@@ -171,236 +171,139 @@
 <!-- ================================================================
      INTERFACE PRINCIPALE
 ================================================================ -->
-<div style="display:grid;grid-template-columns:2fr 1fr;gap:1.5rem;align-items:start;max-width:100%;" id="entryScreen">
 
-  <!-- ============== FORMULAIRE D'ENCAISSEMENT ============== -->
-  <div class="card" style="padding:1.75rem;">
-    <div style="display:flex;align-items:center;gap:.65rem;margin-bottom:1.5rem;">
-      <div style="width:2.25rem;height:2.25rem;border-radius:10px;background:#eef2ff;color:#4f46e5;
-                  display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-        <svg class="icon" style="width:1.2rem;height:1.2rem;"><use href="#icon-wallet"/></svg>
-      </div>
-      <div>
-        <h1 style="font-size:1rem;font-weight:700;letter-spacing:-0.01em;">Saisie d’encaissement</h1>
-        <p style="font-size:.775rem;color:#9397a8;margin-top:.1rem;">Renseignez les informations du paiement</p>
-      </div>
+<div style="display:grid;grid-template-columns:1fr 320px;gap:1.5rem;align-items:start;" id="entryScreen">
+
+  <div class="card" style="padding:2rem 2.25rem;">
+    <div style="margin-bottom:2rem;">
+      <h1 style="font-size:1.0625rem;font-weight:700;color:#1a1d29;letter-spacing:-.02em;margin-bottom:.2rem;">Enregistrer un paiement</h1>
+      <p style="font-size:.8rem;color:#9397a8;">{% if school_year %}{{ school_year.label }}{% endif %}{% if school %} · {{ school.name }}{% endif %}</p>
     </div>
-
-    <!-- Recherche élève -->
-    <div class="rg-2" style="gap:.75rem;margin-bottom:1.25rem;">
-      <div>
-        <label class="field-label">Classe</label>
-        <select id="classFilter" class="form-select">
-          <option value="">Toutes les classes</option>
-          {% for c in classes %}
-          <option value="{{ c.id }}">{{ c.level.name }} – {{ c.name }}</option>
-          {% endfor %}
-        </select>
-      </div>
-      <div style="position:relative;">
-        <label class="field-label">Rechercher un élève</label>
-        <div style="position:relative;">
-          <svg class="icon" style="position:absolute;left:.7rem;top:50%;transform:translateY(-50%);
-                                   width:1rem;height:1rem;color:#9397a8;pointer-events:none;"><use href="#icon-search"/></svg>
-          <input type="text" id="studentSearchInput"
-                 placeholder="Nom ou prénom…"
-                 class="form-input" style="padding-left:2.2rem;"
-                 autocomplete="off">
-        </div>
-        <!-- dropdown sous l'input — z-index élevé pour passer au-dessus du reste -->
-        <ul id="searchResults"
-            style="position:absolute;top:calc(100% + .3rem);left:0;right:0;background:#fff;
-                   border:1px solid #ecedf1;border-radius:10px;
-                   box-shadow:0 8px 24px rgba(10,10,20,.12);z-index:50;
-                   max-height:220px;overflow-y:auto;list-style:none;padding:.25rem 0;margin:0;"
-            class="hidden"></ul>
-      </div>
-    </div>
-
-    <!-- Élève sélectionné -->
-    <div id="selectedStudentBadge"
-         style="display:none;align-items:center;gap:.5rem;padding:.55rem .8rem;
-                background:#eef2ff;border:1px solid #c7d2fe;border-radius:8px;
-                font-size:.84375rem;font-weight:600;color:#4338ca;margin-bottom:1.25rem;">
-      <svg class="icon" style="width:.9em;height:.9em;"><use href="#icon-check-circle"/></svg>
-      <span id="selectedStudent"></span>
-      <button type="button" id="clearStudent"
-              style="margin-left:auto;color:#9397a8;background:none;border:none;cursor:pointer;
-                     display:flex;align-items:center;" aria-label="Retirer">
-        <svg class="icon" style="width:.9em;height:.9em;"><use href="#icon-x"/></svg>
-      </button>
-    </div>
-
-    <form method="post" id="paymentForm"
-          action="{% url 'economat:record_payment' %}"
-          style="display:flex;flex-direction:column;gap:1rem;">
+    <form method="post" id="paymentForm" action="{% url 'economat:record_payment' %}">
       {% csrf_token %}
       {{ form.student_id }}
 
-      <!-- Montant + Date -->
-      <div class="rg-2" style="gap:.75rem;">
-        <div>
-          <label class="field-label">{{ form.amount_fcfa.label }}</label>
-          {{ form.amount_fcfa }}
-          {% if form.amount_fcfa.errors %}<p class="field-error">{{ form.amount_fcfa.errors.0 }}</p>{% endif %}
+      <div style="margin-bottom:1.75rem;">
+        <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.9rem;">
+          <span style="width:1.4rem;height:1.4rem;border-radius:50%;background:#4f46e5;color:#fff;font-size:.65rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">1</span>
+          <span style="font-size:.8125rem;font-weight:600;color:#52556b;text-transform:uppercase;letter-spacing:.04em;">Elève</span>
         </div>
-        <div>
-          <label class="field-label">{{ form.payment_date.label }}</label>
-          {{ form.payment_date }}
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-bottom:.6rem;">
+          <div>
+            <label class="field-label">Classe</label>
+            <select id="classFilter" class="form-select">
+              <option value="">Toutes</option>
+              {% for c in classes %}<option value="{{ c.id }}">{{ c.level.name }} — {{ c.name }}</option>{% endfor %}
+            </select>
+          </div>
+          <div style="position:relative;">
+            <label class="field-label">Nom / Prénom</label>
+            <div style="position:relative;">
+              <svg style="position:absolute;left:.7rem;top:50%;transform:translateY(-50%);width:.875rem;height:.875rem;stroke:#9397a8;fill:none;stroke-width:2;stroke-linecap:round;pointer-events:none;" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="text" id="studentSearchInput" placeholder="Taper un nom…" class="form-input" style="padding-left:2.1rem;" autocomplete="off">
+            </div>
+            <ul id="searchResults" style="position:absolute;top:calc(100% + .2rem);left:0;right:0;z-index:50;background:#fff;border:1px solid #ecedf1;border-radius:10px;box-shadow:0 8px 28px rgba(0,0,0,.1);list-style:none;padding:.2rem 0;margin:0;max-height:200px;overflow-y:auto;" class="hidden"></ul>
+          </div>
         </div>
-      </div>
-
-      <!-- Moyen de paiement — boutons radio visuels avec icônes -->
-      <div>
-        <label class="field-label">{{ form.method.label }}</label>
-        <div id="methodGroup"
-             style="display:grid;grid-template-columns:repeat(2,1fr);gap:.5rem;margin-top:.25rem;">
-
-          <!-- Espèces -->
-          <label id="lbl-ESPECES"
-                 style="display:flex;align-items:center;gap:.6rem;padding:.65rem .85rem;
-                        border:1.5px solid #ecedf1;border-radius:10px;cursor:pointer;
-                        font-size:.84375rem;font-weight:500;color:#52556b;
-                        transition:border-color .13s,background .13s;user-select:none;">
-            <input type="radio" name="method" value="ESPECES" checked
-                   style="display:none;" class="method-radio">
-            <span style="width:1.6rem;height:1.6rem;border-radius:7px;background:#f0fdf4;
-                         display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-              <!-- Billet / cash -->
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"
-                   stroke-linecap="round" stroke-linejoin="round"
-                   style="width:1rem;height:1rem;color:#16a34a;">
-                <rect x="2" y="6" width="20" height="12" rx="2"/>
-                <circle cx="12" cy="12" r="2.5"/>
-                <path d="M6 12h.01M18 12h.01"/>
-              </svg>
-            </span>
-            Espèces
-          </label>
-
-          <!-- Mobile Money -->
-          <label id="lbl-MOBILE_MONEY"
-                 style="display:flex;align-items:center;gap:.6rem;padding:.65rem .85rem;
-                        border:1.5px solid #ecedf1;border-radius:10px;cursor:pointer;
-                        font-size:.84375rem;font-weight:500;color:#52556b;
-                        transition:border-color .13s,background .13s;user-select:none;">
-            <input type="radio" name="method" value="MOBILE_MONEY"
-                   style="display:none;" class="method-radio">
-            <span style="width:1.6rem;height:1.6rem;border-radius:7px;background:#fff7ed;
-                         display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-              <!-- Smartphone -->
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"
-                   stroke-linecap="round" stroke-linejoin="round"
-                   style="width:1rem;height:1rem;color:#ea580c;">
-                <rect x="5" y="2" width="14" height="20" rx="2"/>
-                <line x1="12" y1="18" x2="12" y2="18.01"/>
-              </svg>
-            </span>
-            Mobile Money
-          </label>
-
-          <!-- Virement -->
-          <label id="lbl-VIREMENT"
-                 style="display:flex;align-items:center;gap:.6rem;padding:.65rem .85rem;
-                        border:1.5px solid #ecedf1;border-radius:10px;cursor:pointer;
-                        font-size:.84375rem;font-weight:500;color:#52556b;
-                        transition:border-color .13s,background .13s;user-select:none;">
-            <input type="radio" name="method" value="VIREMENT"
-                   style="display:none;" class="method-radio">
-            <span style="width:1.6rem;height:1.6rem;border-radius:7px;background:#eff6ff;
-                         display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-              <!-- Transfert / flèches -->
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"
-                   stroke-linecap="round" stroke-linejoin="round"
-                   style="width:1rem;height:1rem;color:#2563eb;">
-                <path d="M7 16V4m0 0L3 8m4-4l4 4"/>
-                <path d="M17 8v12m0 0l4-4m-4 4l-4-4"/>
-              </svg>
-            </span>
-            Virement
-          </label>
-
-          <!-- Chèque -->
-          <label id="lbl-CHEQUE"
-                 style="display:flex;align-items:center;gap:.6rem;padding:.65rem .85rem;
-                        border:1.5px solid #ecedf1;border-radius:10px;cursor:pointer;
-                        font-size:.84375rem;font-weight:500;color:#52556b;
-                        transition:border-color .13s,background .13s;user-select:none;">
-            <input type="radio" name="method" value="CHEQUE"
-                   style="display:none;" class="method-radio">
-            <span style="width:1.6rem;height:1.6rem;border-radius:7px;background:#faf5ff;
-                         display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-              <!-- Document / chèque -->
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"
-                   stroke-linecap="round" stroke-linejoin="round"
-                   style="width:1rem;height:1rem;color:#7c3aed;">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                <polyline points="14 2 14 8 20 8"/>
-                <line x1="8" y1="13" x2="16" y2="13"/>
-                <line x1="8" y1="17" x2="13" y2="17"/>
-              </svg>
-            </span>
-            Chèque
-          </label>
-
+        <div id="selectedStudentBadge" style="display:none;align-items:center;gap:.55rem;padding:.65rem 1rem;border-radius:9px;background:#f0fdf4;border:1.5px solid #bbf7d0;">
+          <svg style="width:1rem;height:1rem;stroke:#16a34a;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
+          <span id="selectedStudent" style="font-size:.875rem;font-weight:600;color:#15803d;flex:1;"></span>
+          <button type="button" id="clearStudent" aria-label="Changer" style="background:none;border:none;cursor:pointer;padding:.2rem;color:#86efac;display:flex;border-radius:4px;">
+            <svg style="width:.8rem;height:.8rem;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
         </div>
       </div>
 
-      <div>
-        <label class="field-label">{{ form.notes.label }}</label>
-        {{ form.notes }}
+      <div style="height:1px;background:#f1f2f5;margin-bottom:1.75rem;"></div>
+
+      <div style="margin-bottom:1.75rem;">
+        <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.9rem;">
+          <span style="width:1.4rem;height:1.4rem;border-radius:50%;background:#4f46e5;color:#fff;font-size:.65rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">2</span>
+          <span style="font-size:.8125rem;font-weight:600;color:#52556b;text-transform:uppercase;letter-spacing:.04em;">Montant et date</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.6rem;">
+          <div>
+            <label class="field-label">Montant</label>
+            <div style="position:relative;">
+              <input type="number" name="amount_fcfa" min="1" class="form-input" placeholder="0" style="padding-right:3.25rem;font-size:1.0625rem;font-weight:600;font-variant-numeric:tabular-nums;" {% if form.amount_fcfa.value %}value="{{ form.amount_fcfa.value }}"{% endif %}>
+              <span style="position:absolute;right:.75rem;top:50%;transform:translateY(-50%);font-size:.775rem;font-weight:600;color:#9397a8;pointer-events:none;">FCFA</span>
+            </div>
+            {% if form.amount_fcfa.errors %}<p class="field-error">{{ form.amount_fcfa.errors.0 }}</p>{% endif %}
+          </div>
+          <div><label class="field-label">Date</label>{{ form.payment_date }}</div>
+        </div>
       </div>
 
-      <div style="padding-top:.25rem;">
-        <button type="submit" id="paymentSubmitBtn" class="btn-primary"
-                style="width:100%;padding:.8rem;font-size:.9375rem;"
-                data-loading-text="Enregistrement…">
-          <svg class="icon" style="width:1em;height:1em;"><use href="#icon-save"/></svg>
-          Enregistrer l’encaissement
-        </button>
+      <div style="height:1px;background:#f1f2f5;margin-bottom:1.75rem;"></div>
+
+      <div style="margin-bottom:1.75rem;">
+        <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.9rem;">
+          <span style="width:1.4rem;height:1.4rem;border-radius:50%;background:#4f46e5;color:#fff;font-size:.65rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">3</span>
+          <span style="font-size:.8125rem;font-weight:600;color:#52556b;text-transform:uppercase;letter-spacing:.04em;">Moyen de paiement</span>
+        </div>
+        <div id="methodGroup" style="display:grid;grid-template-columns:repeat(4,1fr);gap:.5rem;">
+          <label id="lbl-ESPECES" class="method-card">
+            <input type="radio" name="method" value="ESPECES" checked class="method-radio" style="display:none;">
+            <span class="method-icon" style="background:#f0fdf4;"><svg viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="width:1rem;height:1rem;"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M6 12h.01M18 12h.01"/></svg></span>
+            <span class="method-label">Espèces</span>
+          </label>
+          <label id="lbl-MOBILE_MONEY" class="method-card">
+            <input type="radio" name="method" value="MOBILE_MONEY" class="method-radio" style="display:none;">
+            <span class="method-icon" style="background:#fff7ed;"><svg viewBox="0 0 24 24" fill="none" stroke="#ea580c" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="width:1rem;height:1rem;"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12" y2="18.01"/></svg></span>
+            <span class="method-label">Mobile</span>
+          </label>
+          <label id="lbl-VIREMENT" class="method-card">
+            <input type="radio" name="method" value="VIREMENT" class="method-radio" style="display:none;">
+            <span class="method-icon" style="background:#eff6ff;"><svg viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="width:1rem;height:1rem;"><path d="M7 16V4m0 0L3 8m4-4l4 4"/><path d="M17 8v12m0 0l4-4m-4 4l-4-4"/></svg></span>
+            <span class="method-label">Virement</span>
+          </label>
+          <label id="lbl-CHEQUE" class="method-card">
+            <input type="radio" name="method" value="CHEQUE" class="method-radio" style="display:none;">
+            <span class="method-icon" style="background:#faf5ff;"><svg viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="width:1rem;height:1rem;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="13" y2="17"/></svg></span>
+            <span class="method-label">Chèque</span>
+          </label>
+        </div>
       </div>
+
+      <div style="margin-bottom:1.75rem;">
+        <label class="field-label" style="color:#b0b4c4;font-weight:500;">Observations (facultatif)</label>
+        <textarea name="notes" rows="2" class="form-textarea" placeholder="Note sur ce paiement…" style="font-size:.875rem;resize:none;">{{ form.notes.value|default:"" }}</textarea>
+      </div>
+
+      <button type="submit" class="btn-primary" style="width:100%;padding:.85rem;font-size:.9375rem;font-weight:600;letter-spacing:-.01em;border-radius:10px;gap:.55rem;" data-loading-text="Enregistrement…">
+        <svg style="width:1rem;height:1rem;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        Valider l'encaissement
+      </button>
     </form>
   </div>
 
-  <!-- ============== HISTORIQUE RÉCENT ============== -->
   <div class="card" style="padding:1.5rem;">
-    <h2 style="font-size:.875rem;font-weight:700;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem;">
-      <svg class="icon" style="width:.95em;height:.95em;color:#9397a8;"><use href="#icon-list"/></svg>
-      Derniers encaissements
-    </h2>
+    <h2 style="font-size:.8125rem;font-weight:700;color:#9397a8;text-transform:uppercase;letter-spacing:.05em;margin-bottom:1.25rem;">Derniers encaissements</h2>
     {% if recent_payments %}
-    <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.1rem;">
+    <ul style="list-style:none;padding:0;margin:0;">
       {% for p in recent_payments %}
-      <li style="padding:.65rem 0;{% if not forloop.last %}border-bottom:1px solid #f4f5f7;{% endif %}">
-        <!-- Nom élève + classe -->
-        <div style="display:flex;align-items:baseline;justify-content:space-between;gap:.4rem;">
-          <span style="font-size:.84375rem;font-weight:600;color:#1a1d29;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ p.student }}</span>
-          {% if p.enrollment.klass %}
-          <span style="font-size:.72rem;color:#9397a8;white-space:nowrap;flex-shrink:0;">{{ p.enrollment.klass.name }}</span>
-          {% endif %}
+      <li style="padding:.7rem 0;{% if not forloop.last %}border-bottom:1px solid #f4f5f7;{% endif %}">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;gap:.5rem;">
+          <span style="font-size:.84375rem;font-weight:600;color:#1a1d29;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;">{{ p.student }}</span>
+          <span style="font-size:.84375rem;font-weight:700;color:#1a1d29;font-variant-numeric:tabular-nums;white-space:nowrap;">{{ p.amount|fcfa }}</span>
         </div>
-        <!-- Montant + date -->
-        <div style="font-size:.7875rem;color:#9397a8;margin-top:.2rem;display:flex;justify-content:space-between;align-items:center;">
-          <span style="font-weight:600;color:#1a1d29;font-variant-numeric:tabular-nums;">{{ p.amount|fcfa_long }}</span>
-          <span style="font-size:.72rem;">{{ p.payment_date }}</span>
-        </div>
-        <!-- Moyen + N° reçu -->
-        <div style="font-size:.7rem;color:#c4c7d0;margin-top:.15rem;display:flex;justify-content:space-between;">
-          <span>{{ p.get_method_display }}</span>
-          <span style="font-variant-numeric:tabular-nums;">{{ p.receipt_number }}</span>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:.15rem;">
+          <span style="font-size:.75rem;color:#9397a8;">{% if p.enrollment.klass %}{{ p.enrollment.klass.name }} · {% endif %}{{ p.get_method_display }}</span>
+          <span style="font-size:.72rem;color:#c4c7d0;font-variant-numeric:tabular-nums;">{{ p.payment_date }}</span>
         </div>
       </li>
       {% endfor %}
     </ul>
     {% else %}
-    <div style="text-align:center;padding:2rem 0;">
-      <svg class="icon" style="width:1.5rem;height:1.5rem;color:#d1d5db;margin-bottom:.5rem;"><use href="#icon-list"/></svg>
-      <p style="font-size:.84375rem;color:#9397a8;">Aucun paiement enregistré.</p>
+    <div style="padding:3rem 0;text-align:center;">
+      <svg style="width:1.75rem;height:1.75rem;stroke:#e2e4ea;fill:none;stroke-width:1.5;display:block;margin:0 auto .6rem;" viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/></svg>
+      <p style="font-size:.8125rem;color:#c4c7d0;">Aucun paiement encore</p>
     </div>
     {% endif %}
   </div>
 
 </div>
+
 
 
 <script>
@@ -414,13 +317,13 @@ function refreshMethodUI() {
     if (radio.checked) {
       lbl.style.borderColor = '#4f46e5';
       lbl.style.background  = '#eef2ff';
-      lbl.style.color       = '#3730a3';
-      lbl.style.fontWeight  = '600';
+      lbl.querySelector('.method-label').style.color      = '#3730a3';
+      lbl.querySelector('.method-label').style.fontWeight = '600';
     } else {
       lbl.style.borderColor = '#ecedf1';
       lbl.style.background  = '';
-      lbl.style.color       = '#52556b';
-      lbl.style.fontWeight  = '500';
+      lbl.querySelector('.method-label').style.color      = '#52556b';
+      lbl.querySelector('.method-label').style.fontWeight = '500';
     }
   });
 }
@@ -533,13 +436,27 @@ document.getElementById('paymentForm').addEventListener('submit', function(e) {
 </script>
 
 <style>
-  @media (max-width: 768px) {
-    #statsStrip    { grid-template-columns: repeat(2,1fr) !important; }
-    #entryScreen   { grid-template-columns: 1fr !important; }
-    #methodGroup   { grid-template-columns: 1fr 1fr; }
+  .method-card {
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    gap:.35rem;padding:.7rem .5rem;border:1.5px solid #ecedf1;border-radius:10px;
+    cursor:pointer;text-align:center;transition:border-color .13s,background .13s;
+    user-select:none;
+  }
+  .method-card:hover { border-color:#c7d2fe;background:#fafbff; }
+  .method-icon {
+    width:2rem;height:2rem;border-radius:8px;
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  }
+  .method-label { font-size:.75rem;font-weight:500;color:#52556b;white-space:nowrap; }
+
+  @media (max-width: 900px) {
+    #statsStrip  { grid-template-columns: repeat(2,1fr) !important; }
+    #entryScreen { grid-template-columns: 1fr !important; }
+    #methodGroup { grid-template-columns: repeat(4,1fr); }
   }
   @media (max-width: 480px) {
-    #statsStrip    { grid-template-columns: 1fr 1fr !important; }
+    #statsStrip  { grid-template-columns: 1fr 1fr !important; }
+    #methodGroup { grid-template-columns: repeat(2,1fr); }
   }
 </style>
 {% endblock %}
