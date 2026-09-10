@@ -76,6 +76,7 @@ def _user_role(request) -> str:
     return m.role if m else ""
 
 
+def _sidebar_levels(year):
     """Retourne la liste [{level, classes}] pour l'arborescence de la sidebar."""
     if not year:
         return []
