@@ -135,18 +135,24 @@ html,body{width:794px;font-family:'Inter',sans-serif;-webkit-font-smoothing:anti
 
 /* ── FOOTER ── */
 .ft{
-  background:#1a1d29;
-  padding:16px 52px;
+  background:#4f46e5;
+  padding:22px 52px;
   display:flex;align-items:center;justify-content:space-between;
+  gap:20px;
 }
-.ft-name{font-size:18px;font-weight:900;color:#fff;letter-spacing:-.03em;}
-.ft-tag{font-size:9.5px;color:rgba(255,255,255,.4);margin-top:2px;}
-.ft-right{display:flex;gap:24px;align-items:center;}
-.ft-sep{width:1px;height:28px;background:rgba(255,255,255,.1);}
+.ft-brand{display:flex;align-items:center;gap:10px;}
+.ft-logo{width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;}
+.ft-logo svg{width:20px;height:20px;}
+.ft-name{font-size:20px;font-weight:900;color:#fff;letter-spacing:-.03em;}
+.ft-tag{font-size:10px;color:rgba(255,255,255,.65);margin-top:1px;font-weight:500;}
+.ft-right{display:flex;gap:0;align-items:stretch;background:rgba(255,255,255,.12);border-radius:12px;overflow:hidden;}
+.ft-block{display:flex;flex-direction:column;justify-content:center;padding:12px 22px;gap:3px;}
+.ft-block+.ft-block{border-left:1px solid rgba(255,255,255,.15);}
+.ft-lbl{font-size:9px;font-weight:600;color:rgba(255,255,255,.55);text-transform:uppercase;letter-spacing:.07em;}
+.ft-val{font-size:15px;font-weight:800;color:#fff;letter-spacing:-.01em;}
+.ft-url{font-size:13px;font-weight:700;color:#c7d2fe;}
 .ft-block{display:flex;flex-direction:column;align-items:flex-end;}
-.ft-val{font-size:13px;font-weight:700;color:#fff;}
-.ft-sub{font-size:9.5px;color:rgba(255,255,255,.45);margin-top:1px;}
-.ft-url{font-size:12px;font-weight:700;color:#a5b4fc;}
+
 </style>
 </head>
 <body>
@@ -236,7 +242,7 @@ html,body{width:794px;font-family:'Inter',sans-serif;-webkit-font-smoothing:anti
       <div class="mk-body">
         <div class="fm">
           <div><div class="srow"><div class="sn">1</div><div class="sl">Élève</div></div>
-            <div class="fi ok"><svg viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Aminata KONATE (CM2 A)</div>
+            <div class="fi ok">Aminata KONATE (CM2 A)</div>
           </div>
           <div><div class="srow"><div class="sn">2</div><div class="sl">Montant</div></div>
             <div class="fr"><div class="fa">45 000 <span>FCFA</span></div><div class="fi">10/09/2026</div></div>
@@ -254,11 +260,27 @@ html,body{width:794px;font-family:'Inter',sans-serif;-webkit-font-smoothing:anti
 
 <!-- FOOTER -->
 <div class="ft">
-  <div><div class="ft-name">Sukulu</div><div class="ft-tag">Gestion scolaire &middot; FCFA</div></div>
+  <div class="ft-brand">
+    <div class="ft-logo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+        <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+      </svg>
+    </div>
+    <div>
+      <div class="ft-name">Sukulu</div>
+      <div class="ft-tag">Gestion scolaire · FCFA</div>
+    </div>
+  </div>
   <div class="ft-right">
-    <div class="ft-block"><div class="ft-val">Stéphane de SOUZA</div><div class="ft-sub">+228 92 17 87 26</div></div>
-    <div class="ft-sep"></div>
-    <div class="ft-block"><div class="ft-url">sika-opal.vercel.app</div><div class="ft-sub">Accès sur invitation</div></div>
+    <div class="ft-block">
+      <div class="ft-lbl">Contact</div>
+      <div class="ft-val">Stéphane de SOUZA</div>
+    </div>
+    <div class="ft-block">
+      <div class="ft-lbl">WhatsApp / Tél.</div>
+      <div class="ft-val">+228 92 17 87 26</div>
+    </div>
   </div>
 </div>
 
