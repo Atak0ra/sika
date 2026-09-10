@@ -107,6 +107,32 @@
           <svg class="icon" style="width:1em;height:1em;"><use href="#icon-users"/></svg>
           Élèves
         </a>
+
+        {% if sidebar_levels %}
+        <div class="sb-tree">
+          {% for item in sidebar_levels %}
+          <div class="sb-level">
+            <button type="button" class="sb-level-btn{% if active_class_id %} open{% endif %}" onclick="sbToggle(this)">
+              <svg class="sb-level-icon" viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+              {{ item.level.name }}
+              <svg class="sb-chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="sb-classes{% if active_class_id %} open{% endif %}">
+              <div class="sb-classes-inner">
+                {% for klass in item.classes %}
+                <a href="{% url 'economat:class_detail' school.id school_year.id klass.id %}"
+                   class="sb-class-link {% if active_class_id == klass.id|stringformat:'s' %}active{% endif %}">
+                  <span class="sb-class-dot"></span>
+                  {{ klass.name }}
+                </a>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %}
+
         <a href="{% url 'economat:team' school.id %}"
            class="nav-link {% if active_nav == 'equipe' %}nav-link-active{% endif %}"
            style="font-size:.84375rem;">
@@ -185,6 +211,16 @@
 </aside>
 
 <script>
+/* ======================================================
+   Accordéon sidebar Niveaux > Classes
+====================================================== */
+function sbToggle(btn) {
+  var panel = btn.nextElementSibling;
+  var isOpen = panel.classList.contains('open');
+  btn.classList.toggle('open', !isOpen);
+  panel.classList.toggle('open', !isOpen);
+}
+
 /* ======================================================
    Sidebar hamburger
 ====================================================== */

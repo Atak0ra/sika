@@ -19,6 +19,10 @@ urlpatterns = [
     path("<str:school_id>/<str:year_id>/tarifs/",
          views.configure_pricing,  name="configure_pricing"),
 
+    # Vue dédiée par classe
+    path("<str:school_id>/<str:year_id>/classes/<str:class_id>/",
+         views.class_detail,       name="class_detail"),
+
     # Élèves
     path("<str:school_id>/<str:year_id>/eleves/",
          views.students_list,      name="students_list"),
