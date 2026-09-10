@@ -34,7 +34,7 @@ def dashboard(request):
             PaymentModel.objects
             .filter(state="VALID", enrollment__school_year=active_year)
             .select_related("student", "enrollment__klass")
-            .order_by("-created_at")[:20]
+            .order_by("-created_at")[:10]
         )
     classes = []
     if active_year:

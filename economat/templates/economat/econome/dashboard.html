@@ -104,7 +104,7 @@
 
     <!-- Recherche élève -->
     <div class="rg-2" style="gap:.75rem;margin-bottom:1.25rem;">
-      <div style="position:relative;">
+      <div>
         <label class="field-label">Classe</label>
         <select id="classFilter" class="form-select">
           <option value="">Toutes les classes</option>
@@ -123,11 +123,12 @@
                  class="form-input" style="padding-left:2.2rem;"
                  autocomplete="off">
         </div>
+        <!-- dropdown sous l'input — z-index élevé pour passer au-dessus du reste -->
         <ul id="searchResults"
-            style="position:absolute;top:100%;left:0;right:0;background:#fff;
-                   border:1px solid #ecedf1;border-radius:10px;margin-top:.3rem;
-                   box-shadow:0 8px 24px rgba(10,10,20,.1);z-index:30;
-                   max-height:220px;overflow-y:auto;list-style:none;padding:0;margin:0;"
+            style="position:absolute;top:calc(100% + .3rem);left:0;right:0;background:#fff;
+                   border:1px solid #ecedf1;border-radius:10px;
+                   box-shadow:0 8px 24px rgba(10,10,20,.12);z-index:50;
+                   max-height:220px;overflow-y:auto;list-style:none;padding:.25rem 0;margin:0;"
             class="hidden"></ul>
       </div>
     </div>
@@ -165,15 +166,99 @@
         </div>
       </div>
 
-      <!-- Moyen + Année -->
-      <div class="rg-2" style="gap:.75rem;">
-        <div>
-          <label class="field-label">{{ form.method.label }}</label>
-          {{ form.method }}
-        </div>
-        <div>
-          <label class="field-label">{{ form.school_year.label }}</label>
-          {{ form.school_year }}
+      <!-- Moyen de paiement — boutons radio visuels avec icônes -->
+      <div>
+        <label class="field-label">{{ form.method.label }}</label>
+        <div id="methodGroup"
+             style="display:grid;grid-template-columns:repeat(2,1fr);gap:.5rem;margin-top:.25rem;">
+
+          <!-- Espèces -->
+          <label id="lbl-ESPECES"
+                 style="display:flex;align-items:center;gap:.6rem;padding:.65rem .85rem;
+                        border:1.5px solid #ecedf1;border-radius:10px;cursor:pointer;
+                        font-size:.84375rem;font-weight:500;color:#52556b;
+                        transition:border-color .13s,background .13s;user-select:none;">
+            <input type="radio" name="method" value="ESPECES" checked
+                   style="display:none;" class="method-radio">
+            <span style="width:1.6rem;height:1.6rem;border-radius:7px;background:#f0fdf4;
+                         display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+              <!-- Billet / cash -->
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"
+                   stroke-linecap="round" stroke-linejoin="round"
+                   style="width:1rem;height:1rem;color:#16a34a;">
+                <rect x="2" y="6" width="20" height="12" rx="2"/>
+                <circle cx="12" cy="12" r="2.5"/>
+                <path d="M6 12h.01M18 12h.01"/>
+              </svg>
+            </span>
+            Espèces
+          </label>
+
+          <!-- Mobile Money -->
+          <label id="lbl-MOBILE_MONEY"
+                 style="display:flex;align-items:center;gap:.6rem;padding:.65rem .85rem;
+                        border:1.5px solid #ecedf1;border-radius:10px;cursor:pointer;
+                        font-size:.84375rem;font-weight:500;color:#52556b;
+                        transition:border-color .13s,background .13s;user-select:none;">
+            <input type="radio" name="method" value="MOBILE_MONEY"
+                   style="display:none;" class="method-radio">
+            <span style="width:1.6rem;height:1.6rem;border-radius:7px;background:#fff7ed;
+                         display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+              <!-- Smartphone -->
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"
+                   stroke-linecap="round" stroke-linejoin="round"
+                   style="width:1rem;height:1rem;color:#ea580c;">
+                <rect x="5" y="2" width="14" height="20" rx="2"/>
+                <line x1="12" y1="18" x2="12" y2="18.01"/>
+              </svg>
+            </span>
+            Mobile Money
+          </label>
+
+          <!-- Virement -->
+          <label id="lbl-VIREMENT"
+                 style="display:flex;align-items:center;gap:.6rem;padding:.65rem .85rem;
+                        border:1.5px solid #ecedf1;border-radius:10px;cursor:pointer;
+                        font-size:.84375rem;font-weight:500;color:#52556b;
+                        transition:border-color .13s,background .13s;user-select:none;">
+            <input type="radio" name="method" value="VIREMENT"
+                   style="display:none;" class="method-radio">
+            <span style="width:1.6rem;height:1.6rem;border-radius:7px;background:#eff6ff;
+                         display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+              <!-- Transfert / flèches -->
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"
+                   stroke-linecap="round" stroke-linejoin="round"
+                   style="width:1rem;height:1rem;color:#2563eb;">
+                <path d="M7 16V4m0 0L3 8m4-4l4 4"/>
+                <path d="M17 8v12m0 0l4-4m-4 4l-4-4"/>
+              </svg>
+            </span>
+            Virement
+          </label>
+
+          <!-- Chèque -->
+          <label id="lbl-CHEQUE"
+                 style="display:flex;align-items:center;gap:.6rem;padding:.65rem .85rem;
+                        border:1.5px solid #ecedf1;border-radius:10px;cursor:pointer;
+                        font-size:.84375rem;font-weight:500;color:#52556b;
+                        transition:border-color .13s,background .13s;user-select:none;">
+            <input type="radio" name="method" value="CHEQUE"
+                   style="display:none;" class="method-radio">
+            <span style="width:1.6rem;height:1.6rem;border-radius:7px;background:#faf5ff;
+                         display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+              <!-- Document / chèque -->
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"
+                   stroke-linecap="round" stroke-linejoin="round"
+                   style="width:1rem;height:1rem;color:#7c3aed;">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+                <line x1="8" y1="13" x2="16" y2="13"/>
+                <line x1="8" y1="17" x2="13" y2="17"/>
+              </svg>
+            </span>
+            Chèque
+          </label>
+
         </div>
       </div>
 
@@ -222,18 +307,44 @@
 
 </div>
 
+
 <script>
 /* ================================================================
-   Autocomplétion de recherche d'élève
+   Boutons radio visuels — moyens de paiement
 ================================================================ */
-const searchInput  = document.getElementById('studentSearchInput');
-const searchList   = document.getElementById('searchResults');
-const studentField = document.querySelector('input[name="student_id"]');
-const selectedBadge= document.getElementById('selectedStudentBadge');
-const selectedSpan = document.getElementById('selectedStudent');
-const clearBtn     = document.getElementById('clearStudent');
-const classFilter  = document.getElementById('classFilter');
-let debounce;
+function refreshMethodUI() {
+  document.querySelectorAll('.method-radio').forEach(radio => {
+    const lbl = document.getElementById('lbl-' + radio.value);
+    if (!lbl) return;
+    if (radio.checked) {
+      lbl.style.borderColor = '#4f46e5';
+      lbl.style.background  = '#eef2ff';
+      lbl.style.color       = '#3730a3';
+      lbl.style.fontWeight  = '600';
+    } else {
+      lbl.style.borderColor = '#ecedf1';
+      lbl.style.background  = '';
+      lbl.style.color       = '#52556b';
+      lbl.style.fontWeight  = '500';
+    }
+  });
+}
+document.querySelectorAll('.method-radio').forEach(r =>
+  r.addEventListener('change', refreshMethodUI)
+);
+refreshMethodUI();
+
+/* ================================================================
+   Autocomplétion — recherche élève
+================================================================ */
+const searchInput   = document.getElementById('studentSearchInput');
+const searchList    = document.getElementById('searchResults');
+const studentField  = document.querySelector('input[name="student_id"]');
+const selectedBadge = document.getElementById('selectedStudentBadge');
+const selectedSpan  = document.getElementById('selectedStudent');
+const clearBtn      = document.getElementById('clearStudent');
+const classFilter   = document.getElementById('classFilter');
+let debounceTimer;
 
 function selectStudent(id, label) {
   studentField.value = id;
@@ -241,6 +352,7 @@ function selectStudent(id, label) {
   selectedBadge.style.display = 'flex';
   searchInput.value = '';
   searchList.classList.add('hidden');
+  searchInput.blur();
 }
 
 clearBtn.addEventListener('click', () => {
@@ -250,51 +362,70 @@ clearBtn.addEventListener('click', () => {
   searchInput.focus();
 });
 
+classFilter.addEventListener('change', () => {
+  if (searchInput.value.trim().length >= 1) searchInput.dispatchEvent(new Event('input'));
+});
+
 searchInput.addEventListener('input', () => {
-  clearTimeout(debounce);
+  clearTimeout(debounceTimer);
   const q = searchInput.value.trim();
-  if (q.length < 2) { searchList.classList.add('hidden'); return; }
-  debounce = setTimeout(() => {
+  if (q.length < 1) { searchList.classList.add('hidden'); return; }
+  searchList.innerHTML = '<li style="padding:.6rem 1rem;font-size:.8125rem;color:#9397a8;">Recherche\u2026</li>';
+  searchList.classList.remove('hidden');
+  debounceTimer = setTimeout(() => {
     const params = new URLSearchParams({ q });
     if (classFilter.value) params.set('class_id', classFilter.value);
     fetch('{% url "economat:student_search_api" %}?' + params)
       .then(r => r.json())
       .then(data => {
         searchList.innerHTML = '';
-        if (!data.results.length) { searchList.classList.add('hidden'); return; }
-        data.results.forEach(s => {
+        if (!data.results.length) {
+          searchList.innerHTML = '<li style="padding:.6rem 1rem;font-size:.8125rem;color:#9397a8;">Aucun \u00e9l\u00e8ve trouv\u00e9</li>';
+          return;
+        }
+        data.results.forEach((s, i) => {
           const li = document.createElement('li');
-          li.style.cssText = 'padding:.55rem 1rem;cursor:pointer;font-size:.84375rem;
-            transition:background .1s;border-bottom:1px solid #f4f5f7;';
-          li.innerHTML = `<span style="font-weight:600;color:#1a1d29">${s.name}</span>`
-            + (s.class ? `<span style="color:#9397a8;margin-left:.4rem;font-size:.8rem">${s.class}</span>` : '');
+          const last = i === data.results.length - 1;
+          li.style.cssText = 'padding:.55rem 1rem;cursor:pointer;font-size:.84375rem;'
+            + 'transition:background .1s;display:flex;align-items:baseline;gap:.4rem;'
+            + (last ? '' : 'border-bottom:1px solid #f4f5f7;');
+          li.innerHTML = '<span style="font-weight:600;color:#1a1d29;">' + s.name + '</span>'
+            + (s.class ? '<span style="color:#9397a8;font-size:.78rem;margin-left:auto;">' + s.class + '</span>' : '');
           li.onmouseenter = () => li.style.background = '#f4f5f9';
           li.onmouseleave = () => li.style.background = '';
-          li.addEventListener('click', () => selectStudent(s.id, s.name + (s.class ? ' — ' + s.class : '')));
+          li.addEventListener('mousedown', e => {
+            e.preventDefault();
+            selectStudent(s.id, s.name + (s.class ? ' \u2014 ' + s.class : ''));
+          });
           searchList.appendChild(li);
         });
-        searchList.classList.remove('hidden');
+      })
+      .catch(() => {
+        searchList.innerHTML = '<li style="padding:.6rem 1rem;font-size:.8125rem;color:#b91c1c;">Erreur r\u00e9seau</li>';
       });
-  }, 280);
+  }, 200);
 });
-document.addEventListener('click', e => {
-  if (!searchInput.contains(e.target) && !searchList.contains(e.target))
-    searchList.classList.add('hidden');
+
+searchInput.addEventListener('blur', () => {
+  setTimeout(() => searchList.classList.add('hidden'), 150);
+});
+searchInput.addEventListener('focus', () => {
+  if (searchInput.value.trim().length >= 1) searchInput.dispatchEvent(new Event('input'));
 });
 
 /* ================================================================
-   Confirmation si montant important (> 100 000 FCFA)
+   Confirmation si montant > 100 000 FCFA
 ================================================================ */
 document.getElementById('paymentForm').addEventListener('submit', function(e) {
-  if (this.dataset.confirmed) return;  // déjà confirmé
+  if (this.dataset.confirmed) return;
   const amount = parseInt(document.querySelector('input[name="amount_fcfa"]').value || '0', 10);
   if (amount >= 100000) {
     e.preventDefault();
-    const studentName = selectedSpan.textContent || 'élève';
+    const studentName = selectedSpan.textContent || '\u00e9l\u00e8ve';
     const fmt = amount.toLocaleString('fr-FR');
     window.confirmDialog({
-      title: 'Confirmer l’encaissement',
-      message: `Valider un versement de \u00a0${fmt}\u00a0FCFA pour ${studentName} ?`,
+      title: 'Confirmer l\u2019encaissement',
+      message: 'Valider un versement de\u00a0' + fmt + '\u00a0FCFA pour ' + studentName + '\u00a0?',
       confirmLabel: 'Confirmer',
       danger: false,
     }).then(ok => {
@@ -309,6 +440,7 @@ document.getElementById('paymentForm').addEventListener('submit', function(e) {
 <style>
   @media (max-width: 768px) {
     #entryScreen { grid-template-columns: 1fr !important; }
+    #methodGroup { grid-template-columns: 1fr 1fr; }
   }
 </style>
 {% endblock %}

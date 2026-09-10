@@ -2,10 +2,10 @@ from django import forms
 from django.utils import timezone
 
 PAYMENT_METHOD_CHOICES = [
-    ("ESPECES",      "💵 Espèces"),
-    ("MOBILE_MONEY", "📱 Mobile Money (Orange Money, Wave…)"),
-    ("VIREMENT",     "🏦 Virement bancaire"),
-    ("CHEQUE",       "📝 Chèque"),
+    ("ESPECES",      "Espèces"),
+    ("MOBILE_MONEY", "Mobile Money"),
+    ("VIREMENT",     "Virement bancaire"),
+    ("CHEQUE",       "Chèque"),
 ]
 
 
