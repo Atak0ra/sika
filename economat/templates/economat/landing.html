@@ -24,6 +24,7 @@
       background:var(--bg);color:var(--text-1);
       -webkit-font-smoothing:antialiased;
       font-size:14px;line-height:1.6;margin:0;
+      scroll-behavior:smooth;
     }
     h1,h2,h3{letter-spacing:-0.02em;font-weight:700;line-height:1.2;}
     a{text-decoration:none;color:inherit;}
@@ -33,20 +34,21 @@
     /* Navbar */
     .nav{
       position:sticky;top:0;z-index:50;
-      background:rgba(251,251,253,.9);backdrop-filter:blur(12px);
-      border-bottom:1px solid var(--border);
+      background:rgba(18,16,38,.85);backdrop-filter:blur(16px);
+      border-bottom:1px solid rgba(255,255,255,.07);
       height:56px;display:flex;align-items:center;
       padding:0 2rem;
+      transition:background .3s ease;
     }
     .nav-inner{
-      width:100%;max-width:1100px;margin:0 auto;
+      width:100%;max-width:1200px;margin:0 auto;
       display:flex;align-items:center;justify-content:space-between;
     }
     .nav-logo{
       display:flex;align-items:center;gap:.5rem;
-      font-weight:700;font-size:.9375rem;letter-spacing:-0.02em;color:var(--text-1);
+      font-weight:800;font-size:1rem;letter-spacing:-0.03em;color:#fff;
     }
-    .nav-logo svg{color:var(--brand);}
+    .nav-logo svg{color:#818cf8;}
 
     /* Boutons */
     .btn{
@@ -70,71 +72,114 @@
     .section{padding:5rem 2rem;}
     .section-inner{max-width:1100px;margin:0 auto;}
 
-    /* Hero */
+    /* Hero plein écran */
     .hero{
-      padding:6rem 2rem 5rem;
-      background:var(--bg);
-      border-bottom:1px solid var(--border);
+      min-height:calc(100vh - 56px);
+      background:linear-gradient(145deg,#1e1b4b 0%,#3730a3 45%,#4f46e5 75%,#6d28d9 100%);
+      display:flex;align-items:center;
+      padding:0;position:relative;overflow:hidden;
+    }
+    .hero::before{
+      content:'';position:absolute;top:-200px;right:-200px;
+      width:600px;height:600px;border-radius:50%;
+      background:rgba(255,255,255,.04);pointer-events:none;
+    }
+    .hero::after{
+      content:'';position:absolute;bottom:-150px;left:-100px;
+      width:500px;height:500px;border-radius:50%;
+      background:rgba(109,40,217,.25);pointer-events:none;
     }
     .hero-inner{
-      max-width:1100px;margin:0 auto;
-      display:grid;grid-template-columns:1fr 480px;gap:4rem;align-items:center;
+      max-width:1200px;width:100%;margin:0 auto;
+      padding:4rem 2rem 6rem;
+      display:grid;grid-template-columns:1fr 1fr;
+      gap:3rem;align-items:center;
+      position:relative;z-index:1;
     }
     .hero-badge{
       display:inline-flex;align-items:center;gap:.5rem;
-      background:#eef2ff;color:var(--brand);
-      border:1px solid #c7d2fe;
-      border-radius:999px;padding:.3rem .8rem;
-      font-size:.78rem;font-weight:600;margin-bottom:1.5rem;
+      background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);
+      border-radius:999px;padding:.3rem .85rem;
+      font-size:.78rem;font-weight:600;margin-bottom:1.25rem;
+      color:rgba(255,255,255,.9);
     }
-    .hero-badge span{
-      width:.45rem;height:.45rem;border-radius:50%;
-      background:var(--brand);display:inline-block;
-      animation:pulse 2s ease infinite;
+    .hero-badge span{width:6px;height:6px;border-radius:50%;background:#a5b4fc;}
+    .hero-title{
+      font-size:3.25rem;font-weight:900;
+      margin-bottom:1.25rem;color:#fff;
+      letter-spacing:-0.04em;line-height:1.05;
     }
-    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-    .hero-title{font-size:3rem;font-weight:800;margin-bottom:1.25rem;color:var(--text-1);}
-    .hero-title em{font-style:normal;color:var(--brand);}
-    .hero-sub{font-size:1.0625rem;color:var(--text-2);line-height:1.7;margin-bottom:2rem;max-width:520px;}
+    .hero-title em{font-style:normal;color:#a5b4fc;}
+    .hero-sub{
+      font-size:1.0625rem;color:rgba(255,255,255,.65);
+      line-height:1.75;margin-bottom:2rem;max-width:480px;
+    }
     .hero-cta{display:flex;align-items:center;gap:.75rem;flex-wrap:wrap;}
-    .hero-note{font-size:.78rem;color:var(--text-3);margin-top:.75rem;}
+    .hero-note{font-size:.78rem;color:rgba(255,255,255,.35);margin-top:.85rem;}
 
-    /* Preview card */
-    .preview{
-      background:var(--surface);
-      border:1px solid var(--border);
-      border-radius:16px;
-      box-shadow:var(--shadow-md);
-      overflow:hidden;
-    }
-    .preview-bar{
-      padding:.65rem 1rem;
-      background:#f4f5f9;
-      border-bottom:1px solid var(--border);
-      display:flex;align-items:center;gap:.4rem;
-    }
-    .preview-dot{width:.55rem;height:.55rem;border-radius:50%;}
-    .preview-title{font-size:.72rem;color:var(--text-3);margin-left:auto;font-weight:500;}
-    .preview-body{padding:1.25rem;display:flex;flex-direction:column;gap:.85rem;}
-    .preview-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:.6rem;}
-    .preview-kpi{
-      background:#f9fafb;border:1px solid var(--border);
-      border-radius:10px;padding:.75rem;
-    }
-    .preview-kpi-val{font-size:1.25rem;font-weight:800;letter-spacing:-0.03em;font-variant-numeric:tabular-nums;}
-    .preview-kpi-lbl{font-size:.68rem;color:var(--text-3);margin-top:.15rem;}
-    .preview-chat{
-      background:#f4f5f9;border-radius:10px;
-      padding:.85rem;
-      display:flex;flex-direction:column;gap:.5rem;
-    }
-    .preview-bubble{
-      display:inline-block;padding:.5rem .8rem;
-      border-radius:10px;font-size:.78rem;line-height:1.5;max-width:85%;
-    }
-    .bubble-user{background:var(--brand);color:#fff;border-bottom-right-radius:3px;align-self:flex-end;}
-    .bubble-ai{background:#fff;color:var(--text-1);border:1px solid var(--border);border-bottom-left-radius:3px;}
+    /* ── 3 appareils ─────────────────────────────────────── */
+    .devices{position:relative;height:420px;display:flex;align-items:center;justify-content:center;}
 
+    /* Ordinateur (central) */
+    .dev-laptop{position:absolute;width:320px;z-index:2;}
+    .dev-laptop-screen{background:#0f0e1a;border-radius:10px 10px 0 0;border:2px solid rgba(255,255,255,.1);padding:7px;box-shadow:0 24px 60px rgba(0,0,0,.55),0 6px 16px rgba(0,0,0,.3);}
+    .dev-laptop-base{height:9px;background:#1a1828;border-radius:0 0 4px 4px;border:2px solid rgba(255,255,255,.08);border-top:none;}
+    .dev-laptop-foot{height:4px;background:#141222;border-radius:0 0 8px 8px;width:80%;margin:0 auto;}
+    .lp-screen{background:#f8f9fb;border-radius:5px;padding:7px;}
+    .lp-bar{display:flex;gap:3px;margin-bottom:6px;align-items:center;}
+    .lp-dot{width:5px;height:5px;border-radius:50%;}
+    .lp-title-lbl{font-size:5px;color:#9397a8;margin-left:auto;font-family:system-ui;}
+    .lp-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-bottom:6px;}
+    .lp-kpi{background:#fff;border:1px solid #ecedf1;border-radius:4px;padding:5px;}
+    .lp-kval{font-size:8px;font-weight:800;font-family:system-ui;}
+    .lp-klbl{font-size:4.5px;color:#9397a8;font-family:system-ui;margin-top:1px;}
+    .lp-progress{height:5px;background:#f1f2f6;border-radius:99px;overflow:hidden;margin-bottom:6px;}
+    .lp-progress-fill{height:100%;background:#4f46e5;border-radius:99px;}
+    .lp-chart{display:flex;align-items:flex-end;gap:3px;height:26px;padding:0 1px;}
+    .lp-col{display:flex;flex-direction:column;align-items:center;gap:1px;flex:1;}
+
+    /* Tablette (gauche, légèrement inclinée) */
+    .dev-tablet{position:absolute;left:-10px;bottom:8px;width:120px;z-index:1;transform:rotate(-7deg);}
+    .dev-tablet-frame{background:#1a1828;border-radius:10px;border:2px solid rgba(255,255,255,.1);padding:6px;box-shadow:0 16px 40px rgba(0,0,0,.45);}
+    .dev-tablet-screen{background:#f8f9fb;border-radius:5px;padding:5px;}
+    .tab-header{font-size:5px;font-weight:700;color:#1a1d29;margin-bottom:5px;font-family:system-ui;}
+    .tab-row{display:flex;justify-content:space-between;align-items:center;padding:3px 0;border-bottom:1px solid #f4f5f7;}
+    .tab-name{font-size:5px;color:#1a1d29;font-family:system-ui;}
+    .tab-badge{font-size:4px;padding:1px 4px;border-radius:99px;font-weight:600;font-family:system-ui;}
+    .tab-home{width:18px;height:3px;background:#d1d5db;border-radius:99px;margin:5px auto 0;}
+
+    /* Téléphone (droite, légèrement incliné) */
+    .dev-phone{position:absolute;right:-15px;bottom:-10px;width:85px;z-index:3;transform:rotate(5deg);}
+    .dev-phone-frame{background:#0f0e1a;border-radius:16px;border:2px solid rgba(255,255,255,.12);padding:5px;box-shadow:0 20px 50px rgba(0,0,0,.55),0 4px 12px rgba(0,0,0,.3);}
+    .dev-phone-notch{width:18px;height:3px;background:rgba(255,255,255,.1);border-radius:99px;margin:0 auto 5px;}
+    .dev-phone-screen{background:#f8f9fb;border-radius:8px;padding:6px;}
+    .ph-lbl{font-size:4.5px;font-weight:700;color:#9397a8;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;font-family:system-ui;}
+    .ph-student{display:flex;align-items:center;gap:3px;background:#fff;border:1px solid #ecedf1;border-radius:4px;padding:3px;margin-bottom:3px;}
+    .ph-avatar{width:12px;height:12px;border-radius:50%;background:#eef2ff;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:5px;color:#4f46e5;font-family:system-ui;font-weight:700;}
+    .ph-sname{font-size:5px;font-weight:600;color:#1a1d29;font-family:system-ui;}
+    .ph-sclass{font-size:4px;color:#9397a8;font-family:system-ui;}
+    .ph-amount{background:#fff;border:1px solid #ecedf1;border-radius:4px;padding:4px;margin-bottom:3px;}
+    .ph-amtval{font-size:10px;font-weight:800;color:#1a1d29;font-family:system-ui;line-height:1;}
+    .ph-amtlbl{font-size:4px;color:#9397a8;font-family:system-ui;}
+    .ph-btn{background:#4f46e5;border-radius:4px;padding:3px;text-align:center;font-size:5px;font-weight:700;color:#fff;font-family:system-ui;}
+    .dev-phone-home{width:18px;height:3px;background:rgba(255,255,255,.15);border-radius:99px;margin:4px auto 0;}
+
+    /* Indicateur scroll */
+    .scroll-hint{
+      position:absolute;bottom:1.75rem;left:50%;transform:translateX(-50%);
+      display:flex;flex-direction:column;align-items:center;gap:.4rem;
+      color:rgba(255,255,255,.35);font-size:.72rem;font-weight:500;
+      cursor:pointer;z-index:2;transition:color .2s;
+      text-decoration:none;
+    }
+    .scroll-hint:hover{color:rgba(255,255,255,.7);}
+    .scroll-arrow{
+      width:28px;height:28px;border:1.5px solid rgba(255,255,255,.18);border-radius:50%;
+      display:flex;align-items:center;justify-content:center;
+      animation:sbounce 2s ease-in-out infinite;
+    }
+    @keyframes sbounce{0%,100%{transform:translateY(0);}50%{transform:translateY(6px);}}
+    }
     /* Features */
     .features-grid{
       display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;
@@ -206,19 +251,25 @@
     .section-sub{font-size:1rem;color:var(--text-2);max-width:560px;line-height:1.7;}
 
     @media(max-width:900px){
-      .hero-inner,.features-grid,.roles-grid{grid-template-columns:1fr;}
-      .preview{display:none;}
-      .hero-title{font-size:2rem;}
-      .preview-kpis{grid-template-columns:repeat(3,1fr);}
+      .hero-inner{grid-template-columns:1fr;padding:3rem 1.5rem 5rem;}
+      .devices{height:280px;}
+      .dev-laptop{width:240px;}
+      .dev-tablet{left:-5px;width:95px;}
+      .dev-phone{right:-10px;width:65px;}
+      .hero-title{font-size:2.25rem;}
     }
     @media(max-width:640px){
       .section{padding:3.5rem 1.25rem;}
-      .hero{padding:4rem 1.25rem 3.5rem;}
-      .hero-title{font-size:1.75rem;}
+      .hero-inner{padding:2.5rem 1.25rem 4.5rem;}
+      .hero-title{font-size:1.85rem;}
       .nav{padding:0 1.25rem;}
       .section-title{font-size:1.4rem;}
       .features-grid,.roles-grid{gap:.75rem;}
       .cta-section{padding:3rem 1.25rem;}
+      .devices{height:220px;}
+      .dev-laptop{width:190px;}
+      .dev-tablet{display:none;}
+      .dev-phone{width:58px;right:-5px;}
     }
   </style>
 </head>
@@ -249,76 +300,142 @@
   </div>
 </nav>
 
-<!-- HERO -->
+<!-- HERO plein écran -->
 <section class="hero">
   <div class="hero-inner">
+
+    <!-- Texte gauche -->
     <div>
+      <div class="hero-badge">
+        <span></span>
+        Gestion des frais de scolarité
+      </div>
       <h1 class="hero-title">
-        La gestion des frais<br>
-        de scolarité,<br>
-        <em>enfin simple.</em>
+        Le directeur voit tout,<br>
+        <em>en temps réel.</em>
       </h1>
       <p class="hero-sub">
-        Suivez les paiements, configurez vos barèmes, gérez votre équipe
-        et explorez vos données en langage naturel grâce à l’IA.
+        Encaissements, retards, recouvrement par classe.
+        Instantanément sur son téléphone pendant que l&rsquo;économe saisit et que la secrétaire inscrit.
       </p>
       <div class="hero-cta">
-        <a href="{% url 'economat:login' %}" class="btn btn-primary" style="padding:.8rem 1.75rem;font-size:.9375rem;">
-          Accéder à la plateforme
-          <svg class="icon"><path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <a href="{% url 'economat:login' %}" class="btn btn-primary"
+           style="background:#fff;color:#1a1d29;border-color:#fff;padding:.8rem 1.75rem;font-size:.9375rem;font-weight:700;box-shadow:0 4px 16px rgba(0,0,0,.2);">
+          Accéder &agrave; la plateforme
+          <svg style="width:1em;height:1em;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;vertical-align:-.1em;" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
         </a>
       </div>
-      <p class="hero-note">Accès sur invitation de l’administrateur.</p>
+      <p class="hero-note">Accès sur invitation de l&rsquo;administrateur.</p>
     </div>
 
-    <!-- Preview -->
-    <div class="preview">
-      <div class="preview-bar">
-        <div class="preview-dot" style="background:#f87171"></div>
-        <div class="preview-dot" style="background:#fbbf24"></div>
-        <div class="preview-dot" style="background:#34d399"></div>
-        <span class="preview-title">Tableau de bord directeur</span>
-      </div>
-      <div class="preview-body">
-        <!-- KPIs -->
-        <div class="preview-kpis">
-          <div class="preview-kpi">
-            <div class="preview-kpi-val" style="color:#4f46e5;">74 %</div>
-            <div class="preview-kpi-lbl">Recouvrement</div>
+    <!-- 3 appareils -->
+    <div class="devices">
+
+      <!-- Tablette (gauche, derrière) -->
+      <div class="dev-tablet">
+        <div class="dev-tablet-frame">
+          <div class="dev-tablet-screen">
+            <div class="tab-header">Liste des élèves</div>
+            <div class="tab-row">
+              <span class="tab-name">Awa DIALLO</span>
+              <span class="tab-badge" style="background:#ecfdf5;color:#059669;">à jour</span>
+            </div>
+            <div class="tab-row">
+              <span class="tab-name">Koffi MENSAH</span>
+              <span class="tab-badge" style="background:#fef2f2;color:#dc2626;">retard</span>
+            </div>
+            <div class="tab-row">
+              <span class="tab-name">Fatou SALL</span>
+              <span class="tab-badge" style="background:#eef2ff;color:#4f46e5;">cours</span>
+            </div>
+            <div class="tab-row" style="border:none;">
+              <span class="tab-name">Amina KONE</span>
+              <span class="tab-badge" style="background:#ecfdf5;color:#059669;">à jour</span>
+            </div>
           </div>
-          <div class="preview-kpi">
-            <div class="preview-kpi-val" style="color:#059669;">18 240 000</div>
-            <div class="preview-kpi-lbl">FCFA encaissés</div>
-          </div>
-          <div class="preview-kpi">
-            <div class="preview-kpi-val" style="color:#dc2626;">6 400 000</div>
-            <div class="preview-kpi-lbl">Restants</div>
-          </div>
-        </div>
-        <!-- Barre de progression -->
-        <div>
-          <div style="display:flex;justify-content:space-between;font-size:.7rem;color:var(--text-3);margin-bottom:.3rem;"><span>Progression</span><span>74 %</span></div>
-          <div style="height:6px;background:#f4f4f5;border-radius:99px;overflow:hidden;">
-            <div style="height:100%;width:74%;background:#4f46e5;border-radius:99px;"></div>
-          </div>
-        </div>
-        <!-- Chat IA -->
-        <div class="preview-chat">
-          <div style="font-size:.68rem;font-weight:600;color:var(--text-3);margin-bottom:.25rem;">Chat IA &middot; lecture seule</div>
-          <div style="display:flex;justify-content:flex-end;">
-            <div class="preview-bubble bubble-user">Quels élèves de CM2 sont en retard ?</div>
-          </div>
-          <div style="display:flex;">
-            <div class="preview-bubble bubble-ai">8 élèves en CM2 ont des échéances dépassées <strong>240 000 F</strong> non réglés.</div>
-          </div>
+          <div class="tab-home"></div>
         </div>
       </div>
+
+      <!-- Ordinateur (central) -->
+      <div class="dev-laptop">
+        <div class="dev-laptop-screen">
+          <div class="lp-screen">
+            <div class="lp-bar">
+              <div class="lp-dot" style="background:#f87171;"></div>
+              <div class="lp-dot" style="background:#fbbf24;"></div>
+              <div class="lp-dot" style="background:#34d399;"></div>
+              <span class="lp-title-lbl">Tableau de bord directeur</span>
+            </div>
+            <div class="lp-kpis">
+              <div class="lp-kpi">
+                <div class="lp-kval" style="color:#4f46e5;">87&nbsp;%</div>
+                <div class="lp-klbl">Recouvrement</div>
+              </div>
+              <div class="lp-kpi">
+                <div class="lp-kval" style="color:#059669;">12&thinsp;450&thinsp;000</div>
+                <div class="lp-klbl">FCFA encaissés</div>
+              </div>
+              <div class="lp-kpi">
+                <div class="lp-kval" style="color:#d97706;">285&thinsp;000</div>
+                <div class="lp-klbl">Aujourd&rsquo;hui</div>
+              </div>
+            </div>
+            <div class="lp-progress">
+              <div class="lp-progress-fill" style="width:87%;"></div>
+            </div>
+            <div class="lp-chart">
+              <div class="lp-col"><div style="height:14px;background:#c7d2fe;border-radius:2px 2px 0 0;width:100%;"></div></div>
+              <div class="lp-col"><div style="height:10px;background:#c7d2fe;border-radius:2px 2px 0 0;width:100%;"></div></div>
+              <div class="lp-col"><div style="height:18px;background:#4f46e5;border-radius:2px 2px 0 0;width:100%;"></div></div>
+              <div class="lp-col"><div style="height:12px;background:#c7d2fe;border-radius:2px 2px 0 0;width:100%;"></div></div>
+              <div class="lp-col"><div style="height:22px;background:#4f46e5;border-radius:2px 2px 0 0;width:100%;"></div></div>
+              <div class="lp-col"><div style="height:16px;background:#818cf8;border-radius:2px 2px 0 0;width:100%;"></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="dev-laptop-base"></div>
+        <div class="dev-laptop-foot"></div>
+      </div>
+
+      <!-- Téléphone (droite, devant) -->
+      <div class="dev-phone">
+        <div class="dev-phone-frame">
+          <div class="dev-phone-notch"></div>
+          <div class="dev-phone-screen">
+            <div class="ph-lbl">Encaissement</div>
+            <div class="ph-student">
+              <div class="ph-avatar">A</div>
+              <div>
+                <div class="ph-sname">Awa DIALLO</div>
+                <div class="ph-sclass">CM2 A</div>
+              </div>
+            </div>
+            <div class="ph-amount">
+              <div class="ph-amtval">60&thinsp;000</div>
+              <div class="ph-amtlbl">FCFA &middot; Tranche 1</div>
+            </div>
+            <div class="ph-btn">Valider</div>
+          </div>
+          <div class="dev-phone-home"></div>
+        </div>
+      </div>
+
     </div>
   </div>
+
+  <!-- Indicateur scroll -->
+  <a class="scroll-hint" href="#features">
+    Découvrir les fonctionnalités
+    <div class="scroll-arrow">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+    </div>
+  </a>
+
 </section>
 
 <!-- FEATURES -->
-<section class="section" style="background:var(--surface);border-bottom:1px solid var(--border);">
+<section id="features" class="section" style="background:var(--surface);border-bottom:1px solid var(--border);">
   <div class="section-inner">
     <div style="margin-bottom:3rem;">
       <div class="section-label">Fonctionnalités</div>
@@ -418,7 +535,7 @@
 
 <!-- FOOTER -->
 <footer class="footer">
-  &copy; 2025 Sukulu
+  &copy; 2026 Sukulu
 </footer>
 
 </body>
