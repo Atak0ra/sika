@@ -1,0 +1,79 @@
+{% extends "economat/accounts/base_auth.html" %}
+{% block title %}Mon profil — Sukulu{% endblock %}
+{% block content %}
+
+<h2 style="font-size:1.0625rem;font-weight:700;color:#1a1d29;letter-spacing:-.02em;margin-bottom:1.5rem;">Mon profil</h2>
+
+{% if messages %}{% for m in messages %}
+<div style="background:#ecfdf5;border:1px solid #a7f3d0;color:#065f46;padding:.7rem 1rem;
+            border-radius:8px;font-size:.8125rem;font-weight:600;margin-bottom:1rem;">
+  {{ m }}
+</div>
+{% endfor %}{% endif %}
+
+<!-- Informations de connexion (lecture seule) -->
+<div style="background:#f8f8fc;border:1px solid #ecedf1;border-radius:10px;padding:.85rem 1rem;margin-bottom:1.5rem;">
+  <div style="font-size:.75rem;font-weight:600;color:#9397a8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.5rem;">Compte</div>
+  <div style="display:flex;align-items:center;justify-content:space-between;">
+    <span style="font-size:.875rem;color:#52556b;">Identifiant</span>
+    <span style="font-size:.875rem;font-weight:600;color:#1a1d29;">{{ request.user.username }}</span>
+  </div>
+</div>
+
+<!-- Rôle(s) et école(s) (lecture seule) -->
+{% if memberships %}
+<div style="margin-bottom:1.5rem;">
+  <div style="font-size:.75rem;font-weight:600;color:#9397a8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.5rem;">Rôle dans l’application</div>
+  {% for m in memberships %}
+  <div style="display:flex;align-items:center;justify-content:space-between;
+              padding:.55rem .75rem;background:#fff;border:1px solid #ecedf1;
+              border-radius:8px;margin-bottom:.35rem;">
+    <span style="font-size:.84375rem;color:#52556b;">{{ m.school.name }}</span>
+    <span style="font-size:.75rem;font-weight:600;padding:.15rem .55rem;border-radius:999px;
+                 {% if m.role == 'DIRECTOR' %}background:#eef2ff;color:#4f46e5;
+                 {% elif m.role == 'ECONOME' %}background:#f0fdf4;color:#059669;
+                 {% else %}background:#fff7ed;color:#d97706;{% endif %}">
+      {{ m.get_role_display }}
+    </span>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+<!-- Formulaire profil -->
+<form method="post">
+  {% csrf_token %}
+  <div style="display:flex;flex-direction:column;gap:1rem;">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;">
+      <div>
+        <label class="field-label">{{ form.first_name.label }}</label>
+        {{ form.first_name }}
+        {% if form.first_name.errors %}<p class="field-error">{{ form.first_name.errors.0 }}</p>{% endif %}
+      </div>
+      <div>
+        <label class="field-label">{{ form.last_name.label }}</label>
+        {{ form.last_name }}
+        {% if form.last_name.errors %}<p class="field-error">{{ form.last_name.errors.0 }}</p>{% endif %}
+      </div>
+    </div>
+    <div>
+      <label class="field-label">{{ form.email.label }}</label>
+      {{ form.email }}
+      {% if form.email.errors %}<p class="field-error">{{ form.email.errors.0 }}</p>{% endif %}
+    </div>
+  </div>
+  <button type="submit" class="btn-primary" style="width:100%;margin-top:1.5rem;"
+          data-loading-text="Enregistrement…">
+    Enregistrer les modifications
+  </button>
+</form>
+
+<!-- Lien mot de passe -->
+<div style="margin-top:1rem;padding-top:1rem;border-top:1px solid #ecedf1;text-align:center;">
+  <a href="{% url 'economat:change_password' %}"
+     style="font-size:.8125rem;color:#4f46e5;font-weight:600;text-decoration:none;">
+    Changer mon mot de passe
+  </a>
+</div>
+
+{% endblock %}

@@ -166,3 +166,74 @@ def _redirect_for_role(role: str, school_id: str):
         return redirect("economat:director_dashboard")
     # Économe → interface encaissement uniquement
     return redirect("economat:econome_dashboard")
+
+
+# ── Profil utilisateur ────────────────────────────────────────────────────────
+
+@login_required
+def profile(request):
+    """Affiche et met à jour le profil (nom, prénom, email)."""
+    from economat.composition import get_user_repository
+    from .forms import ProfileForm
+
+    user_repo  = get_user_repository()
+    memberships = MembershipModel.objects.select_related("school").filter(
+        user=request.user, is_active=True
+    ).order_by("role")
+
+    initial = {
+        "first_name": request.user.first_name,
+        "last_name":  request.user.last_name,
+        "email":      request.user.email,
+    }
+    form = ProfileForm(request.POST or None, initial=initial)
+
+    if request.method == "POST" and form.is_valid():
+        user_repo.update_profile(
+            user_id    = str(request.user.pk),
+            first_name = form.cleaned_data["first_name"],
+            last_name  = form.cleaned_data["last_name"],
+            email      = form.cleaned_data["email"] or "",
+        )
+        # Rafraîchir le user en session
+        request.user.first_name = form.cleaned_data["first_name"]
+        request.user.last_name  = form.cleaned_data["last_name"]
+        request.user.email      = form.cleaned_data["email"] or ""
+        messages.success(request, "✅ Profil mis à jour.")
+        return redirect("economat:profile")
+
+    return render(request, "economat/accounts/profile.html", {
+        "form":        form,
+        "memberships": memberships,
+        "page_title":  "Mon profil",
+    })
+
+
+@login_required
+def change_password(request):
+    """Changement de mot de passe avec vérification de l'ancien."""
+    from django.contrib.auth import update_session_auth_hash
+    from economat.composition import get_user_repository
+    from .forms import ChangePasswordForm
+
+    user_repo = get_user_repository()
+    form = ChangePasswordForm(request.POST or None)
+
+    if request.method == "POST" and form.is_valid():
+        old_pw = form.cleaned_data["old_password"]
+        if not user_repo.verify_password(str(request.user.pk), old_pw):
+            form.add_error("old_password", "Mot de passe actuel incorrect.")
+        else:
+            user_repo.set_password(
+                user_id      = str(request.user.pk),
+                new_password = form.cleaned_data["new_password1"],
+            )
+            # Maintenir la session active après le changement
+            update_session_auth_hash(request, request.user)
+            messages.success(request, "✅ Mot de passe modifié avec succès.")
+            return redirect("economat:profile")
+
+    return render(request, "economat/accounts/change_password.html", {
+        "form":       form,
+        "page_title": "Changer le mot de passe",
+    })

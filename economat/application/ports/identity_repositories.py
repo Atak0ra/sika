@@ -75,3 +75,17 @@ class MembershipRepository(ABC):
     @abstractmethod
     def count_directors(self, school_id: SchoolId) -> int:
         """Nombre de directeurs actifs dans l'école (invariant : doit rester >= 1)."""
+
+    @abstractmethod
+    def update_profile(
+        self,
+        user_id: str,
+        first_name: str,
+        last_name: str,
+        email: str,
+    ) -> None:
+        """Met à jour le profil (nom, prénom, email) d'un utilisateur."""
+
+    @abstractmethod
+    def verify_password(self, user_id: str, raw_password: str) -> bool:
+        """Vérifie que raw_password correspond au mot de passe actuel de l'utilisateur."""

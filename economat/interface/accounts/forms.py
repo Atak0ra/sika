@@ -108,3 +108,49 @@ class CreateCollaboratorForm(forms.Form):
         label="Rôle", choices=ROLE_CHOICES,
         widget=forms.RadioSelect(attrs={"class": "radio-group"}),
     )
+
+
+class ProfileForm(forms.Form):
+    """Formulaire de modification du profil utilisateur."""
+    first_name = forms.CharField(
+        label="Prénom", max_length=100,
+        widget=forms.TextInput(attrs={"class": "form-input"}),
+    )
+    last_name = forms.CharField(
+        label="Nom", max_length=100,
+        widget=forms.TextInput(attrs={"class": "form-input"}),
+    )
+    email = forms.EmailField(
+        label="Adresse email", required=False,
+        widget=forms.EmailInput(attrs={"class": "form-input",
+                                       "placeholder": "ex: contact@ecole.sn"}),
+    )
+
+
+class ChangePasswordForm(forms.Form):
+    """Formulaire de changement de mot de passe."""
+    old_password = forms.CharField(
+        label="Mot de passe actuel",
+        widget=forms.PasswordInput(attrs={"class": "form-input",
+                                          "autocomplete": "current-password"}),
+    )
+    new_password1 = forms.CharField(
+        label="Nouveau mot de passe", min_length=8,
+        widget=forms.PasswordInput(attrs={"class": "form-input",
+                                          "autocomplete": "new-password"}),
+        help_text="8 caractères minimum.",
+    )
+    new_password2 = forms.CharField(
+        label="Confirmer le nouveau mot de passe",
+        widget=forms.PasswordInput(attrs={"class": "form-input",
+                                          "autocomplete": "new-password"}),
+    )
+
+    def clean(self):
+        cleaned = super().clean()
+        p1 = cleaned.get("new_password1")
+        p2 = cleaned.get("new_password2")
+        if p1 and p2 and p1 != p2:
+            self.add_error("new_password2",
+                           "Les deux mots de passe ne correspondent pas.")
+        return cleaned

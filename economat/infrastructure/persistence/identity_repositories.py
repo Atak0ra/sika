@@ -138,3 +138,23 @@ def _to_domain(orm: MembershipModel) -> Membership:
         created_by=str(orm.created_by_id) if orm.created_by_id else None,
         joined_at=orm.joined_at,
     )
+
+    def update_profile(
+        self,
+        user_id: str,
+        first_name: str,
+        last_name: str,
+        email: str,
+    ) -> None:
+        u = DjangoUser.objects.get(pk=int(user_id))
+        u.first_name = first_name.strip()
+        u.last_name  = last_name.strip()
+        u.email      = email.strip()
+        u.save(update_fields=["first_name", "last_name", "email"])
+
+    def verify_password(self, user_id: str, raw_password: str) -> bool:
+        try:
+            u = DjangoUser.objects.get(pk=int(user_id))
+            return u.check_password(raw_password)
+        except DjangoUser.DoesNotExist:
+            return False

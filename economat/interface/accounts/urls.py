@@ -22,4 +22,8 @@ urlpatterns = [
          views.team,                name="team"),
     path("<str:school_id>/equipe/<str:member_id>/toggle/",
          views.toggle_collaborator, name="toggle_collaborator"),
+
+    # ── Profil utilisateur (tous rôles) ──────────────────────────────────
+    path("mon-compte/",                  views.profile,         name="profile"),
+    path("mon-compte/mot-de-passe/",     views.change_password, name="change_password"),
 ]

@@ -131,3 +131,7 @@ def get_financial_dashboard_query():
         student_repo=r["student"], enrollment_repo=r["enrollment"],
         payment_repo=r["payment"],
     )
+
+def get_user_repository():
+    from economat.infrastructure.persistence.identity_repositories import DjangoUserRepository
+    return DjangoUserRepository()
