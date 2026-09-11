@@ -25,7 +25,7 @@ from economat.composition import (
 )
 from economat.infrastructure.models import (
     ClassModel, EnrollmentModel, LevelModel, PaymentModel,
-    SchoolModel, SchoolYearModel,
+    SchoolModel, SchoolYearModel, StudentModel,
 )
 from economat.interface.decorators import require_membership, require_role
 from economat.domain.identity.value_objects import Role
