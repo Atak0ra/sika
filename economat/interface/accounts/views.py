@@ -174,12 +174,34 @@ def _redirect_for_role(role: str, school_id: str):
 def profile(request):
     """Affiche et met à jour le profil (nom, prénom, email)."""
     from economat.composition import get_user_repository
+    from economat.infrastructure.models import LevelModel
     from .forms import ProfileForm
 
     user_repo  = get_user_repository()
     memberships = MembershipModel.objects.select_related("school").filter(
         user=request.user, is_active=True
     ).order_by("role")
+
+    # Contexte sidebar : on prend la première école active de l'utilisateur
+    first_membership = memberships.first()
+    school = first_membership.school if first_membership else None
+    school_year = (
+        SchoolYearModel.objects.filter(school_id=school.id, status="ACTIVE").first()
+        if school else None
+    )
+    all_years = (
+        SchoolYearModel.objects.filter(school_id=school.id).order_by("-label")
+        if school else []
+    )
+    sidebar_levels = []
+    if school_year:
+        levels_qs = (LevelModel.objects
+                     .filter(school_year_id=school_year.id)
+                     .prefetch_related("classes")
+                     .order_by("name"))
+        sidebar_levels = [{"level": lvl, "classes": lvl.classes.order_by("name")} for lvl in levels_qs]
+
+    user_role = first_membership.role if first_membership else ""
 
     initial = {
         "first_name": request.user.first_name,
@@ -203,9 +225,16 @@ def profile(request):
         return redirect("economat:profile")
 
     return render(request, "economat/accounts/profile.html", {
-        "form":        form,
-        "memberships": memberships,
-        "page_title":  "Mon profil",
+        "form":           form,
+        "memberships":    memberships,
+        "page_title":     "Mon profil",
+        # Contexte sidebar
+        "school":         school,
+        "school_year":    school_year,
+        "all_years":      all_years,
+        "sidebar_levels": sidebar_levels,
+        "user_role":      user_role,
+        "active_nav":     "profil",
     })
 
 
@@ -214,10 +243,33 @@ def change_password(request):
     """Changement de mot de passe avec vérification de l'ancien."""
     from django.contrib.auth import update_session_auth_hash
     from economat.composition import get_user_repository
+    from economat.infrastructure.models import LevelModel
     from .forms import ChangePasswordForm
 
     user_repo = get_user_repository()
     form = ChangePasswordForm(request.POST or None)
+
+    # Contexte sidebar
+    first_membership = MembershipModel.objects.select_related("school").filter(
+        user=request.user, is_active=True
+    ).order_by("role").first()
+    school = first_membership.school if first_membership else None
+    school_year = (
+        SchoolYearModel.objects.filter(school_id=school.id, status="ACTIVE").first()
+        if school else None
+    )
+    all_years = (
+        SchoolYearModel.objects.filter(school_id=school.id).order_by("-label")
+        if school else []
+    )
+    sidebar_levels = []
+    if school_year:
+        levels_qs = (LevelModel.objects
+                     .filter(school_year_id=school_year.id)
+                     .prefetch_related("classes")
+                     .order_by("name"))
+        sidebar_levels = [{"level": lvl, "classes": lvl.classes.order_by("name")} for lvl in levels_qs]
+    user_role = first_membership.role if first_membership else ""
 
     if request.method == "POST" and form.is_valid():
         old_pw = form.cleaned_data["old_password"]
@@ -234,6 +286,13 @@ def change_password(request):
             return redirect("economat:profile")
 
     return render(request, "economat/accounts/change_password.html", {
-        "form":       form,
-        "page_title": "Changer le mot de passe",
+        "form":           form,
+        "page_title":     "Changer le mot de passe",
+        # Contexte sidebar
+        "school":         school,
+        "school_year":    school_year,
+        "all_years":      all_years,
+        "sidebar_levels": sidebar_levels,
+        "user_role":      user_role,
+        "active_nav":     "profil",
     })
