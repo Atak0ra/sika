@@ -159,6 +159,7 @@
           <th style="padding:.75rem 1rem;font-size:.75rem;font-weight:600;color:#9397a8;text-transform:uppercase;letter-spacing:.05em;text-align:left;white-space:nowrap;">Classe</th>
           <th style="padding:.75rem 1rem;font-size:.75rem;font-weight:600;color:#9397a8;text-transform:uppercase;letter-spacing:.05em;text-align:right;white-space:nowrap;">Montant</th>
           <th style="padding:.75rem 1rem;font-size:.75rem;font-weight:600;color:#9397a8;text-transform:uppercase;letter-spacing:.05em;text-align:left;white-space:nowrap;">Moyen</th>
+          <th style="padding:.75rem .75rem;width:2rem;"></th>
         </tr>
       </thead>
       <tbody>
@@ -192,6 +193,15 @@
               {{ p.get_method_display }}
             </span>
             {% endwith %}
+          </td>
+          <td style="padding:.75rem .75rem;text-align:center;">
+            <a href="{% url 'economat:receipt_view' p.id %}"
+               title="Imprimer le reçu"
+               style="display:inline-flex;align-items:center;justify-content:center;width:1.75rem;height:1.75rem;border-radius:6px;background:#f4f5f9;color:#9397a8;text-decoration:none;transition:background .12s,color .12s;"
+               onmouseenter="this.style.background='#eef2ff';this.style.color='#4f46e5'"
+               onmouseleave="this.style.background='#f4f5f9';this.style.color='#9397a8'">
+              <svg style="width:.875rem;height:.875rem;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+            </a>
           </td>
         </tr>
         {% endfor %}

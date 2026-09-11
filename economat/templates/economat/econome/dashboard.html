@@ -57,16 +57,6 @@
         <span style="font-size:.8125rem;color:#9397a8;">Montant versé</span>
         <span style="font-size:1.5rem;font-weight:700;font-variant-numeric:tabular-nums;color:#1a1d29;">{{ receipt.amount_paid|fcfa_long }}</span>
       </div>
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:.5rem;">
-        <span style="font-size:.775rem;color:#9397a8;">Reste à payer : {{ receipt.new_balance|fcfa_long }}</span>
-        <span class="badge
-          {% if receipt.payment_status == 'SOLDE' %}badge-success
-          {% elif receipt.payment_status == 'EN_RETARD' %}badge-warning
-          {% elif receipt.payment_status == 'NON_PAYE' %}badge-neutral
-          {% else %}badge-info{% endif %}">
-          {{ receipt.payment_status_label }}
-        </span>
-      </div>
     </div>
     <div style="text-align:center;font-size:.75rem;color:#c4c7d0;margin-top:1rem;padding-top:.75rem;border-top:1px dashed #e4e4e7;">
       Encaissé par {{ receipt.recorded_by }}
@@ -176,7 +166,13 @@
 
   <div class="card" style="padding:2rem 2.25rem;">
     <div style="margin-bottom:2rem;">
-      <h1 style="font-size:1.0625rem;font-weight:700;color:#1a1d29;letter-spacing:-.02em;margin-bottom:.2rem;">Enregistrer un paiement</h1>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.5rem;">
+        <h1 style="font-size:1.0625rem;font-weight:700;color:#1a1d29;letter-spacing:-.02em;">Enregistrer un paiement</h1>
+        <a href="{% url 'economat:econome_dashboard' %}" style="font-size:.75rem;font-weight:600;color:#9397a8;text-decoration:none;display:flex;align-items:center;gap:.3rem;transition:color .12s;" onmouseover="this.style.color='#4f46e5'" onmouseout="this.style.color='#9397a8'">
+          <svg style="width:.75rem;height:.75rem;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+          Tableau de bord
+        </a>
+      </div>
       <p style="font-size:.8rem;color:#9397a8;">{% if school_year %}{{ school_year.label }}{% endif %}{% if school %} · {{ school.name }}{% endif %}</p>
     </div>
     <form method="post" id="paymentForm" action="{% url 'economat:record_payment' %}">

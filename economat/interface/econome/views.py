@@ -87,8 +87,29 @@ def _activity_stats(active_year):
 
 @login_required
 def dashboard(request):
+    """Redirige vers le nouveau dashboard de collecte (conservation compatibilité)."""
+    return redirect("economat:econome_dashboard")
+
+
+@login_required
+def collection_dashboard(request):
+    """
+    Tableau de bord de collecte de l'économe.
+
+    Indicateurs financiers opérationnels :
+      - Encaissé aujourd'hui + cette année + reste à collecter + taux global
+      - Collecte par classe triée par reste décroissant (orienté action)
+      - Derniers encaissements (10 plus récents)
+      - Raccourcis : Encaisser / Voir tous les encaissements
+    """
     school, active_year = _get_user_active_year(request)
+
+    stats           = _activity_stats(active_year)
+    classes_data    = []
+    total_expected  = 0
+    total_collected = 0
     recent_payments = []
+
     if active_year:
         recent_payments = (
             PaymentModel.objects
@@ -96,21 +117,72 @@ def dashboard(request):
             .select_related("student", "enrollment__klass")
             .order_by("-created_at")[:10]
         )
-    classes = []
-    if active_year:
-        classes = ClassModel.objects.filter(
-            level__school_year=active_year
-        ).select_related("level").order_by("level__name", "name")
 
-    return render(request, "economat/econome/dashboard.html", {
-        "form":            RecordPaymentForm(initial={"year_id": str(active_year.id)} if active_year else {}),
-        "search_form":     StudentSearchForm(),
-        "recent_payments": recent_payments,
+        # ── Collecte par classe — Subquery anti-N+1 ───────────────────────
+        from django.db.models import IntegerField, OuterRef, Subquery, Value
+        from django.db.models.functions import Coalesce
+
+        paid_subq = (
+            PaymentModel.objects
+            .filter(enrollment=OuterRef("pk"), state="VALID")
+            .values("enrollment")
+            .annotate(s=Sum("amount"))
+            .values("s")
+        )
+        enrollments_qs = (
+            EnrollmentModel.objects
+            .filter(school_year=active_year, status="ACTIVE")
+            .select_related("klass", "klass__level")
+            .annotate(
+                paid_total=Coalesce(
+                    Subquery(paid_subq, output_field=IntegerField()),
+                    Value(0, output_field=IntegerField()),
+                )
+            )
+        )
+
+        # Agrégation Python par classe (une seule passe)
+        class_map: dict = {}
+        for enr in enrollments_qs:
+            cid = str(enr.klass_id)
+            if cid not in class_map:
+                class_map[cid] = {
+                    "klass": enr.klass, "level": enr.klass.level,
+                    "nb": 0, "collected": 0, "expected": 0,
+                }
+            class_map[cid]["nb"]        += 1
+            class_map[cid]["collected"] += enr.paid_total
+            class_map[cid]["expected"]  += enr.klass.level.annual_fee
+
+        for entry in class_map.values():
+            entry["balance"] = max(entry["expected"] - entry["collected"], 0)
+            entry["rate"]    = (
+                round(entry["collected"] / entry["expected"] * 100)
+                if entry["expected"] else 0
+            )
+            total_expected  += entry["expected"]
+            total_collected += entry["collected"]
+
+        classes_data = sorted(
+            class_map.values(), key=lambda x: x["balance"], reverse=True
+        )
+
+    total_balance = max(total_expected - total_collected, 0)
+    global_rate   = (
+        round(total_collected / total_expected * 100) if total_expected else 0
+    )
+
+    return render(request, "economat/econome/collection_dashboard.html", {
         "school":          school,
         "school_year":     active_year,
-        "classes":         classes,
-        "stats":           _activity_stats(active_year),
-        "page_title":      "Saisie des encaissements",
+        "stats":           stats,
+        "classes_data":    classes_data,
+        "total_expected":  total_expected,
+        "total_collected": total_collected,
+        "total_balance":   total_balance,
+        "global_rate":     global_rate,
+        "recent_payments": recent_payments,
+        "page_title":      "Tableau de bord — Économe",
     })
 
 
@@ -235,13 +307,48 @@ def payments_list(request):
 
 
 @login_required
-@require_POST
 def record_payment(request):
-    form = RecordPaymentForm(request.POST)
+    """
+    Écran de saisie d'un encaissement (GET = formulaire, POST = enregistrement).
+    Anciennement / — déplacé sur /encaisser/ pour libérer l'accueil au dashboard.
+    Le form id="paymentForm" et le name record_payment sont conservés
+    pour la compatibilité avec offline-sync.js.
+    """
     school, active_year = _get_user_active_year(request)
+    classes = []
+    if active_year:
+        classes = ClassModel.objects.filter(
+            level__school_year=active_year
+        ).select_related("level").order_by("level__name", "name")
+
+    if request.method == "GET":
+        recent_payments = []
+        if active_year:
+            recent_payments = (
+                PaymentModel.objects
+                .filter(state="VALID", enrollment__school_year=active_year)
+                .select_related("student", "enrollment__klass")
+                .order_by("-created_at")[:10]
+            )
+        return render(request, "economat/econome/dashboard.html", {
+            "form":            RecordPaymentForm(
+                initial={"year_id": str(active_year.id)} if active_year else {}
+            ),
+            "search_form":     StudentSearchForm(),
+            "recent_payments": recent_payments,
+            "school":          school,
+            "school_year":     active_year,
+            "classes":         classes,
+            "stats":           _activity_stats(active_year),
+            "page_title":      "Saisie des encaissements",
+        })
+
+    # ── POST : enregistrer le paiement ───────────────────────────────────────
+    form = RecordPaymentForm(request.POST)
     if not form.is_valid():
         return render(request, "economat/econome/dashboard.html", {
             "form": form, "search_form": StudentSearchForm(),
+            "school": school, "school_year": active_year, "classes": classes,
             "page_title": "Saisie des encaissements",
         })
     if not active_year:
@@ -265,11 +372,63 @@ def record_payment(request):
             f"Reçu {result.receipt_number} | {result.amount_paid:,} FCFA | "
             f"{result.student_name} | {result.payment_status}",
         )
-        return redirect("economat:econome_dashboard")
+        return redirect("economat:receipt_view", payment_id=result.payment_id)
     messages.error(request, f"{result.error_message}")
     return render(request, "economat/econome/dashboard.html", {
         "form": form, "search_form": StudentSearchForm(),
+        "school": school, "school_year": active_year, "classes": classes,
         "page_title": "Saisie des encaissements",
+    })
+
+
+@login_required
+@require_GET
+def receipt_view(request, payment_id: str):
+    """
+    Page de reçu dédiée — imprimable / PDF.
+    Charge le paiement par ID, vérifie l'appartenance à l'école de l'économe,
+    et rend un reçu propre prêt à imprimer.
+    """
+    school, active_year = _get_user_active_year(request)
+
+    # Sécurité IDOR : le paiement doit appartenir à l'école de l'économe
+    try:
+        payment = (
+            PaymentModel.objects
+            .select_related(
+                "student",
+                "enrollment__klass",
+                "enrollment__klass__level",
+                "enrollment__school_year",
+                "enrollment__school_year__school",
+            )
+            .get(pk=payment_id)
+        )
+    except PaymentModel.DoesNotExist:
+        from django.http import Http404
+        raise Http404("Reçu introuvable.")
+
+    # Vérification que ce paiement appartient bien à l'école de l'utilisateur
+    if school and str(payment.enrollment.school_year.school_id) != str(school.id):
+        from django.http import Http404
+        raise Http404("Reçu introuvable.")
+
+    # Méthode de paiement lisible
+    method_labels = {
+        "ESPECES":      "Espèces",
+        "MOBILE_MONEY": "Mobile Money",
+        "VIREMENT":     "Virement bancaire",
+        "CHEQUE":       "Chèque",
+    }
+
+    return render(request, "economat/econome/receipt.html", {
+        "payment":       payment,
+        "school":        payment.enrollment.school_year.school,
+        "school_year":   payment.enrollment.school_year,
+        "klass":         payment.enrollment.klass,
+        "level":         payment.enrollment.klass.level,
+        "method_label":  method_labels.get(payment.method, payment.method),
+        "page_title":    f"Reçu {payment.receipt_number}",
     })
 
 
