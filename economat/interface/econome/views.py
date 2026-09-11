@@ -7,6 +7,7 @@ import json
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
 from django.db import transaction
 from django.db.models import Count, Q, Sum
 from django.http import JsonResponse
@@ -16,7 +17,7 @@ from django.views.decorators.http import require_GET, require_POST
 from economat.application.dto import RecordPaymentCommand
 from economat.composition import get_record_payment_use_case
 from economat.infrastructure.models import (
-    ClassModel, EnrollmentModel, MembershipModel, PaymentModel, SchoolYearModel,
+    ClassModel, EnrollmentModel, LevelModel, MembershipModel, PaymentModel, SchoolYearModel,
 )
 from .forms import RecordPaymentForm, StudentSearchForm
 
@@ -110,6 +111,126 @@ def dashboard(request):
         "classes":         classes,
         "stats":           _activity_stats(active_year),
         "page_title":      "Saisie des encaissements",
+    })
+
+
+@login_required
+def payments_list(request):
+    """
+    Liste paginée des encaissements de l'économe avec filtres :
+      - date_from / date_to  (défaut = aujourd'hui)
+      - level                (niveau scolaire)
+      - class                (classe)
+    Bandeau récap dynamique (total + nombre) qui suit les filtres actifs.
+    Lecture seule — aucune action (annulation, etc.) disponible ici.
+    """
+    school, active_year = _get_user_active_year(request)
+
+    # ── Lecture des paramètres GET ────────────────────────────────────────────
+    today       = datetime.date.today()
+    date_from_s = request.GET.get("date_from", "").strip()
+    date_to_s   = request.GET.get("date_to",   "").strip()
+    level_id    = request.GET.get("level",  "").strip()
+    class_id    = request.GET.get("class",  "").strip()
+
+    # "date_from" et "date_to" présents dans la query string → l'utilisateur
+    # a explicitement choisi une plage (même vide = tout l'historique de l'année).
+    # Absents → première visite, on affiche aujourd'hui par défaut.
+    params_in_qs = "date_from" in request.GET
+
+    # Valeurs par défaut : aujourd'hui dans les deux champs
+    date_from = today
+    date_to   = today
+    if params_in_qs:
+        # L'utilisateur a soumis le formulaire ou cliqué "Tout l'historique"
+        if date_from_s:
+            try:
+                date_from = datetime.date.fromisoformat(date_from_s)
+            except ValueError:
+                pass
+        else:
+            # Champ vide explicitement → pas de borne inférieure (début de l'année)
+            date_from = None
+        if date_to_s:
+            try:
+                date_to = datetime.date.fromisoformat(date_to_s)
+            except ValueError:
+                pass
+        else:
+            date_to = None
+
+    # Normalise l'ordre si l'utilisateur a inversé les dates (seulement si les deux sont définies)
+    if date_from is not None and date_to is not None and date_from > date_to:
+        date_from, date_to = date_to, date_from
+
+    # ── Queryset de base ──────────────────────────────────────────────────────
+    qs = PaymentModel.objects.none()
+    if active_year:
+        qs = (
+            PaymentModel.objects
+            .filter(state="VALID", enrollment__school_year=active_year)
+            .select_related(
+                "student",
+                "enrollment__klass",
+                "enrollment__klass__level",
+            )
+        )
+        # Filtres date (None = pas de borne)
+        if date_from is not None:
+            qs = qs.filter(payment_date__gte=date_from)
+        if date_to is not None:
+            qs = qs.filter(payment_date__lte=date_to)
+        # Filtres niveau / classe
+        if level_id:
+            qs = qs.filter(enrollment__klass__level_id=level_id)
+        if class_id:
+            qs = qs.filter(enrollment__klass_id=class_id)
+        qs = qs.order_by("-payment_date", "-created_at")
+
+    # ── Bandeau récap (total + nb) — agrégat SQL sur la sélection filtrée ────
+    recap = qs.aggregate(total=Sum("amount"), count=Count("id"))
+    recap_total = recap["total"] or 0
+    recap_count = recap["count"] or 0
+
+    # ── Pagination ────────────────────────────────────────────────────────────
+    paginator = Paginator(qs, 30)
+    page_obj  = paginator.get_page(request.GET.get("page", 1))
+
+    # ── Selects filtres (niveau + classes de l'année active) ─────────────────
+    levels  = []
+    classes = []
+    if active_year:
+        levels = LevelModel.objects.filter(
+            school_year=active_year
+        ).order_by("name")
+        classes = ClassModel.objects.filter(
+            level__school_year=active_year
+        ).select_related("level").order_by("level__name", "name")
+        # Si un niveau est sélectionné, on restreint les classes disponibles
+        if level_id:
+            classes = classes.filter(level_id=level_id)
+
+    # Valeurs affichées dans les inputs date (chaîne vide si pas de borne)
+    f_date_from = date_from.isoformat() if date_from else ""
+    f_date_to   = date_to.isoformat()   if date_to   else ""
+    is_today    = (date_from == today and date_to == today and not level_id and not class_id)
+
+    return render(request, "economat/econome/payments_list.html", {
+        "page_obj":     page_obj,
+        "paginator":    paginator,
+        "school":       school,
+        "school_year":  active_year,
+        "recap_total":  recap_total,
+        "recap_count":  recap_count,
+        "levels":       levels,
+        "classes":      classes,
+        # Valeurs des filtres actifs (pour re-remplir le formulaire)
+        "f_date_from":  f_date_from,
+        "f_date_to":    f_date_to,
+        "f_level_id":   level_id,
+        "f_class_id":   class_id,
+        "is_today":     is_today,
+        "page_title":   "Encaissements",
     })
 
 

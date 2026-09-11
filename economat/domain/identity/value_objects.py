@@ -19,7 +19,7 @@ class Role(str, Enum):
     """Rôle d'un utilisateur dans une école précise."""
     DIRECTOR   = "DIRECTOR"    # Directeur : tous les droits sur son école
     SECRETARY  = "SECRETARY"   # Secrétaire : inscriptions + lecture
-    ECONOME    = "ECONOME"     # Économe : saisie des paiements uniquement
+    ECONOME    = "ECONOME"     # Économe : saisie + consultation des encaissements
 
     @property
     def label(self) -> str:

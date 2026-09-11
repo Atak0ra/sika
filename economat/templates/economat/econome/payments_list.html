@@ -1,0 +1,254 @@
+{% extends "economat/base.html" %}
+{% load economat_tags %}
+{% block title %}Encaissements — Économe{% endblock %}
+{% block content %}
+
+<!-- ================================================================
+     EN-TÊTE + NAV RETOUR
+================================================================ -->
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:.75rem;">
+  <div>
+    <h1 style="font-size:1.0625rem;font-weight:700;color:#1a1d29;letter-spacing:-.02em;margin-bottom:.2rem;">Encaissements</h1>
+    <p style="font-size:.8125rem;color:#9397a8;margin:0;">
+      {% if school_year %}{{ school_year.label }}{% endif %}
+      {% if school %} · {{ school.name }}{% endif %}
+    </p>
+  </div>
+  <a href="{% url 'economat:econome_dashboard' %}" class="btn-secondary" style="font-size:.8125rem;">
+    <svg style="width:.85rem;height:.85rem;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+    Saisir un paiement
+  </a>
+</div>
+
+
+<!-- ================================================================
+     BARRE DE FILTRES
+================================================================ -->
+<div class="card" style="padding:1.25rem 1.5rem;margin-bottom:1.25rem;">
+  <form method="get" id="filterForm" style="display:flex;flex-wrap:wrap;gap:.75rem;align-items:flex-end;">
+
+    <div style="display:flex;flex-direction:column;gap:.3rem;min-width:140px;">
+      <label style="font-size:.75rem;font-weight:600;color:#9397a8;text-transform:uppercase;letter-spacing:.05em;">Du</label>
+      <input type="date" name="date_from" value="{{ f_date_from }}"
+             class="form-input" style="font-size:.875rem;padding:.45rem .7rem;"
+             onchange="document.getElementById('filterForm').submit()">
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:.3rem;min-width:140px;">
+      <label style="font-size:.75rem;font-weight:600;color:#9397a8;text-transform:uppercase;letter-spacing:.05em;">Au</label>
+      <input type="date" name="date_to" value="{{ f_date_to }}"
+             class="form-input" style="font-size:.875rem;padding:.45rem .7rem;"
+             onchange="document.getElementById('filterForm').submit()">
+    </div>
+
+    {% if levels %}
+    <div style="display:flex;flex-direction:column;gap:.3rem;min-width:140px;">
+      <label style="font-size:.75rem;font-weight:600;color:#9397a8;text-transform:uppercase;letter-spacing:.05em;">Niveau</label>
+      <select name="level" class="form-input" style="font-size:.875rem;padding:.45rem .7rem;" onchange="this.form.submit()">
+        <option value="">Tous les niveaux</option>
+        {% for lvl in levels %}
+        <option value="{{ lvl.id }}" {% if f_level_id == lvl.id|stringformat:'s' %}selected{% endif %}>{{ lvl.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    {% endif %}
+
+    {% if classes %}
+    <div style="display:flex;flex-direction:column;gap:.3rem;min-width:140px;">
+      <label style="font-size:.75rem;font-weight:600;color:#9397a8;text-transform:uppercase;letter-spacing:.05em;">Classe</label>
+      <select name="class" class="form-input" style="font-size:.875rem;padding:.45rem .7rem;" onchange="this.form.submit()">
+        <option value="">Toutes les classes</option>
+        {% for cls in classes %}
+        <option value="{{ cls.id }}" {% if f_class_id == cls.id|stringformat:'s' %}selected{% endif %}>
+          {{ cls.name }}{% if not f_level_id %} ({{ cls.level.name }}){% endif %}
+        </option>
+        {% endfor %}
+      </select>
+    </div>
+    {% endif %}
+
+    <div style="display:flex;flex-direction:column;gap:.3rem;justify-content:flex-end;">
+      {% if is_today %}
+      <span class="btn-secondary" style="font-size:.8125rem;cursor:default;background:#eef2ff;color:#4f46e5;border-color:#c7d2fe;">
+        <svg style="width:.8rem;height:.8rem;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        Aujourd'hui
+      </span>
+      {% else %}
+      <a href="{% url 'economat:econome_payments' %}" class="btn-secondary" style="font-size:.8125rem;">
+        <svg style="width:.8rem;height:.8rem;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        Aujourd'hui
+      </a>
+      {% endif %}
+    </div>
+
+    {% if not is_today %}
+    <div style="display:flex;flex-direction:column;gap:.3rem;justify-content:flex-end;">
+      <a href="?date_from=&date_to=" class="btn-secondary" style="font-size:.8125rem;color:#9397a8;">
+        <svg style="width:.8rem;height:.8rem;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        Tout l'historique
+      </a>
+    </div>
+    {% endif %}
+
+  </form>
+</div>
+
+
+<!-- ================================================================
+     BANDEAU RÉCAP DYNAMIQUE
+================================================================ -->
+<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:1rem;margin-bottom:1.25rem;" id="recapStrip">
+
+  <div class="card" style="padding:1rem 1.25rem;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.4rem;">
+      <span style="font-size:.75rem;font-weight:600;color:#9397a8;text-transform:uppercase;letter-spacing:.05em;">Total encaissé</span>
+      <span style="width:1.8rem;height:1.8rem;border-radius:8px;background:#f0fdf4;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="width:.95rem;height:.95rem;">
+          <rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M6 12h.01M18 12h.01"/>
+        </svg>
+      </span>
+    </div>
+    <div style="font-size:1.375rem;font-weight:700;color:#1a1d29;font-variant-numeric:tabular-nums;letter-spacing:-.02em;">
+      {% if recap_total %}{{ recap_total|fcfa_long }}{% else %}<span style="color:#d1d5db;">—</span>{% endif %}
+    </div>
+    <div style="font-size:.75rem;color:#9397a8;margin-top:.2rem;">
+      {% if is_today %}Aujourd'hui{% elif f_date_from or f_date_to %}Du {{ f_date_from|default:"…" }} au {{ f_date_to|default:"…" }}{% else %}Toute l'année{% endif %}{% if f_level_id or f_class_id %} · filtré{% endif %}
+    </div>
+  </div>
+
+  <div class="card" style="padding:1rem 1.25rem;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.4rem;">
+      <span style="font-size:.75rem;font-weight:600;color:#9397a8;text-transform:uppercase;letter-spacing:.05em;">Opérations</span>
+      <span style="width:1.8rem;height:1.8rem;border-radius:8px;background:#eef2ff;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="width:.95rem;height:.95rem;">
+          <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/>
+          <line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>
+        </svg>
+      </span>
+    </div>
+    <div style="font-size:1.375rem;font-weight:700;color:#1a1d29;font-variant-numeric:tabular-nums;letter-spacing:-.02em;">
+      {{ recap_count }}
+    </div>
+    <div style="font-size:.75rem;color:#9397a8;margin-top:.2rem;">
+      encaissement{{ recap_count|pluralize }}
+    </div>
+  </div>
+
+</div>
+
+
+
+<!-- ================================================================
+     TABLEAU DES ENCAISSEMENTS
+================================================================ -->
+{% if not school_year %}
+<div class="card" style="padding:3rem;text-align:center;">
+  <svg style="width:2rem;height:2rem;stroke:#e2e4ea;fill:none;stroke-width:1.5;display:block;margin:0 auto .75rem;" viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/></svg>
+  <p style="font-size:.875rem;color:#9397a8;">Aucune année scolaire active. Contactez le directeur.</p>
+</div>
+
+{% elif page_obj.object_list %}
+<div class="card" style="overflow:hidden;">
+  <div style="overflow-x:auto;">
+    <table style="width:100%;border-collapse:collapse;min-width:560px;">
+      <thead>
+        <tr style="border-bottom:1px solid #f0f1f5;">
+          <th style="padding:.75rem 1rem;font-size:.75rem;font-weight:600;color:#9397a8;text-transform:uppercase;letter-spacing:.05em;text-align:left;white-space:nowrap;">Date</th>
+          <th style="padding:.75rem 1rem;font-size:.75rem;font-weight:600;color:#9397a8;text-transform:uppercase;letter-spacing:.05em;text-align:left;white-space:nowrap;">N° reçu</th>
+          <th style="padding:.75rem 1rem;font-size:.75rem;font-weight:600;color:#9397a8;text-transform:uppercase;letter-spacing:.05em;text-align:left;">Élève</th>
+          <th style="padding:.75rem 1rem;font-size:.75rem;font-weight:600;color:#9397a8;text-transform:uppercase;letter-spacing:.05em;text-align:left;white-space:nowrap;">Classe</th>
+          <th style="padding:.75rem 1rem;font-size:.75rem;font-weight:600;color:#9397a8;text-transform:uppercase;letter-spacing:.05em;text-align:right;white-space:nowrap;">Montant</th>
+          <th style="padding:.75rem 1rem;font-size:.75rem;font-weight:600;color:#9397a8;text-transform:uppercase;letter-spacing:.05em;text-align:left;white-space:nowrap;">Moyen</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for p in page_obj %}
+        <tr style="border-bottom:{% if not forloop.last %}1px solid #f4f5f7{% else %}none{% endif %};transition:background .1s;"
+            onmouseenter="this.style.background='#fafbff'" onmouseleave="this.style.background=''">
+          <td style="padding:.75rem 1rem;white-space:nowrap;">
+            <span style="font-size:.84375rem;font-variant-numeric:tabular-nums;color:#52556b;">{{ p.payment_date }}</span>
+          </td>
+          <td style="padding:.75rem 1rem;white-space:nowrap;">
+            <span style="font-size:.8125rem;font-family:monospace;font-weight:600;color:#4f46e5;background:#eef2ff;padding:.15rem .5rem;border-radius:6px;">{{ p.receipt_number }}</span>
+          </td>
+          <td style="padding:.75rem 1rem;">
+            <span style="font-size:.84375rem;font-weight:600;color:#1a1d29;">{{ p.student.first_name }} {{ p.student.last_name|upper }}</span>
+          </td>
+          <td style="padding:.75rem 1rem;white-space:nowrap;">
+            {% if p.enrollment.klass %}
+            <span style="font-size:.8125rem;color:#52556b;">{{ p.enrollment.klass.name }}</span>
+            {% else %}<span style="font-size:.8125rem;color:#d1d5db;">—</span>{% endif %}
+          </td>
+          <td style="padding:.75rem 1rem;text-align:right;white-space:nowrap;">
+            <span style="font-size:.875rem;font-weight:700;color:#1a1d29;font-variant-numeric:tabular-nums;">{{ p.amount|fcfa }}</span>
+          </td>
+          <td style="padding:.75rem 1rem;white-space:nowrap;">
+            {% with method=p.method %}
+            <span style="font-size:.775rem;font-weight:600;padding:.2rem .6rem;border-radius:999px;
+              {% if method == 'ESPECES' %}background:#f0fdf4;color:#166534;
+              {% elif method == 'MOBILE_MONEY' %}background:#fff7ed;color:#c2410c;
+              {% elif method == 'VIREMENT' %}background:#eff6ff;color:#1d4ed8;
+              {% else %}background:#faf5ff;color:#6b21a8;{% endif %}">
+              {{ p.get_method_display }}
+            </span>
+            {% endwith %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+
+  {% if paginator.num_pages > 1 %}
+  <div style="padding:.9rem 1rem;border-top:1px solid #f0f1f5;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem;">
+    <span style="font-size:.8125rem;color:#9397a8;">
+      Page {{ page_obj.number }} sur {{ paginator.num_pages }}
+      <span style="color:#c4c7d0;margin:0 .3rem;">·</span>
+      {{ paginator.count }} résultat{{ paginator.count|pluralize }}
+    </span>
+    <div style="display:flex;gap:.4rem;">
+      {% if page_obj.has_previous %}
+      <a href="?date_from={{ f_date_from }}&date_to={{ f_date_to }}{% if f_level_id %}&level={{ f_level_id }}{% endif %}{% if f_class_id %}&class={{ f_class_id }}{% endif %}&page={{ page_obj.previous_page_number }}"
+         class="btn-secondary" style="font-size:.8125rem;padding:.35rem .7rem;">
+        <svg style="width:.75rem;height:.75rem;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+        Précédent
+      </a>
+      {% endif %}
+      {% if page_obj.has_next %}
+      <a href="?date_from={{ f_date_from }}&date_to={{ f_date_to }}{% if f_level_id %}&level={{ f_level_id }}{% endif %}{% if f_class_id %}&class={{ f_class_id }}{% endif %}&page={{ page_obj.next_page_number }}"
+         class="btn-secondary" style="font-size:.8125rem;padding:.35rem .7rem;">
+        Suivant
+        <svg style="width:.75rem;height:.75rem;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+      </a>
+      {% endif %}
+    </div>
+  </div>
+  {% endif %}
+
+</div>
+
+{% else %}
+<div class="card" style="padding:3.5rem;text-align:center;">
+  <svg style="width:2rem;height:2rem;stroke:#e2e4ea;fill:none;stroke-width:1.5;display:block;margin:0 auto .75rem;" viewBox="0 0 24 24">
+    <rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/>
+  </svg>
+  <p style="font-size:.875rem;color:#9397a8;margin-bottom:.75rem;">
+    {% if is_today %}Aucun encaissement enregistré aujourd'hui.
+    {% else %}Aucun encaissement sur cette période{% if f_level_id or f_class_id %} avec ces filtres{% endif %}.
+    {% endif %}
+  </p>
+  {% if not is_today %}
+  <a href="{% url 'economat:econome_payments' %}" class="btn-secondary" style="font-size:.8125rem;">Voir aujourd'hui</a>
+  {% endif %}
+</div>
+{% endif %}
+
+<style>
+  @media (max-width: 640px) {
+    #recapStrip { grid-template-columns: 1fr 1fr !important; }
+  }
+</style>
+
+{% endblock %}
+

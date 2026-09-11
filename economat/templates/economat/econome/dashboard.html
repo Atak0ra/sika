@@ -288,7 +288,13 @@
   </div>
 
   <div class="card" style="padding:1.5rem;">
-    <h2 style="font-size:.8125rem;font-weight:700;color:#9397a8;text-transform:uppercase;letter-spacing:.05em;margin-bottom:1.25rem;">Derniers encaissements</h2>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;">
+      <h2 style="font-size:.8125rem;font-weight:700;color:#9397a8;text-transform:uppercase;letter-spacing:.05em;margin:0;">Derniers encaissements</h2>
+      <a href="{% url 'economat:econome_payments' %}" style="font-size:.75rem;font-weight:600;color:#4f46e5;text-decoration:none;display:flex;align-items:center;gap:.3rem;">
+        Voir tout
+        <svg style="width:.7rem;height:.7rem;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+      </a>
+    </div>
     {% if recent_payments %}
     <ul style="list-style:none;padding:0;margin:0;">
       {% for p in recent_payments %}
