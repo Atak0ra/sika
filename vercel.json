@@ -2,11 +2,6 @@
   "buildCommand": "chmod +x build_files.sh && ./build_files.sh",
   "outputDirectory": "staticfiles",
   "framework": null,
-  "functions": {
-    "config/wsgi.py": {
-      "runtime": "vercel-python@0.0.0"
-    }
-  },
   "builds": [
     {
       "src": "config/wsgi.py",
@@ -14,12 +9,16 @@
       "config": {
         "maxLambdaSize": "50mb"
       }
+    },
+    {
+      "src": "staticfiles/**",
+      "use": "@vercel/static"
     }
   ],
   "routes": [
     {
       "src": "/static/(.*)",
-      "dest": "/static/$1"
+      "dest": "/staticfiles/$1"
     },
     {
       "src": "/(.*)",
