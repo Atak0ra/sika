@@ -65,6 +65,15 @@ class RegisterStudentUseCase:
         )
         self._students.save(student)
 
+        # Mise à jour des champs parent (hors domaine, direct ORM)
+        if cmd.parent_name or cmd.parent_phone or cmd.parent_relation:
+            from economat.infrastructure.models import StudentModel as _SM
+            _SM.objects.filter(pk=student.id.value).update(
+                parent_name=cmd.parent_name.strip(),
+                parent_phone=cmd.parent_phone.strip(),
+                parent_relation=cmd.parent_relation,
+            )
+
         # 4. Créer l'Enrollment
         enrollment = Enrollment(
             id=self._enrollments.next_id(),

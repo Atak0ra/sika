@@ -92,6 +92,23 @@ class RegisterStudentForm(forms.Form):
                                        widget=forms.DateInput(attrs={"type":"date","class":"form-input"}))
     notes = forms.CharField(label="Observations", required=False, max_length=500,
                              widget=forms.Textarea(attrs={"rows":2,"class":"form-textarea"}))
+    # ── Contact parent / tuteur ──────────────────────────────────────────
+    parent_name = forms.CharField(
+        label="Nom du parent / tuteur", required=False, max_length=200,
+        widget=forms.TextInput(attrs={"class": "form-input", "placeholder": "Ex : Koffi AMEGAN"}),
+    )
+    parent_phone = forms.CharField(
+        label="Téléphone", required=False, max_length=30,
+        widget=forms.TextInput(attrs={"class": "form-input", "placeholder": "Ex : +228 90 00 00 00",
+                                      "type": "tel"}),
+    )
+    parent_relation = forms.ChoiceField(
+        label="Lien de parenté", required=False,
+        choices=[("", "— Choisir —"), ("PERE", "Père"), ("MERE", "Mère"),
+                 ("TUTEUR", "Tuteur / Tutrice"), ("AUTRE", "Autre")],
+        widget=forms.Select(attrs={"class": "form-select"}),
+    )
+    # ────────────────────────────────────────────────────────────────────
 
     def __init__(self, *args, year_orm=None, **kwargs):
         super().__init__(*args, **kwargs)

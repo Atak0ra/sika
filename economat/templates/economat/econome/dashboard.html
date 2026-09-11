@@ -270,6 +270,16 @@
         <textarea name="notes" rows="2" class="form-textarea" placeholder="Note sur ce paiement…" style="font-size:.875rem;resize:none;">{{ form.notes.value|default:"" }}</textarea>
       </div>
 
+      <div style="margin-bottom:1.75rem;">
+        <label class="field-label" style="display:flex;align-items:center;gap:.4rem;">
+          <svg style="width:.85rem;height:.85rem;stroke:#9397a8;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+          Payé par
+          <span style="font-weight:400;color:#b0b4c4;font-size:.75rem;">(optionnel)</span>
+        </label>
+        <input type="text" name="paid_by" class="form-input" placeholder="Nom de la personne venue payer…"
+               value="{{ form.paid_by.value|default:'' }}" style="font-size:.875rem;">
+      </div>
+
       <button type="submit" class="btn-primary" style="width:100%;padding:.85rem;font-size:.9375rem;font-weight:600;letter-spacing:-.01em;border-radius:10px;gap:.55rem;" data-loading-text="Enregistrement…">
         <svg style="width:1rem;height:1rem;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
         Valider l'encaissement

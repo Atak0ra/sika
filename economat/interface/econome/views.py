@@ -133,6 +133,7 @@ def record_payment(request):
         method=form.cleaned_data["method"],
         recorded_by=request.user.username,
         notes=form.cleaned_data.get("notes", ""),
+        paid_by=form.cleaned_data.get("paid_by", ""),
     )
     result = get_record_payment_use_case().execute(command)
     if result.success:

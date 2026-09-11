@@ -454,6 +454,9 @@ def register_student(request, school_id: str, year_id: str, membership=None):
             date_of_birth=form.cleaned_data.get("date_of_birth"),
             enrollment_date=form.cleaned_data.get("enrollment_date"),
             notes=form.cleaned_data.get("notes", ""),
+            parent_name=form.cleaned_data.get("parent_name", ""),
+            parent_phone=form.cleaned_data.get("parent_phone", ""),
+            parent_relation=form.cleaned_data.get("parent_relation", ""),
         ))
         if result.success:
             messages.success(request, f"✅ {result.student_name} inscrit(e) en {result.class_name}.")

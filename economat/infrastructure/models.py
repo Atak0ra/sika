@@ -88,11 +88,24 @@ class ClassModel(models.Model):
 
 class StudentModel(models.Model):
     """Identité permanente de l'élève. Plus de classe/niveau/statut ici."""
+    RELATION_CHOICES = [
+        ("PERE",   "Père"),
+        ("MERE",   "Mère"),
+        ("TUTEUR", "Tuteur / Tutrice"),
+        ("AUTRE",  "Autre"),
+    ]
+
     id            = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     first_name    = models.CharField(max_length=100)
     last_name     = models.CharField(max_length=100)
     school        = models.ForeignKey(SchoolModel, on_delete=models.CASCADE, related_name="students")
     date_of_birth = models.DateField(null=True, blank=True)
+    # ── Contact parent / tuteur ──────────────────────────────────────────
+    parent_name     = models.CharField(max_length=200, blank=True, default="")
+    parent_phone    = models.CharField(max_length=30,  blank=True, default="")
+    parent_relation = models.CharField(max_length=10,  blank=True, default="",
+                                       choices=RELATION_CHOICES)
+    # ────────────────────────────────────────────────────────────────────
     notes         = models.TextField(blank=True, default="")
     created_at    = models.DateTimeField(auto_now_add=True)
     updated_at    = models.DateTimeField(auto_now=True)
@@ -149,6 +162,7 @@ class PaymentModel(models.Model):
     method         = models.CharField(max_length=20, choices=PAYMENT_METHODS, default="ESPECES")
     receipt_number = models.CharField(max_length=50, unique=True)
     recorded_by    = models.CharField(max_length=100)
+    paid_by        = models.CharField(max_length=200, blank=True, default="")  # qui est venu payer
     state          = models.CharField(max_length=20, choices=PAYMENT_STATES, default="VALID", db_index=True)
     notes          = models.TextField(blank=True, default="")
     created_at     = models.DateTimeField(auto_now_add=True)

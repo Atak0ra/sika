@@ -32,6 +32,11 @@ class RecordPaymentForm(forms.Form):
         widget=forms.Textarea(attrs={"rows":2,"placeholder":"Remarque optionnelle…",
                                       "class":"form-textarea"}),
     )
+    paid_by = forms.CharField(
+        label="Payé par (optionnel)", required=False, max_length=200,
+        widget=forms.TextInput(attrs={"class": "form-input",
+                                      "placeholder": "Nom de la personne venue payer…"}),
+    )
 
 
 class StudentSearchForm(forms.Form):

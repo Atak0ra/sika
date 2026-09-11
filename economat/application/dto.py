@@ -105,6 +105,9 @@ class RegisterStudentCommand:
     date_of_birth:   Optional[datetime.date] = None
     enrollment_date: Optional[datetime.date] = None
     notes:           str = ""
+    parent_name:     str = ""
+    parent_phone:    str = ""
+    parent_relation: str = ""
 
 @dataclass
 class RegisterStudentResult:
@@ -148,6 +151,7 @@ class RecordPaymentCommand:
     method:       str
     recorded_by:  str
     notes:        str = ""
+    paid_by:      str = ""
 
 @dataclass
 class RecordPaymentResult:

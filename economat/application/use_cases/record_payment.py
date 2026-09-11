@@ -98,6 +98,11 @@ class RecordPaymentUseCase:
         # 8. Persistance
         self._payments.save(payment)
 
+        # Mise à jour du champ paid_by (hors domaine, direct ORM)
+        if cmd.paid_by:
+            from economat.infrastructure.models import PaymentModel as _PM
+            _PM.objects.filter(pk=payment.id.value).update(paid_by=cmd.paid_by.strip())
+
         # Infos classe/niveau pour le reçu
         klass = level.find_class(enrollment.class_id)
         return RecordPaymentResult(

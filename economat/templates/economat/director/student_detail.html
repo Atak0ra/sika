@@ -51,6 +51,26 @@
           <dt style="font-size:.8rem;color:#9397a8;">Année</dt>
           <dd style="font-size:.8rem;font-weight:600;">{{ enrollment.school_year.label }}</dd>
         </div>
+        {% if student.parent_name or student.parent_phone %}
+        <div style="height:1px;background:#f4f5f7;margin:.15rem 0;"></div>
+        {% if student.parent_name %}
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <dt style="font-size:.8rem;color:#9397a8;">
+            {% if student.parent_relation %}{{ student.get_parent_relation_display }}{% else %}Parent / tuteur{% endif %}
+          </dt>
+          <dd style="font-size:.8rem;font-weight:600;">{{ student.parent_name }}</dd>
+        </div>
+        {% endif %}
+        {% if student.parent_phone %}
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <dt style="font-size:.8rem;color:#9397a8;">Téléphone</dt>
+          <dd style="font-size:.8rem;">
+            <a href="tel:{{ student.parent_phone }}"
+               style="color:#4f46e5;text-decoration:none;font-weight:500;">{{ student.parent_phone }}</a>
+          </dd>
+        </div>
+        {% endif %}
+        {% endif %}
       </dl>
     </div>
 
