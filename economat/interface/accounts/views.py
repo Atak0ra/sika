@@ -12,10 +12,11 @@ from __future__ import annotations
 import json
 
 from django.contrib import messages
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseForbidden, JsonResponse
 from django.shortcuts import redirect, render
+from django.utils import timezone
 
 from economat.application.dto_identity import CreateCollaboratorCommand
 from economat.composition import (
@@ -24,15 +25,14 @@ from economat.composition import (
     get_user_repository,
 )
 from economat.domain.shared.errors import DomainError
-from django.contrib.auth import update_session_auth_hash
 from economat.infrastructure.models import (
     MembershipModel,
     SchoolModel,
     SchoolYearModel,
 )
 from economat.interface.decorators import require_membership
-from .forms import ChangePasswordForm, CreateCollaboratorForm, LoginForm, ProfileForm
 
+from .forms import ChangePasswordForm, CreateCollaboratorForm, LoginForm, ProfileForm
 
 # ── Connexion / Déconnexion ───────────────────────────────────────────────────
 
@@ -49,15 +49,16 @@ def login_view(request):
         if user:
             login(request, user)
             # ── Génère le verifier offline après connexion en ligne réussie ──
-            # Le client recevra les données via l'endpoint /eco/offline-credential/
-            # déclenché automatiquement par le JS de login (voir auth-offline.js).
+            # Le verifier PBKDF2 dédié est stocké en base et retourné au client
+            # via /eco/offline-credential/ (appelé par auth-offline.js).
+            # Ne bloque JAMAIS la connexion même en cas d'échec.
             try:
                 from economat.infrastructure.auth.offline_credential_service import (
                     save_offline_credential,
                 )
                 save_offline_credential(user, password)
             except Exception:
-                pass  # Ne jamais bloquer le login si la génération échoue
+                pass
             return redirect(request.GET.get("next") or "economat:school_selector")
         error = "Identifiant ou mot de passe incorrect."
     return render(request, "economat/accounts/login.html",
@@ -233,7 +234,7 @@ def profile(request):
         request.user.first_name = form.cleaned_data["first_name"]
         request.user.last_name  = form.cleaned_data["last_name"]
         request.user.email      = form.cleaned_data["email"] or ""
-        messages.success(request, "Profil mis à jour.")
+        messages.success(request, "✅ Profil mis à jour.")
         return redirect("economat:profile")
 
     return render(request, "economat/accounts/profile.html", {
@@ -291,7 +292,7 @@ def change_password(request):
             )
             # Maintenir la session active après le changement
             update_session_auth_hash(request, request.user)
-            messages.success(request, "Mot de passe modifié avec succès.")
+            messages.success(request, "✅ Mot de passe modifié avec succès.")
             return redirect("economat:profile")
 
     return render(request, "economat/accounts/change_password.html", {
@@ -312,27 +313,23 @@ def change_password(request):
 @login_required
 def offline_credential(request):
     """
-    Retourne le verifier PBKDF2 dédié pour l'auth offline PWA.
+    Retourne le verifier PBKDF2 dédié pour l'authentification offline PWA.
 
-    Appelé (GET) automatiquement par auth-offline.js après une connexion
-    en ligne réussie. Retourne les données à stocker dans IndexedDB :
-      { verifier, offline_salt, iterations, expires_at, username }
+    GET — session valide obligatoire (@login_required).
+
+    Retourne au client JS (auth-offline.js) les données à stocker dans
+    IndexedDB pour la vérification locale sans réseau :
+      { username, verifier, offline_salt, iterations, expires_at }
 
     Sécurité :
-    - Requiert @login_required (session valide obligatoire).
-    - Le verifier retourné ne permet PAS de se connecter côté serveur.
-    - Si aucun credential n'existe encore, génère et stocke à la volée.
+    - Le verifier retourné est distinct du hash Django (sel propre).
+    - Il ne permet PAS de se connecter côté serveur.
+    - Si expiré (> 30 jours sans connexion en ligne) → 410 Gone.
     """
     from economat.infrastructure.models import OfflineCredentialModel
-    from economat.infrastructure.auth.offline_credential_service import (
-        OFFLINE_CREDENTIAL_TTL_DAYS,
-    )
-    from django.utils import timezone
-    import datetime
 
     try:
         cred = OfflineCredentialModel.objects.get(user=request.user)
-        # Si expiré → on supprime pour forcer une nouvelle connexion en ligne
         if cred.expires_at < timezone.now():
             cred.delete()
             return JsonResponse({"error": "credential_expired"}, status=410)
@@ -345,7 +342,5 @@ def offline_credential(request):
             "expires_at":   cred.expires_at.isoformat(),
         })
     except OfflineCredentialModel.DoesNotExist:
-        # Pas encore de credential (l'utilisateur vient de se connecter mais
-        # le verifier n'a pas encore été généré — cas rare).
         return JsonResponse({"error": "no_credential"}, status=404)
 
