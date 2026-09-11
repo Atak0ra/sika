@@ -497,6 +497,31 @@ def student_detail(request, school_id: str, year_id: str, enrollment_id: str, me
 
     student = enrollment.student
 
+    # ── Modification des infos élève (POST) ──────────────────────────────────
+    if request.method == "POST" and request.POST.get("_action") == "edit_student":
+        first_name      = request.POST.get("first_name", "").strip()
+        last_name       = request.POST.get("last_name", "").strip()
+        parent_name     = request.POST.get("parent_name", "").strip()
+        parent_phone    = request.POST.get("parent_phone", "").strip()
+        parent_relation = request.POST.get("parent_relation", "").strip()
+
+        if not first_name or not last_name:
+            messages.error(request, "Le prénom et le nom sont obligatoires.")
+        else:
+            StudentModel.objects.filter(pk=student.pk).update(
+                first_name=first_name,
+                last_name=last_name,
+                parent_name=parent_name,
+                parent_phone=parent_phone,
+                parent_relation=parent_relation,
+            )
+            messages.success(request, "✅ Informations mises à jour.")
+        return redirect("economat:student_detail",
+                        school_id=school_id, year_id=year_id, enrollment_id=enrollment_id)
+
+    # Recharger après un éventuel POST
+    student = enrollment.student.__class__.objects.get(pk=student.pk)
+
     # Paiements de l'année en cours (validés)
     payments_year = (PaymentModel.objects
                      .filter(enrollment=enrollment, state="VALID")
