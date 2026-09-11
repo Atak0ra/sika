@@ -87,6 +87,37 @@ class TestMembershipPermissions:
     def test_guard_manage_structure_secretary_ok(self):
         make_membership(Role.SECRETARY).guard_manage_structure()
 
+    # ── Annulation de paiement ────────────────────────────────────────────────
+
+    def test_can_cancel_payment_director(self):
+        assert make_membership(Role.DIRECTOR).can_cancel_payment()
+
+    def test_cannot_cancel_payment_secretary(self):
+        assert not make_membership(Role.SECRETARY).can_cancel_payment()
+
+    def test_cannot_cancel_payment_econome(self):
+        assert not make_membership(Role.ECONOME).can_cancel_payment()
+
+    def test_cannot_cancel_payment_inactive(self):
+        assert not make_membership(Role.DIRECTOR, active=False).can_cancel_payment()
+
+    def test_guard_cancel_payment_director_ok(self):
+        make_membership(Role.DIRECTOR).guard_cancel_payment()  # ne doit pas lever
+
+    def test_guard_cancel_payment_secretary_raises(self):
+        with pytest.raises(DomainError):
+            make_membership(Role.SECRETARY).guard_cancel_payment()
+
+    def test_guard_cancel_payment_econome_raises(self):
+        with pytest.raises(DomainError):
+            make_membership(Role.ECONOME).guard_cancel_payment()
+
+    def test_director_guards_ok_includes_cancel(self):
+        m = make_membership(Role.DIRECTOR)
+        m.guard_configure_pricing()
+        m.guard_manage_team()
+        m.guard_cancel_payment()
+
 
 class FakeUserRepo:
     def __init__(self): self._u = {}; self._c = 100

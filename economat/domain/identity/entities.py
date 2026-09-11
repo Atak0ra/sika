@@ -99,6 +99,10 @@ class Membership:
         """Directeur et Secrétaire peuvent créer/modifier niveaux et classes."""
         return self.is_active and self.role in (Role.DIRECTOR, Role.SECRETARY)
 
+    def can_cancel_payment(self) -> bool:
+        """Seul le Directeur peut annuler un paiement."""
+        return self.is_active and self.role == Role.DIRECTOR
+
     # ── Guards (lèvent des exceptions DomainError) ────────────────────────────
 
     def guard_configure_pricing(self) -> None:
@@ -128,6 +132,14 @@ class Membership:
             raise UnauthorizedError(
                 f"Seuls le directeur et la secrétaire peuvent gérer la structure "
                 f"(niveaux, classes). Vous êtes : {self.role.label}."
+            )
+
+    def guard_cancel_payment(self) -> None:
+        """Lève UnauthorizedError si l'utilisateur ne peut pas annuler un paiement."""
+        if not self.can_cancel_payment():
+            raise UnauthorizedError(
+                f"Seul le directeur peut annuler un paiement "
+                f"(vous êtes : {self.role.label})."
             )
 
     # ── Comportements ─────────────────────────────────────────────────────────

@@ -176,6 +176,23 @@ class RecordPaymentResult:
     error_message:   Optional[str] = None
 
 
+# ─ Cancel Payment ────────────────────────────────────────────────────────────────────
+
+@dataclass(frozen=True)
+class CancelPaymentCommand:
+    payment_id:       str
+    school_id:        str
+    director_user_id: str
+    reason:           str = ""
+
+@dataclass
+class CancelPaymentResult:
+    success:        bool
+    payment_id:     Optional[str] = None
+    receipt_number: Optional[str] = None
+    error_message:  Optional[str] = None
+
+
 # ─ Chat IA ──────────────────────────────────────────────────────────────────────
 
 @dataclass(frozen=True)

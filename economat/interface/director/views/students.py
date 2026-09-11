@@ -37,8 +37,9 @@ from django.db.models import (
 from django.db.models.functions import Coalesce
 from django.shortcuts import redirect, render
 
-from economat.application.dto import PromoteClassCommand, RegisterStudentCommand
+from economat.application.dto import CancelPaymentCommand, PromoteClassCommand, RegisterStudentCommand
 from economat.composition import (
+    get_cancel_payment_use_case,
     get_promote_class_use_case,
     get_register_student_use_case,
 )
@@ -228,6 +229,42 @@ def student_detail(request, school_id: str, year_id: str, enrollment_id: str, me
 
     student = enrollment.student
 
+    # ── Annulation d'un paiement (POST action=cancel_payment, DIRECTOR only) ─
+    if request.method == "POST" and request.POST.get("_action") == "cancel_payment":
+        try:
+            membership.guard_cancel_payment()
+        except Exception as e:
+            messages.error(request, str(e))
+            return redirect(
+                "economat:student_detail",
+                school_id=school_id, year_id=year_id, enrollment_id=enrollment_id,
+            )
+        payment_id = request.POST.get("payment_id", "").strip()
+        reason     = request.POST.get("reason", "").strip()
+        if not payment_id:
+            messages.error(request, "Identifiant du paiement manquant.")
+            return redirect(
+                "economat:student_detail",
+                school_id=school_id, year_id=year_id, enrollment_id=enrollment_id,
+            )
+        result = get_cancel_payment_use_case().execute(CancelPaymentCommand(
+            payment_id=payment_id,
+            school_id=school_id,
+            director_user_id=str(request.user.pk),
+            reason=reason,
+        ))
+        if result.success:
+            messages.success(
+                request,
+                f"Paiement {result.receipt_number} annulé avec succès.",
+            )
+        else:
+            messages.error(request, result.error_message)
+        return redirect(
+            "economat:student_detail",
+            school_id=school_id, year_id=year_id, enrollment_id=enrollment_id,
+        )
+
     # ── Modification des infos élève (POST action=edit_student) ──────────────
     if request.method == "POST" and request.POST.get("_action") == "edit_student":
         first_name      = request.POST.get("first_name", "").strip()
@@ -271,20 +308,22 @@ def student_detail(request, school_id: str, year_id: str, enrollment_id: str, me
         pay_status, pay_badge = "Non payé", "badge-danger"
 
     # ── Historique toutes années — ⚡ Prefetch → 2 requêtes au lieu de 1+2N ──
-    valid_pays_qs = PaymentModel.objects.filter(state="VALID").order_by("payment_date")
+    # On charge TOUS les paiements (VALID + CANCELLED) pour la traçabilité.
+    # Les totaux/balances sont calculés uniquement sur les VALID.
+    all_pays_qs = PaymentModel.objects.order_by("payment_date")
     all_enrollments = (
         EnrollmentModel.objects
         .filter(student=student)
         .select_related("school_year", "level", "klass")
         .prefetch_related(
-            Prefetch("payments", queryset=valid_pays_qs, to_attr="valid_pays")
+            Prefetch("payments", queryset=all_pays_qs, to_attr="all_pays")
         )
         .order_by("-school_year__label")
     )
     history = []
     for enr in all_enrollments:
-        pays = enr.valid_pays
-        total_paid_e = sum(p.amount for p in pays)
+        pays = enr.all_pays
+        total_paid_e = sum(p.amount for p in pays if p.state == "VALID")
         history.append({
             "enrollment": enr, "payments": pays,
             "total_paid": total_paid_e, "total_due": enr.level.annual_fee,

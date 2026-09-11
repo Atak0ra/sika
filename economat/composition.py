@@ -88,6 +88,15 @@ def get_record_payment_use_case():
     )
 
 
+def get_cancel_payment_use_case():
+    from economat.application.use_cases.cancel_payment import CancelPaymentUseCase
+    r = _repos()
+    return CancelPaymentUseCase(
+        payment_repo=r["payment"],
+        membership_repo=r["membership"],
+    )
+
+
 # ─ Chat IA ────────────────────────────────────────────────────────────────────────
 
 def get_ask_director_chat_query():
