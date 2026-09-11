@@ -67,6 +67,13 @@
           <svg class="icon" style="width:1em;height:1em;"><use href="#icon-bar-chart"/></svg>
           Tableau de bord
         </a>
+        {% else %}
+        <a href="{% url 'economat:secretary_dashboard' %}"
+           class="nav-link {% if active_nav == 'dashboard_secretaire' %}nav-link-active{% endif %}"
+           style="font-size:.84375rem;">
+          <svg class="icon" style="width:1em;height:1em;"><use href="#icon-users"/></svg>
+          Accueil
+        </a>
         {% endif %}
 
         {% if school_year %}

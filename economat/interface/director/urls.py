@@ -3,6 +3,7 @@ from . import views
 
 urlpatterns = [
     path("",                                                views.dashboard,            name="director_dashboard"),
+    path("secretaire/",                                     views.secretary_dashboard,  name="secretary_dashboard"),
 
     # Switch année depuis le bandeau
     path("<str:school_id>/switch-year/",

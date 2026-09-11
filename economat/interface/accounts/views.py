@@ -178,7 +178,7 @@ def _redirect_for_role(role: str, school_id: str):
     if role == "DIRECTOR":
         return redirect("economat:director_dashboard")
     if role == "SECRETARY":
-        return redirect("economat:director_dashboard")
+        return redirect("economat:secretary_dashboard")
     # Économe → interface encaissement uniquement
     return redirect("economat:econome_dashboard")
 

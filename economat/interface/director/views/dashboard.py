@@ -2,6 +2,7 @@
 interface/director/views/dashboard.py
 ========================================
 Vue dashboard directeur : tableau de bord financier + switch_year.
+Vue dashboard secrétaire : indicateurs non-financiers (effectifs, inscrits, niveaux).
 """
 from __future__ import annotations
 
@@ -9,7 +10,7 @@ import datetime
 import json
 
 from django.contrib.auth.decorators import login_required
-from django.db.models import Sum
+from django.db.models import Count, F, Sum
 from django.shortcuts import redirect, render, reverse
 
 from economat.composition import (
@@ -17,6 +18,9 @@ from economat.composition import (
     get_list_memberships_query,
 )
 from economat.infrastructure.models import (
+    ClassModel,
+    EnrollmentModel,
+    LevelModel,
     PaymentModel,
     SchoolModel,
     SchoolYearModel,
@@ -28,8 +32,16 @@ from ._shared import _active_year, base_context
 
 @login_required
 def dashboard(request):
-    """Tableau de bord financier du directeur (KPIs + graphiques BI)."""
+    """Tableau de bord financier du directeur (KPIs + graphiques BI).
+    Inaccessible à la secrétaire : redirigée vers son propre dashboard.
+    """
     result = get_list_memberships_query().execute(user_id=str(request.user.pk))
+
+    # ── Garde de rôle : sans rôle DIRECTOR → dashboard secrétaire ────────────
+    has_director_role = any(m["role"] == "DIRECTOR" for m in result.memberships)
+    if not has_director_role:
+        return redirect("economat:secretary_dashboard")
+
     my_ids = [
         m["school_id"]
         for m in result.memberships
@@ -86,8 +98,7 @@ def dashboard(request):
 
     ctx = base_context(
         request, active_school, active_year_orm, "dashboard",
-        # Pas de membership ici (vue sans @require_membership)
-        schools=schools,   # override : on a déjà la QS filtrée
+        schools=schools,
         bi=bi_data,
         period_labels=period_labels,
         period_expected=period_expected,
@@ -102,12 +113,94 @@ def dashboard(request):
 
 
 @login_required
+def secretary_dashboard(request):
+    """
+    Tableau de bord de la secrétaire — indicateurs non-financiers uniquement.
+    Aucun montant, taux ni objectif n'est exposé ici.
+
+    Indicateurs :
+      - Total élèves inscrits (année active)
+      - Nombre de classes et de niveaux
+      - Répartition des inscrits par niveau (effectifs, pas de montants)
+      - Derniers élèves inscrits (8 plus récents)
+      - Raccourcis métier
+    """
+    result = get_list_memberships_query().execute(user_id=str(request.user.pk))
+
+    my_ids = [
+        m["school_id"]
+        for m in result.memberships
+        if m["role"] in ("DIRECTOR", "SECRETARY")
+    ]
+    schools = SchoolModel.objects.filter(id__in=my_ids)
+
+    school_id_p = request.GET.get("school")
+    active_school = (
+        schools.filter(id=school_id_p).first() if school_id_p else schools.first()
+    )
+    active_year_orm = None
+    if active_school:
+        active_year_orm = _active_year(str(active_school.id))
+
+    # ── Indicateurs non-financiers ────────────────────────────────────────────
+    total_inscrits    = 0
+    total_classes     = 0
+    total_niveaux     = 0
+    repartition       = []
+    derniers_inscrits = []
+
+    if active_school and active_year_orm:
+        base_enr = EnrollmentModel.objects.filter(
+            school_year=active_year_orm, status="ACTIVE"
+        )
+        total_inscrits = base_enr.count()
+        total_niveaux  = LevelModel.objects.filter(school_year=active_year_orm).count()
+        total_classes  = ClassModel.objects.filter(
+            level__school_year=active_year_orm
+        ).count()
+
+        # Répartition par niveau — COUNT uniquement, jamais Sum(amount)
+        repartition = list(
+            base_enr
+            .values(niveau=F("level__name"))
+            .annotate(nb=Count("id"))
+            .order_by("-nb")
+        )
+
+        # Derniers inscrits (8 plus récents)
+        derniers_inscrits = list(
+            base_enr
+            .select_related("student", "klass", "level")
+            .order_by("-created_at")[:8]
+        )
+
+    ctx = base_context(
+        request, active_school, active_year_orm, "dashboard_secretaire",
+        schools=schools,
+        total_inscrits=total_inscrits,
+        total_classes=total_classes,
+        total_niveaux=total_niveaux,
+        repartition=repartition,
+        derniers_inscrits=derniers_inscrits,
+        page_title="Tableau de bord — Secrétaire",
+    )
+    return render(request, "economat/director/secretary_dashboard.html", ctx)
+
+
+@login_required
 @require_membership
 def switch_year(request, school_id: str, membership=None):
     """Change l'année active et redirige vers le dashboard de la nouvelle année."""
     year_id = request.GET.get("year_id", "").strip()
     if not year_id:
         return redirect("economat:director_dashboard")
+
+    year = SchoolYearModel.objects.filter(pk=year_id, school_id=school_id).first()
+    if not year:
+        return redirect("economat:director_dashboard")
+
+    url = reverse("economat:director_dashboard") + f"?school={school_id}&year={year_id}"
+    return redirect(url)
 
     year = SchoolYearModel.objects.filter(pk=year_id, school_id=school_id).first()
     if not year:

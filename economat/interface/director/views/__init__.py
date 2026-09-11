@@ -14,7 +14,7 @@ Organisation interne :
   misc.py       — alerts, export_renvoyables, school_settings, chat
 """
 
-from .dashboard import dashboard, switch_year
+from .dashboard import dashboard, secretary_dashboard, switch_year
 from .misc import alerts, chat, export_renvoyables, school_settings
 from .structure import add_class, add_level, configure_pricing
 from .students import (
@@ -27,7 +27,7 @@ from .students import (
 from .years import activate_year, close_year, manage_years
 
 __all__ = [
-    "dashboard", "switch_year",
+    "dashboard", "secretary_dashboard", "switch_year",
     "manage_years", "activate_year", "close_year",
     "add_level", "add_class", "configure_pricing",
     "students_list", "register_student", "student_detail",
