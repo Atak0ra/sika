@@ -14,7 +14,7 @@
     <h1 style="font-size:1.125rem;font-weight:700;letter-spacing:-0.02em;">{{ klass.name }}</h1>
     <p style="font-size:.8125rem;color:#9397a8;margin-top:.2rem;">{{ school.name }} {{ school_year.label }}</p>
   </div>
-  <a href="{% url 'economat:register_student' school.id school_year.id %}" class="btn-primary" style="font-size:.875rem;">
+  <a href="{% url 'economat:register_student' school.id school_year.id %}?level_id={{ level.id }}&class_id={{ klass.id }}" class="btn-primary" style="font-size:.875rem;">
     <svg class="icon" style="width:.95em;height:.95em;"><use href="#icon-user-plus"/></svg>
     Nouvel élève
   </a>
@@ -84,7 +84,7 @@
 <div style="text-align:center;padding:4rem 2rem;border:1.5px dashed #ecedf1;border-radius:16px;">
   <svg class="icon" style="width:2.5rem;height:2.5rem;color:#d1d5db;margin-bottom:.75rem;"><use href="#icon-users"/></svg>
   <p style="font-weight:600;color:#52556b;margin-bottom:.375rem;">Aucun élève dans cette classe</p>
-  <a href="{% url 'economat:register_student' school.id school_year.id %}" class="btn-primary" style="display:inline-flex;margin-top:.5rem;">
+  <a href="{% url 'economat:register_student' school.id school_year.id %}?level_id={{ level.id }}&class_id={{ klass.id }}" class="btn-primary" style="display:inline-flex;margin-top:.5rem;">
     <svg class="icon" style="width:.9em;height:.9em;"><use href="#icon-user-plus"/></svg>
     Inscrire un élève
   </a>

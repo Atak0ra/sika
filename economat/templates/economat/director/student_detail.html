@@ -22,7 +22,8 @@
 
     <!-- Carte identité -->
     <div class="card" style="padding:1.5rem;">
-      <!-- Avatar -->
+
+      <!-- Avatar + nom -->
       <div style="display:flex;align-items:center;gap:.85rem;margin-bottom:1.25rem;">
         <div style="width:3rem;height:3rem;border-radius:50%;background:#eef2ff;color:#4338ca;
                     display:flex;align-items:center;justify-content:center;font-size:1.125rem;
@@ -31,12 +32,12 @@
         </div>
         <div>
           <div style="font-size:1rem;font-weight:700;color:#1a1d29;letter-spacing:-0.01em;">{{ student.first_name }} {{ student.last_name|upper }}</div>
-          <div style="font-size:.78rem;color:#9397a8;margin-top:.15rem;">Niveau : {{ enrollment.level.name }} · Classe : {{ enrollment.klass.name }}</div>
+          <div style="font-size:.78rem;color:#9397a8;margin-top:.15rem;">{{ enrollment.level.name }} · {{ enrollment.klass.name }}</div>
         </div>
       </div>
 
-      <!-- Détails -->
-      <dl style="display:flex;flex-direction:column;gap:.6rem;">
+      <!-- Infos scolaires -->
+      <dl style="display:flex;flex-direction:column;gap:.55rem;margin-bottom:1.25rem;">
         {% if student.date_of_birth %}
         <div style="display:flex;justify-content:space-between;">
           <dt style="font-size:.8rem;color:#9397a8;">Naissance</dt>
@@ -51,27 +52,55 @@
           <dt style="font-size:.8rem;color:#9397a8;">Année</dt>
           <dd style="font-size:.8rem;font-weight:600;">{{ enrollment.school_year.label }}</dd>
         </div>
-        {% if student.parent_name or student.parent_phone %}
-        <div style="height:1px;background:#f4f5f7;margin:.15rem 0;"></div>
-        {% if student.parent_name %}
-        <div style="display:flex;justify-content:space-between;align-items:center;">
-          <dt style="font-size:.8rem;color:#9397a8;">
-            {% if student.parent_relation %}{{ student.get_parent_relation_display }}{% else %}Parent / tuteur{% endif %}
-          </dt>
-          <dd style="font-size:.8rem;font-weight:600;">{{ student.parent_name }}</dd>
-        </div>
-        {% endif %}
-        {% if student.parent_phone %}
-        <div style="display:flex;justify-content:space-between;align-items:center;">
-          <dt style="font-size:.8rem;color:#9397a8;">Téléphone</dt>
-          <dd style="font-size:.8rem;">
-            <a href="tel:{{ student.parent_phone }}"
-               style="color:#4f46e5;text-decoration:none;font-weight:500;">{{ student.parent_phone }}</a>
-          </dd>
-        </div>
-        {% endif %}
-        {% endif %}
       </dl>
+
+      <!-- Bloc parent / tuteur -->
+      <div style="border-top:1px solid #f4f5f7;padding-top:1rem;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.65rem;">
+          <span style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#9397a8;">
+            Parent / tuteur
+          </span>
+        </div>
+
+        {% if student.parent_name or student.parent_phone %}
+        <div style="background:#f9fafb;border-radius:10px;padding:.85rem 1rem;display:flex;align-items:center;gap:.85rem;">
+          <!-- Icône parent -->
+          <div style="width:2.25rem;height:2.25rem;border-radius:50%;background:#fff7ed;
+                      display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <svg style="width:1rem;height:1rem;stroke:#d97706;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          </div>
+          <div style="flex:1;min-width:0;">
+            {% if student.parent_name %}
+            <div style="font-size:.875rem;font-weight:600;color:#1a1d29;">{{ student.parent_name }}</div>
+            {% endif %}
+            <div style="font-size:.75rem;color:#9397a8;margin-top:.1rem;">
+              {% if student.parent_relation %}{{ student.get_parent_relation_display }}{% endif %}
+              {% if student.parent_relation and student.parent_phone %} · {% endif %}
+              {% if student.parent_phone %}
+              <a href="tel:{{ student.parent_phone }}"
+                 style="color:#4f46e5;text-decoration:none;font-weight:500;">{{ student.parent_phone }}</a>
+              {% endif %}
+            </div>
+          </div>
+          {% if student.parent_phone %}
+          <a href="tel:{{ student.parent_phone }}"
+             style="width:2rem;height:2rem;border-radius:8px;background:#eef2ff;
+                    display:flex;align-items:center;justify-content:center;flex-shrink:0;
+                    text-decoration:none;transition:background .12s;"
+             title="Appeler" onmouseover="this.style.background='#c7d2fe'" onmouseout="this.style.background='#eef2ff'">
+            <svg style="width:.9rem;height:.9rem;stroke:#4f46e5;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2A19.79 19.79 0 0 1 11.61 19a19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-2.92-8.18A2 2 0 0 1 4.66 3h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.91 10.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+          </a>
+          {% endif %}
+        </div>
+        {% else %}
+        <div style="background:#f9fafb;border-radius:10px;padding:.75rem 1rem;
+                    display:flex;align-items:center;gap:.6rem;color:#9397a8;">
+          <svg style="width:.9rem;height:.9rem;stroke:#c4c7d4;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <span style="font-size:.8125rem;">Aucun contact renseigné</span>
+        </div>
+        {% endif %}
+      </div>
+
     </div>
 
     <!-- Carte solde année en cours -->

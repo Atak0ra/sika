@@ -441,7 +441,12 @@ def register_student(request, school_id: str, year_id: str, membership=None):
         return redirect("economat:director_dashboard")
     form = RegisterStudentForm(
         request.POST or None,
-        initial={"school_id": school_id, "year_id": year_id},
+        initial={
+            "school_id": school_id,
+            "year_id":   year_id,
+            "level_id":  request.GET.get("level_id", ""),
+            "class_id":  request.GET.get("class_id", ""),
+        },
         year_orm=year,
     )
     if request.method == "POST" and form.is_valid():

@@ -14,188 +14,251 @@
   <span style="color:#1a1d29;font-weight:600;">Nouvel élève</span>
 </div>
 
-<div style="max-width:600px;">
+<div style="max-width:540px;">
 
-  <!-- En-tête -->
-  <div style="margin-bottom:1.5rem;">
-    <h1 style="font-size:1.125rem;font-weight:700;letter-spacing:-.02em;">Inscrire un élève</h1>
-    <p style="font-size:.8375rem;color:#9397a8;margin-top:.2rem;">{{ school.name }} — {{ school_year.label }}</p>
+  <!-- Indicateur d'étapes -->
+  <div style="display:flex;align-items:center;margin-bottom:2rem;">
+
+    <div style="display:flex;align-items:center;flex:1;">
+      <div id="dot1" style="width:1.75rem;height:1.75rem;border-radius:50%;display:flex;align-items:center;
+                             justify-content:center;font-size:.72rem;font-weight:700;flex-shrink:0;
+                             background:#4f46e5;color:#fff;border:2px solid #4f46e5;transition:.2s;">1</div>
+      <span id="lbl1" style="font-size:.75rem;font-weight:600;margin-left:.4rem;white-space:nowrap;color:#4f46e5;">Identité</span>
+      <div id="line1" style="flex:1;height:2px;margin:0 .5rem;border-radius:99px;background:#ecedf1;transition:.3s;"></div>
+    </div>
+
+    <div style="display:flex;align-items:center;flex:1;">
+      <div id="dot2" style="width:1.75rem;height:1.75rem;border-radius:50%;display:flex;align-items:center;
+                             justify-content:center;font-size:.72rem;font-weight:700;flex-shrink:0;
+                             background:#fff;color:#9397a8;border:2px solid #ecedf1;transition:.2s;">2</div>
+      <span id="lbl2" style="font-size:.75rem;font-weight:600;margin-left:.4rem;white-space:nowrap;color:#c4c7d4;">Affectation</span>
+      <div id="line2" style="flex:1;height:2px;margin:0 .5rem;border-radius:99px;background:#ecedf1;transition:.3s;"></div>
+    </div>
+
+    <div style="display:flex;align-items:center;">
+      <div id="dot3" style="width:1.75rem;height:1.75rem;border-radius:50%;display:flex;align-items:center;
+                             justify-content:center;font-size:.72rem;font-weight:700;flex-shrink:0;
+                             background:#fff;color:#9397a8;border:2px solid #ecedf1;transition:.2s;">3</div>
+      <span id="lbl3" style="font-size:.75rem;font-weight:600;margin-left:.4rem;white-space:nowrap;color:#c4c7d4;">Parent</span>
+    </div>
+
   </div>
 
-  <form method="post">
+  <form method="post" id="registerForm">
     {% csrf_token %}
     {{ form.school_id }}
     {{ form.year_id }}
 
-    <!-- ═══ SECTION 1 : Identité de l'élève ═══ -->
-    <div class="card" style="padding:1.5rem;margin-bottom:1rem;">
-
-      <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:1.25rem;">
-        <div style="width:1.75rem;height:1.75rem;border-radius:8px;background:#eef2ff;
-                    display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-          <svg style="width:.9rem;height:.9rem;stroke:#4f46e5;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+    <!-- ÉTAPE 1 : Identité -->
+    <div id="step1">
+      <div class="card" style="padding:1.75rem;margin-bottom:1rem;">
+        <h2 style="font-size:1rem;font-weight:700;letter-spacing:-.01em;margin-bottom:.3rem;">Qui est l’élève ?</h2>
+        <p style="font-size:.8125rem;color:#9397a8;margin-bottom:1.4rem;">Prénom, nom et dates</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:.875rem;">
+          <div>
+            <label class="field-label">Prénom <span style="color:#dc2626;">*</span></label>
+            {{ form.first_name }}
+            {% if form.first_name.errors %}<p class="field-error">{{ form.first_name.errors.0 }}</p>{% endif %}
+          </div>
+          <div>
+            <label class="field-label">Nom <span style="color:#dc2626;">*</span></label>
+            {{ form.last_name }}
+            {% if form.last_name.errors %}<p class="field-error">{{ form.last_name.errors.0 }}</p>{% endif %}
+          </div>
         </div>
-        <span style="font-size:.8375rem;font-weight:700;color:#1a1d29;">Identité de l’élève</span>
-      </div>
-
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:1rem;">
-        <div>
-          <label class="field-label">{{ form.first_name.label }}</label>
-          {{ form.first_name }}
-          {% if form.first_name.errors %}<p class="field-error">{{ form.first_name.errors.0 }}</p>{% endif %}
-        </div>
-        <div>
-          <label class="field-label">{{ form.last_name.label }}</label>
-          {{ form.last_name }}
-          {% if form.last_name.errors %}<p class="field-error">{{ form.last_name.errors.0 }}</p>{% endif %}
-        </div>
-      </div>
-
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;">
-        <div>
-          <label class="field-label">{{ form.date_of_birth.label }}</label>
-          {{ form.date_of_birth }}
-          {% if form.date_of_birth.errors %}<p class="field-error">{{ form.date_of_birth.errors.0 }}</p>{% endif %}
-        </div>
-        <div>
-          <label class="field-label">{{ form.enrollment_date.label }}</label>
-          {{ form.enrollment_date }}
-          {% if form.enrollment_date.errors %}<p class="field-error">{{ form.enrollment_date.errors.0 }}</p>{% endif %}
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;">
+          <div>
+            <label class="field-label">Date de naissance</label>
+            {{ form.date_of_birth }}
+          </div>
+          <div>
+            <label class="field-label">Date d’inscription</label>
+            {{ form.enrollment_date }}
+          </div>
         </div>
       </div>
-
+      <div style="display:flex;justify-content:flex-end;">
+        <button type="button" onclick="goStep(2)" class="btn-primary">
+          Suivant
+          <svg style="width:.9em;height:.9em;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+        </button>
+      </div>
     </div>
 
-    <!-- ═══ SECTION 2 : Classe ═══ -->
-    <div class="card" style="padding:1.5rem;margin-bottom:1rem;">
-
-      <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:1.25rem;">
-        <div style="width:1.75rem;height:1.75rem;border-radius:8px;background:#f0fdf4;
-                    display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-          <svg style="width:.9rem;height:.9rem;stroke:#059669;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><path d="M4 19V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v13"/><path d="M4 19h16M9 10h6"/></svg>
-        </div>
-        <span style="font-size:.8375rem;font-weight:700;color:#1a1d29;">Affectation</span>
-      </div>
-
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;">
-        <div>
-          <label class="field-label">{{ form.level_id.label }}</label>
+    <!-- ÉTAPE 2 : Affectation -->
+    <div id="step2" style="display:none;">
+      <div class="card" style="padding:1.75rem;margin-bottom:1rem;">
+        <h2 style="font-size:1rem;font-weight:700;letter-spacing:-.01em;margin-bottom:.3rem;">Dans quelle classe ?</h2>
+        <p style="font-size:.8125rem;color:#9397a8;margin-bottom:1.4rem;">{{ school_year.label }} — {{ school.name }}</p>
+        <div style="margin-bottom:.875rem;">
+          <label class="field-label">Niveau <span style="color:#dc2626;">*</span></label>
           {{ form.level_id }}
           {% if form.level_id.errors %}<p class="field-error">{{ form.level_id.errors.0 }}</p>{% endif %}
         </div>
         <div>
-          <label class="field-label">{{ form.class_id.label }}</label>
+          <label class="field-label">Classe <span style="color:#dc2626;">*</span></label>
           {{ form.class_id }}
           {% if form.class_id.errors %}<p class="field-error">{{ form.class_id.errors.0 }}</p>{% endif %}
         </div>
       </div>
-
+      <div style="display:flex;gap:.75rem;justify-content:space-between;">
+        <button type="button" onclick="goStep(1)" class="btn-secondary">
+          <svg style="width:.9em;height:.9em;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
+          Retour
+        </button>
+        <button type="button" onclick="goStep(3)" class="btn-primary">
+          Suivant
+          <svg style="width:.9em;height:.9em;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+        </button>
+      </div>
     </div>
 
-    <!-- ═══ SECTION 3 : Parent / tuteur ═══ -->
-    <div class="card" style="padding:1.5rem;margin-bottom:1rem;">
-
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;">
-        <div style="display:flex;align-items:center;gap:.6rem;">
-          <div style="width:1.75rem;height:1.75rem;border-radius:8px;background:#fff7ed;
-                      display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-            <svg style="width:.9rem;height:.9rem;stroke:#d97706;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+    <!-- ÉTAPE 3 : Parent + Observations -->
+    <div id="step3" style="display:none;">
+      <div class="card" style="padding:1.75rem;margin-bottom:1rem;">
+        <h2 style="font-size:1rem;font-weight:700;letter-spacing:-.01em;margin-bottom:.3rem;">Contact parent / tuteur</h2>
+        <p style="font-size:.8125rem;color:#9397a8;margin-bottom:1.4rem;">Ces informations sont optionnelles</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:.875rem;">
+          <div>
+            <label class="field-label">Nom du parent / tuteur</label>
+            {{ form.parent_name }}
           </div>
-          <span style="font-size:.8375rem;font-weight:700;color:#1a1d29;">Contact parent / tuteur</span>
+          <div>
+            <label class="field-label">Téléphone</label>
+            {{ form.parent_phone }}
+          </div>
         </div>
-        <span style="font-size:.75rem;color:#9397a8;font-weight:500;">Optionnel</span>
+        <div style="margin-bottom:1.25rem;">
+          <label class="field-label">Lien de parenté</label>
+          <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.4rem;">
+            {% for val, lbl in form.parent_relation.field.choices %}{% if val %}
+            <label class="rel-pill" data-val="{{ val }}"
+                   style="display:flex;align-items:center;gap:.35rem;padding:.4rem .85rem;
+                          border:1.5px solid #ecedf1;border-radius:999px;cursor:pointer;
+                          font-size:.8125rem;font-weight:500;color:#52556b;
+                          transition:border-color .12s,background .12s,color .12s;user-select:none;">
+              <input type="radio" name="parent_relation" value="{{ val }}"
+                     {% if form.parent_relation.value == val %}checked{% endif %}
+                     style="position:absolute;opacity:0;pointer-events:none;">
+              {{ lbl }}
+            </label>
+            {% endif %}{% endfor %}
+          </div>
+        </div>
+        <div style="border-top:1px solid #f4f5f7;padding-top:1rem;">
+          <label class="field-label">Observations <span style="font-weight:400;color:#9397a8;">(optionnel)</span></label>
+          {{ form.notes }}
+        </div>
       </div>
 
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:.75rem;">
-        <div>
-          <label class="field-label">{{ form.parent_name.label }}</label>
-          {{ form.parent_name }}
-          {% if form.parent_name.errors %}<p class="field-error">{{ form.parent_name.errors.0 }}</p>{% endif %}
-        </div>
-        <div>
-          <label class="field-label">{{ form.parent_phone.label }}</label>
-          {{ form.parent_phone }}
-          {% if form.parent_phone.errors %}<p class="field-error">{{ form.parent_phone.errors.0 }}</p>{% endif %}
-        </div>
+      <!-- Récap avant envoi -->
+      <div id="recap" class="card"
+           style="padding:1.1rem 1.4rem;margin-bottom:1rem;background:#f9fafb;border-style:dashed;"></div>
+
+      <div style="display:flex;gap:.75rem;justify-content:space-between;">
+        <button type="button" onclick="goStep(2)" class="btn-secondary">
+          <svg style="width:.9em;height:.9em;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
+          Retour
+        </button>
+        <button type="submit" class="btn-primary" data-loading-text="Inscription…">
+          <svg style="width:.95em;height:.95em;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
+          Inscrire l’élève
+        </button>
       </div>
-
-      <div>
-        <label class="field-label">{{ form.parent_relation.label }}</label>
-        <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.35rem;">
-          {% for val, lbl in form.parent_relation.field.choices %}
-          {% if val %}
-          <label style="display:flex;align-items:center;gap:.4rem;padding:.35rem .75rem;
-                         border:1.5px solid #ecedf1;border-radius:8px;cursor:pointer;
-                         font-size:.8125rem;font-weight:500;color:#52556b;
-                         transition:border-color .12s,background .12s;
-                         user-select:none;"
-                 onmouseover="this.style.borderColor='#c7d2fe';this.style.background='#fafbff'"
-                 onmouseout="if(!this.querySelector('input').checked){this.style.borderColor='#ecedf1';this.style.background=''}">
-            <input type="radio" name="parent_relation" value="{{ val }}"
-                   {% if form.parent_relation.value == val %}checked{% endif %}
-                   style="accent-color:#4f46e5;"
-                   onchange="document.querySelectorAll('[data-rel-label]').forEach(function(el){var inp=el.querySelector('input');el.style.borderColor=inp.checked?'#c7d2fe':'#ecedf1';el.style.background=inp.checked?'#eef2ff':'';})"
-                   data-rel-label>
-            {{ lbl }}
-          </label>
-          {% endif %}
-          {% endfor %}
-        </div>
-        {% if form.parent_relation.errors %}<p class="field-error">{{ form.parent_relation.errors.0 }}</p>{% endif %}
-      </div>
-
-    </div>
-
-    <!-- ═══ SECTION 4 : Observations ═══ -->
-    <div class="card" style="padding:1.5rem;margin-bottom:1.5rem;">
-
-      <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:1rem;">
-        <div style="width:1.75rem;height:1.75rem;border-radius:8px;background:#f4f5f9;
-                    display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-          <svg style="width:.9rem;height:.9rem;stroke:#9397a8;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4Z"/></svg>
-        </div>
-        <span style="font-size:.8375rem;font-weight:700;color:#1a1d29;">Observations</span>
-        <span style="font-size:.75rem;color:#9397a8;font-weight:500;margin-left:auto;">Optionnel</span>
-      </div>
-
-      {{ form.notes }}
-      {% if form.notes.errors %}<p class="field-error">{{ form.notes.errors.0 }}</p>{% endif %}
-
-    </div>
-
-    <!-- Boutons -->
-    <div style="display:flex;gap:.75rem;">
-      <a href="{% url 'economat:students_list' school.id school_year.id %}"
-         class="btn-secondary" style="flex:1;justify-content:center;">
-        Annuler
-      </a>
-      <button type="submit" class="btn-primary" style="flex:2;" data-loading-text="Inscription…">
-        <svg class="icon" style="width:.95em;height:.95em;"><use href="#icon-check-circle"/></svg>
-        Inscrire l’élève
-      </button>
     </div>
 
   </form>
 </div>
 
 <script>
-/* Sync visuel des radio buttons parent_relation au chargement */
-document.querySelectorAll('input[name="parent_relation"]').forEach(function(inp) {
-  var lbl = inp.closest('label');
-  if (!lbl) return;
-  if (inp.checked) {
-    lbl.style.borderColor = '#c7d2fe';
-    lbl.style.background  = '#eef2ff';
-  }
-  inp.addEventListener('change', function() {
-    document.querySelectorAll('input[name="parent_relation"]').forEach(function(r) {
-      var l = r.closest('label');
-      if (!l) return;
-      l.style.borderColor = r.checked ? '#c7d2fe' : '#ecedf1';
-      l.style.background  = r.checked ? '#eef2ff' : '';
-    });
-  });
-});
-</script>
+var CHECKSVG = '<svg style="width:.75rem;height:.75rem;stroke:#4f46e5;fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>';
 
+function goStep(n) {
+  if (n === 2 && !validateStep1()) return;
+  if (n === 3) buildRecap();
+  document.querySelectorAll('#step1,#step2,#step3').forEach(function(p){ p.style.display='none'; });
+  document.getElementById('step'+n).style.display = 'block';
+  updateIndicator(n);
+  document.getElementById('registerForm').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function validateStep1() {
+  var fn = document.querySelector('[name="first_name"]').value.trim();
+  var ln = document.querySelector('[name="last_name"]').value.trim();
+  if (!fn || !ln) {
+    var card = document.querySelector('#step1 .card');
+    card.style.outline = '2px solid #dc2626';
+    setTimeout(function(){ card.style.outline=''; }, 1400);
+    (!fn ? document.querySelector('[name="first_name"]') : document.querySelector('[name="last_name"]')).focus();
+    return false;
+  }
+  return true;
+}
+
+function updateIndicator(active) {
+  for (var i = 1; i <= 3; i++) {
+    var dot  = document.getElementById('dot'+i);
+    var lbl  = document.getElementById('lbl'+i);
+    var line = document.getElementById('line'+i);
+    if (i < active) {
+      dot.style.cssText  = 'width:1.75rem;height:1.75rem;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;flex-shrink:0;background:#eef2ff;color:#4f46e5;border:2px solid #c7d2fe;transition:.2s;';
+      dot.innerHTML      = CHECKSVG;
+      lbl.style.color    = '#4f46e5';
+      if (line) line.style.background = '#c7d2fe';
+    } else if (i === active) {
+      dot.style.cssText  = 'width:1.75rem;height:1.75rem;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;flex-shrink:0;background:#4f46e5;color:#fff;border:2px solid #4f46e5;transition:.2s;';
+      dot.innerHTML      = i;
+      lbl.style.color    = '#4f46e5';
+      if (line) line.style.background = '#ecedf1';
+    } else {
+      dot.style.cssText  = 'width:1.75rem;height:1.75rem;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;flex-shrink:0;background:#fff;color:#9397a8;border:2px solid #ecedf1;transition:.2s;';
+      dot.innerHTML      = i;
+      lbl.style.color    = '#c4c7d4';
+      if (line) line.style.background = '#ecedf1';
+    }
+  }
+}
+
+function buildRecap() {
+  var fn   = document.querySelector('[name="first_name"]').value.trim();
+  var ln   = document.querySelector('[name="last_name"]').value.trim();
+  var dob  = document.querySelector('[name="date_of_birth"]').value;
+  var lvlS = document.querySelector('[name="level_id"]');
+  var clsS = document.querySelector('[name="class_id"]');
+  var lvl  = lvlS ? lvlS.options[lvlS.selectedIndex].text : '—';
+  var cls  = clsS ? clsS.options[clsS.selectedIndex].text : '—';
+  document.getElementById('recap').innerHTML =
+    '<div style="font-size:.7rem;font-weight:700;color:#9397a8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.6rem;">Récapitulatif</div>'
+    + '<div style="display:flex;flex-direction:column;gap:.4rem;">'
+    + row('Élève',    '<strong>' + fn + ' ' + ln.toUpperCase() + '</strong>')
+    + (dob ? row('Naissance', dob) : '')
+    + row('Niveau',   lvl)
+    + row('Classe',   cls)
+    + '</div>';
+}
+function row(l,v){ return '<div style="display:flex;justify-content:space-between;font-size:.8125rem;"><span style="color:#9397a8;">'+l+'</span><span style="color:#1a1d29;">'+v+'</span></div>'; }
+
+/* Pills parenté */
+function syncPills() {
+  document.querySelectorAll('.rel-pill').forEach(function(pill){
+    var c = pill.querySelector('input').checked;
+    pill.style.borderColor = c ? '#4f46e5' : '#ecedf1';
+    pill.style.background  = c ? '#eef2ff' : '';
+    pill.style.color       = c ? '#4f46e5' : '#52556b';
+  });
+}
+document.querySelectorAll('.rel-pill').forEach(function(pill){
+  pill.addEventListener('click', function(){ pill.querySelector('input').checked=true; syncPills(); });
+  pill.addEventListener('mouseenter', function(){ if(!pill.querySelector('input').checked){ pill.style.borderColor='#c7d2fe'; pill.style.background='#fafbff'; } });
+  pill.addEventListener('mouseleave', function(){ if(!pill.querySelector('input').checked){ pill.style.borderColor='#ecedf1'; pill.style.background=''; } });
+});
+syncPills();
+
+/* Si erreurs serveur : aller à la bonne étape */
+{% if form.errors %}
+  {% if form.first_name.errors or form.last_name.errors %}goStep(1);
+  {% elif form.level_id.errors or form.class_id.errors %}goStep(2);
+  {% else %}goStep(3);{% endif %}
+{% endif %}
+</script>
 {% endblock %}
