@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Sukulu &mdash; Guide Commercial</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --brand:#4f46e5;--brand-light:#eef2ff;--brand-dark:#3730a3;
+  --green:#059669;--green-light:#ecfdf5;
+  --orange:#d97706;--orange-light:#fff7ed;
+  --text-1:#1a1d29;--text-2:#52556b;--text-3:#9397a8;
+  --border:#ecedf1;--bg:#f8f9fb;
+}
+body{font-family:'Inter',system-ui,sans-serif;background:white;color:#1a1d29;-webkit-font-smoothing:antialiased;font-size:13px;line-height:1.6}
+.page{width:210mm;min-height:297mm;margin:0 auto;position:relative;overflow:hidden;background:white;page-break-after:always}
+.page:last-child{page-break-after:avoid}
+@page{size:A4;margin:0}
+@media print{body{margin:0}.page{page-break-after:always}}
+
+/* Header de page */
+.ph{display:flex;justify-content:space-between;align-items:center;padding:10mm 14mm 6mm;border-bottom:1px solid #ecedf1;margin-bottom:6mm}
+.ph-logo{display:flex;align-items:center;gap:8px}
+.ph-icon{width:26px;height:26px;border-radius:7px;background:#4f46e5;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ph-name{font-size:15px;font-weight:800;letter-spacing:-0.03em;color:#1a1d29}
+.ph-name span{color:#4f46e5}
+.ph-label{font-size:10px;color:#9397a8;font-weight:500}
+.pn{position:absolute;bottom:10mm;right:14mm;font-size:9px;color:#c4c7d0}
+
+/* Body padding */
+.pb{padding:0 14mm 12mm}
+
+/* Titres */
+h1{font-size:28px;font-weight:900;letter-spacing:-0.04em;line-height:1.1;color:#1a1d29}
+h2{font-size:16px;font-weight:800;letter-spacing:-0.02em;color:#1a1d29;margin-bottom:4px}
+h3{font-size:13px;font-weight:700;color:#1a1d29;margin-bottom:3px}
+p{font-size:12px;color:#52556b;line-height:1.65}
+
+/* Sections */
+.section{margin-bottom:18px}
+.section-title{
+  font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;
+  color:#4f46e5;margin-bottom:10px;display:flex;align-items:center;gap:6px
+}
+.section-title::after{content:"";flex:1;height:1px;background:#ecedf1}
+
+/* Cards */
+.card{background:white;border:1px solid #ecedf1;border-radius:10px;padding:12px 14px;margin-bottom:8px}
+.card-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.card-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+
+/* Badge */
+.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:999px;font-size:10px;font-weight:600;white-space:nowrap}
+.bb{background:#eef2ff;color:#4f46e5}.bg{background:#ecfdf5;color:#059669}.bo{background:#fff7ed;color:#d97706}
+.br{background:#fef2f2;color:#dc2626}.bp{background:#fdf4ff;color:#9333ea}
+
+/* Q&R */
+.qa{margin-bottom:12px;padding:12px 14px;border-radius:10px;background:#f8f9fb;border:1px solid #ecedf1}
+.q{font-size:12px;font-weight:700;color:#1a1d29;margin-bottom:5px;display:flex;align-items:flex-start;gap:7px}
+.q-icon{width:18px;height:18px;border-radius:50%;background:#4f46e5;color:white;font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.a{font-size:11px;color:#52556b;line-height:1.6;padding-left:25px}
+
+/* Role card */
+.role{padding:12px 14px;border-radius:10px;background:white;border:1px solid #ecedf1}
+.role-title{font-size:13px;font-weight:700;margin-bottom:6px}
+.role-item{font-size:11px;color:#52556b;padding:3px 0;border-bottom:1px solid #f4f5f7;display:flex;align-items:center;gap:6px}
+.role-item:last-child{border-bottom:none}
+.dot{width:5px;height:5px;border-radius:50%;background:#4f46e5;flex-shrink:0}
+
+/* Highlight box */
+.hl{padding:12px 14px;border-radius:10px;background:#eef2ff;border:1px solid #c7d2fe;margin-bottom:10px}
+.hl-o{background:#fff7ed;border-color:#fed7aa}
+.hl-g{background:#ecfdf5;border-color:#a7f3d0}
+.hl p{color:#3730a3}
+.hl-o p{color:#92400e}
+.hl-g p{color:#065f46}
+
+/* Tranche viz */
+.tranches{display:flex;gap:0;border-radius:8px;overflow:hidden;margin:8px 0}
+.t1{background:#4f46e5;color:white;padding:8px 0;text-align:center;font-size:11px;font-weight:700;flex:40}
+.t2{background:#818cf8;color:white;padding:8px 0;text-align:center;font-size:11px;font-weight:700;flex:30}
+.t3{background:#a5b4fc;color:#3730a3;padding:8px 0;text-align:center;font-size:11px;font-weight:700;flex:30}
+
+/* Couverture */
+.cover-bg{background:linear-gradient(145deg,#1a1d29,#2d2f45,#1a1d29);min-height:297mm;display:flex;flex-direction:column;justify-content:space-between;padding:18mm 18mm}
+</style>
+</head>
+<body>
+<div class="page">
+<div class="cover-bg">
+  <div class="ph-logo"><div class="ph-icon"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.75" stroke-linecap="round"><path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1 2.7 2.5 6 2.5s6-1.5 6-2.5v-5"/></svg></div><span class="ph-name" style="color:white">Suku<span style="color:#818cf8">lu</span></span></div>
+  <div>
+    <div style="display:inline-flex;align-items:center;gap:7px;background:rgba(79,70,229,.2);border:1px solid rgba(129,140,248,.3);border-radius:999px;padding:4px 12px;margin-bottom:18px">
+      <div style="width:5px;height:5px;border-radius:50%;background:#818cf8"></div>
+      <span style="font-size:10px;color:#a5b4fc;font-weight:600;letter-spacing:.06em">USAGE INTERNE &mdash; DOCUMENT COMMERCIAL</span>
+    </div>
+    <h1 style="color:white;font-size:38px;margin-bottom:16px;line-height:1.05">
+      Guide du<br><span style="color:#818cf8">commercial</span><br>Sukulu
+    </h1>
+    <p style="color:rgba(255,255,255,.65);font-size:14px;max-width:340px;line-height:1.7;margin-bottom:28px">
+      Tout ce qu&rsquo;il faut savoir pour pr&eacute;senter Sukulu, r&eacute;pondre aux questions et conclure.
+    </p>
+    <div style="display:flex;flex-direction:column;gap:10px;max-width:360px">
+      <div style="display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:10px 14px">
+        <div style="width:24px;height:24px;border-radius:6px;background:rgba(79,70,229,.5);display:flex;align-items:center;justify-content:center;flex-shrink:0"><span style="color:white;font-size:11px;font-weight:700">1</span></div>
+        <span style="font-size:12px;color:rgba(255,255,255,.8);font-weight:500">Questions &amp; r&eacute;ponses &mdash; les vraies objections terrain</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:10px 14px">
+        <div style="width:24px;height:24px;border-radius:6px;background:rgba(79,70,229,.5);display:flex;align-items:center;justify-content:center;flex-shrink:0"><span style="color:white;font-size:11px;font-weight:700">2</span></div>
+        <span style="font-size:12px;color:rgba(255,255,255,.8);font-weight:500">D&eacute;tail fonctionnel complet &mdash; chaque &eacute;cran expliqu&eacute;</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:10px 14px">
+        <div style="width:24px;height:24px;border-radius:6px;background:rgba(79,70,229,.5);display:flex;align-items:center;justify-content:center;flex-shrink:0"><span style="color:white;font-size:11px;font-weight:700">3</span></div>
+        <span style="font-size:12px;color:rgba(255,255,255,.8);font-weight:500">Arguments cl&eacute;s &amp; points de diff&eacute;renciation</span>
+      </div>
+    </div>
+  </div>
+  <div style="border-top:1px solid rgba(255,255,255,.1);padding-top:14px;display:flex;justify-content:space-between;align-items:center">
+    <span style="font-size:10px;color:rgba(255,255,255,.35)">Confidential &mdash; usage interne uniquement</span>
+    <span style="font-size:10px;color:rgba(255,255,255,.35)">Mise &agrave; jour : 2026</span>
+  </div>
+</div>
+</div>
+<div class="page">
+<div class="ph">
+  <div class="ph-logo"><div class="ph-icon"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.75" stroke-linecap="round"><path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1 2.7 2.5 6 2.5s6-1.5 6-2.5v-5"/></svg></div><span class="ph-name">Suku<span>lu</span></span></div>
+  <div class="ph-label">Questions &amp; R&eacute;ponses &mdash; 1/2</div>
+</div><div class="pn">2</div>
+<div class="pb">
+
+  <div style="margin-bottom:14px">
+    <h2 style="margin-bottom:4px">Les vraies questions que posent les directeurs.</h2>
+    <p>Ces r&eacute;ponses sont exactes et pr&eacute;cises &mdash; bas&eacute;es sur le fonctionnement r&eacute;el de Sukulu. Ne pas improviser : utiliser ces formulations.</p>
+  </div>
+
+  <div class="section-title">Premiers contacts</div>
+
+  <div class="qa">
+  <div class="q"><div class="q-icon">?</div><span>C&rsquo;est quoi Sukulu exactement&thinsp;?</span></div>
+  <div class="a">Sukulu est un logiciel de gestion des frais scolaires. Le directeur voit en temps r&eacute;el tout ce qui est encaiss&eacute; dans son &eacute;tablissement. L&rsquo;&eacute;conome enregistre les paiements depuis son poste. La secr&eacute;taire inscrit les &eacute;l&egrave;ves. Les trois travaillent en m&ecirc;me temps, chacun depuis son propre appareil, sans interf&eacute;rer.</div>
+</div>
+
+  <div class="qa">
+  <div class="q"><div class="q-icon">?</div><span>On doit installer quelque chose&thinsp;?</span></div>
+  <div class="a">Non. Sukulu fonctionne dans le navigateur internet (Chrome, Firefox, Safari). Il n&rsquo;y a rien &agrave; installer, ni sur les ordinateurs ni sur les t&eacute;l&eacute;phones. Il suffit d&rsquo;une adresse internet et d&rsquo;un identifiant.</div>
+</div>
+
+  <div class="qa">
+  <div class="q"><div class="q-icon">?</div><span>Et si on n&rsquo;a pas d&rsquo;internet ce jour-l&agrave;&thinsp;?</span></div>
+  <div class="a">Sukulu fonctionne m&ecirc;me sans connexion. L&rsquo;&eacute;conome peut continuer &agrave; enregistrer les paiements normalement. Les donn&eacute;es sont sauvegard&eacute;es sur l&rsquo;appareil et synchronis&eacute;es automatiquement d&egrave;s que la connexion revient. Le directeur les voit aussit&ocirc;t.</div>
+</div>
+
+  <div class="qa">
+  <div class="q"><div class="q-icon">?</div><span>Combien co&ucirc;te Sukulu&thinsp;?</span></div>
+  <div class="a">[Renseigner le tarif ici selon la politique commerciale en vigueur.]</div>
+</div>
+
+  <div class="section-title">Questions sur la s&eacute;curit&eacute; et les donn&eacute;es</div>
+
+  <div class="qa">
+  <div class="q"><div class="q-icon">?</div><span>Nos donn&eacute;es sont s&eacute;curis&eacute;es&thinsp;?</span></div>
+  <div class="a">Oui. Les donn&eacute;es sont stock&eacute;es sur un serveur s&eacute;curis&eacute; en Postgres, acc&egrave;s prot&eacute;g&eacute; par identifiant et mot de passe. La connexion est chiffr&eacute;e (HTTPS). Seuls les membres rattach&eacute;s &agrave; votre &eacute;cole y ont acc&egrave;s.</div>
+</div>
+
+  <div class="qa">
+  <div class="q"><div class="q-icon">?</div><span>Est-ce qu&rsquo;un &eacute;conome peut voir les donn&eacute;es du directeur&thinsp;?</span></div>
+  <div class="a">Non. Chaque r&ocirc;le n&rsquo;acc&egrave;de qu&rsquo;&agrave; son propre espace. L&rsquo;&eacute;conome voit uniquement l&rsquo;&eacute;cran d&rsquo;encaissement. Il ne peut pas voir le tableau de bord financier du directeur, ni la liste compl&egrave;te des &eacute;l&egrave;ves. La secr&eacute;taire ne peut pas modifier les tarifs. Le directeur a acc&egrave;s &agrave; tout.</div>
+</div>
+
+  <div class="qa">
+  <div class="q"><div class="q-icon">?</div><span>Que se passe-t-il si un &eacute;conome saisit une erreur&thinsp;?</span></div>
+  <div class="a">Un paiement peut &ecirc;tre annul&eacute; (mis &agrave; l&rsquo;&eacute;tat Annul&eacute;). Il reste visible dans l&rsquo;historique pour tra&ccedil;abilit&eacute; mais n&rsquo;est plus compt&eacute; dans les totaux. Seul un compte autoris&eacute; peut effectuer cette op&eacute;ration.</div>
+</div>
+
+  <div class="section-title">Questions sur la prise en main</div>
+
+  <div class="qa">
+  <div class="q"><div class="q-icon">?</div><span>C&rsquo;est compliqu&eacute; &agrave; mettre en place&thinsp;?</span></div>
+  <div class="a">Non. La mise en service prend moins d&rsquo;une journ&eacute;e. On cr&eacute;e l&rsquo;&eacute;cole, l&rsquo;ann&eacute;e scolaire, les niveaux et les classes, on configure les tarifs, et le syst&egrave;me est pr&ecirc;t. Pour une &eacute;cole qui a d&eacute;j&agrave; utilis&eacute; Sukulu l&rsquo;ann&eacute;e pr&eacute;c&eacute;dente, la structure se duplique en un clic.</div>
+</div>
+
+  <div class="qa">
+  <div class="q"><div class="q-icon">?</div><span>Le personnel doit &ecirc;tre form&eacute;&thinsp;?</span></div>
+  <div class="a">L&rsquo;&eacute;conome apprend &agrave; encaisser en moins de 10 minutes : il recherche l&rsquo;&eacute;l&egrave;ve, tape le montant, choisit le moyen de paiement, valide. C&rsquo;est tout. La secr&eacute;taire apprend &agrave; inscrire un &eacute;l&egrave;ve en 5 minutes. Une d&eacute;monstration live suffit.</div>
+</div>
+
+</div>
+<div class="pn">2</div></div>
+<div class="page">
+<div class="ph">
+  <div class="ph-logo"><div class="ph-icon"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.75" stroke-linecap="round"><path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1 2.7 2.5 6 2.5s6-1.5 6-2.5v-5"/></svg></div><span class="ph-name">Suku<span>lu</span></span></div>
+  <div class="ph-label">Questions &amp; R&eacute;ponses &mdash; 2/2</div>
+</div><div class="pn">3</div>
+<div class="pb">
+
+  <div class="section-title">Questions sur les fonctionnalit&eacute;s</div>
+
+  <div class="qa">
+  <div class="q"><div class="q-icon">?</div><span>Le directeur peut faire quoi exactement&thinsp;?</span></div>
+  <div class="a">Le directeur voit en temps r&eacute;el le taux de recouvrement global de l&rsquo;&eacute;cole, le montant total encaiss&eacute; vs le pr&eacute;visionnel, et la performance classe par classe. Il voit aussi les &eacute;l&egrave;ves en retard de paiement (avec le nombre de jours et le montant d&ucirc;), peut exporter la liste en CSV pour envoyer des relances, et configure les tarifs et les ann&eacute;es scolaires.</div>
+</div>
+
+  <div class="qa">
+  <div class="q"><div class="q-icon">?</div><span>Comment se calcule le retard d&rsquo;un &eacute;l&egrave;ve&thinsp;?</span></div>
+  <div class="a">Le syst&egrave;me compare les &eacute;ch&eacute;ances attendues (selon le bar&egrave;me choisi : tranches ou mensualit&eacute;s) avec ce qui a &eacute;t&eacute; r&eacute;ellement pay&eacute;. Si une tranche &eacute;tait due le 1er octobre et n&rsquo;est pas couverte au 15 novembre, l&rsquo;&eacute;l&egrave;ve appara&icirc;t en retard avec le nombre de jours exact. Le directeur fixe lui-m&ecirc;me le seuil d&rsquo;alerte (ex. : al&egrave;rte si retard &gt; 30 jours).</div>
+</div>
+
+  <div class="qa">
+  <div class="q"><div class="q-icon">?</div><span>On peut g&eacute;rer plusieurs classes et niveaux diff&eacute;rents&thinsp;?</span></div>
+  <div class="a">Oui. Chaque niveau (CP, CE1, CM2, 6&egrave;me&hellip;) a son propre tarif annuel et son propre mode de paiement. On peut avoir le CP en mensualit&eacute;s, le CM2 en 3 tranches, et la 6&egrave;me en paiement unique &mdash; tout &ccedil;a dans la m&ecirc;me &eacute;cole, la m&ecirc;me ann&eacute;e.</div>
+</div>
+
+  <div class="qa">
+  <div class="q"><div class="q-icon">?</div><span>Le re&ccedil;u est r&eacute;ellement num&eacute;rot&eacute;&thinsp;?</span></div>
+  <div class="a">Oui. Chaque re&ccedil;u a un num&eacute;ro unique g&eacute;n&eacute;r&eacute; automatiquement, bas&eacute; sur le matricule de l&rsquo;&eacute;l&egrave;ve, la date et l&rsquo;heure du paiement. M&ecirc;me en mode hors-ligne, le num&eacute;ro est g&eacute;n&eacute;r&eacute; imm&eacute;diatement &mdash; c&rsquo;est un vrai re&ccedil;u, pas un provisoire.</div>
+</div>
+
+  <div class="qa">
+  <div class="q"><div class="q-icon">?</div><span>On peut passer l&rsquo;ann&eacute;e scolaire comment&thinsp;?</span></div>
+  <div class="a">Le directeur cr&eacute;e la nouvelle ann&eacute;e et peut en dupliquer la structure (niveaux, classes, tarifs) depuis l&rsquo;ann&eacute;e pr&eacute;c&eacute;dente. Ensuite il peut r&eacute;inscrire les &eacute;l&egrave;ves en masse (&#171;&nbsp;promotion&nbsp;&#187;) d&rsquo;une classe vers la suivante, avec possibilit&eacute; d&rsquo;exclure des &eacute;l&egrave;ves individuellement. L&rsquo;historique de l&rsquo;ann&eacute;e pr&eacute;c&eacute;dente reste accessible en lecture.</div>
+</div>
+
+  <div class="section-title">Objections courantes</div>
+
+  <div class="qa">
+  <div class="q"><div class="q-icon">?</div><span>&#171;&nbsp;On a d&eacute;j&agrave; Excel, &ccedil;a suffit.&nbsp;&#187;</span></div>
+  <div class="a">Excel ne voit pas en temps r&eacute;el. Si l&rsquo;&eacute;conome encaisse le matin, le directeur ne le sait pas avant la fin de journ&eacute;e &mdash; s&rsquo;il pense &agrave; ouvrir le fichier. Avec Sukulu, le directeur voit le paiement dans les secondes qui suivent, depuis son t&eacute;l&eacute;phone, m&ecirc;me s&rsquo;il est en r&eacute;union.</div>
+</div>
+
+  <div class="qa">
+  <div class="q"><div class="q-icon">?</div><span>&#171;&nbsp;Mes &eacute;l&egrave;ves paient en esp&egrave;ces, pas besoin de logiciel.&nbsp;&#187;</span></div>
+  <div class="a">Sukulu g&egrave;re les esp&egrave;ces en priorit&eacute;. Le paiement en esp&egrave;ces est le mode par d&eacute;faut. Ce que Sukulu apporte, c&rsquo;est la tra&ccedil;abilit&eacute; : qui a pay&eacute;, combien, quand, quel re&ccedil;u. Et le directeur voit tout en temps r&eacute;el au lieu de compter les carnets en fin de mois.</div>
+</div>
+
+  <div class="qa">
+  <div class="q"><div class="q-icon">?</div><span>&#171;&nbsp;C&rsquo;est trop cher pour une petite &eacute;cole.&nbsp;&#187;</span></div>
+  <div class="a">Sukulu s&rsquo;adapte &agrave; toutes les tailles d&rsquo;&eacute;tablissement. M&ecirc;me une &eacute;cole avec 3 classes et 80 &eacute;l&egrave;ves b&eacute;n&eacute;ficie du suivi en temps r&eacute;el et des alertes de retard. [Mentionner le tarif adapt&eacute; si n&eacute;cessaire.]</div>
+</div>
+
+</div>
+<div class="pn">3</div></div>
+<div class="page">
+<div class="ph">
+  <div class="ph-logo"><div class="ph-icon"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.75" stroke-linecap="round"><path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1 2.7 2.5 6 2.5s6-1.5 6-2.5v-5"/></svg></div><span class="ph-name">Suku<span>lu</span></span></div>
+  <div class="ph-label">D&eacute;tail fonctionnel &mdash; Les 3 r&ocirc;les</div>
+</div><div class="pn">4</div>
+<div class="pb">
+
+  <h2 style="margin-bottom:4px">Trois r&ocirc;les, un seul outil &mdash; chacun voit ce dont il a besoin.</h2>
+  <p style="margin-bottom:14px">Le directeur, la secr&eacute;taire et l&rsquo;&eacute;conome acc&egrave;dent simultan&eacute;ment &agrave; Sukulu. Chaque compte est rattach&eacute; &agrave; un r&ocirc;le. Un m&ecirc;me utilisateur peut avoir acc&egrave;s &agrave; plusieurs &eacute;tablissements.</p>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px">
+
+    <div class="role" style="border-top:3px solid #4f46e5">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+        <div style="width:30px;height:30px;border-radius:8px;background:#eef2ff;display:flex;align-items:center;justify-content:center">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M6 20v-2a6 6 0 0 1 12 0v2"/></svg>
+        </div>
+        <div><div class="role-title" style="margin-bottom:0">Directeur</div><div style="font-size:9px;color:#9397a8">Acc&egrave;s complet</div></div>
+      </div>
+      <div class="role-item"><div class="dot"></div>Tableau de bord en temps r&eacute;el</div>
+      <div class="role-item"><div class="dot"></div>Taux de recouvrement global</div>
+      <div class="role-item"><div class="dot"></div>Performance par classe</div>
+      <div class="role-item"><div class="dot"></div>Liste des &eacute;l&egrave;ves en retard</div>
+      <div class="role-item"><div class="dot"></div>Export CSV des alertes</div>
+      <div class="role-item"><div class="dot"></div>Configuration des tarifs</div>
+      <div class="role-item"><div class="dot"></div>Gestion des ann&eacute;es scolaires</div>
+      <div class="role-item"><div class="dot"></div>Cr&eacute;ation des niveaux et classes</div>
+      <div class="role-item"><div class="dot"></div>Gestion de l&rsquo;&eacute;quipe (comptes)</div>
+      <div class="role-item"><div class="dot"></div>Chat IA (questions en fran&ccedil;ais)</div>
+    </div>
+
+    <div class="role" style="border-top:3px solid #059669">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+        <div style="width:30px;height:30px;border-radius:8px;background:#ecfdf5;display:flex;align-items:center;justify-content:center">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+        </div>
+        <div><div class="role-title" style="margin-bottom:0">Secr&eacute;taire</div><div style="font-size:9px;color:#9397a8">Inscriptions &amp; dossiers</div></div>
+      </div>
+      <div class="role-item"><div class="dot" style="background:#059669"></div>Inscription d&rsquo;un &eacute;l&egrave;ve</div>
+      <div class="role-item"><div class="dot" style="background:#059669"></div>Fiche &eacute;l&egrave;ve (infos parent)</div>
+      <div class="role-item"><div class="dot" style="background:#059669"></div>Liste des &eacute;l&egrave;ves par classe</div>
+      <div class="role-item"><div class="dot" style="background:#059669"></div>Cr&eacute;ation des classes</div>
+      <div class="role-item"><div class="dot" style="background:#059669"></div>R&eacute;inscription en masse</div>
+      <div style="font-size:10px;color:#9397a8;margin-top:8px;padding-top:8px;border-top:1px solid #f4f5f7;font-style:italic">Ne voit pas les finances.<br>Ne modifie pas les tarifs.</div>
+    </div>
+
+    <div class="role" style="border-top:3px solid #d97706">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+        <div style="width:30px;height:30px;border-radius:8px;background:#fff7ed;display:flex;align-items:center;justify-content:center">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2" stroke-linecap="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+        </div>
+        <div><div class="role-title" style="margin-bottom:0">&Eacute;conome</div><div style="font-size:9px;color:#9397a8">Saisie des paiements</div></div>
+      </div>
+      <div class="role-item"><div class="dot" style="background:#d97706"></div>Recherche d&rsquo;un &eacute;l&egrave;ve</div>
+      <div class="role-item"><div class="dot" style="background:#d97706"></div>Saisie du paiement</div>
+      <div class="role-item"><div class="dot" style="background:#d97706"></div>Choix du moyen (esp&egrave;ces, mobile&hellip;)</div>
+      <div class="role-item"><div class="dot" style="background:#d97706"></div>G&eacute;n&eacute;ration du re&ccedil;u</div>
+      <div class="role-item"><div class="dot" style="background:#d97706"></div>Saisie hors-ligne possible</div>
+      <div style="font-size:10px;color:#9397a8;margin-top:8px;padding-top:8px;border-top:1px solid #f4f5f7;font-style:italic">Ne voit pas le tableau de bord.<br>Ne g&egrave;re pas les inscriptions.</div>
+    </div>
+
+  </div>
+
+  <div class="hl">
+    <p><strong>Point cl&eacute; &agrave; retenir :</strong> les trois r&ocirc;les travaillent en m&ecirc;me temps. D&egrave;s qu&rsquo;un paiement est saisi par l&rsquo;&eacute;conome, le directeur le voit instantan&eacute;ment sur son tableau de bord &mdash; depuis son t&eacute;l&eacute;phone, son ordinateur ou sa tablette, o&ugrave; qu&rsquo;il soit.</p>
+  </div>
+
+</div>
+<div class="pn">4</div></div>
+<div class="page">
+<div class="ph">
+  <div class="ph-logo"><div class="ph-icon"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.75" stroke-linecap="round"><path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1 2.7 2.5 6 2.5s6-1.5 6-2.5v-5"/></svg></div><span class="ph-name">Suku<span>lu</span></span></div>
+  <div class="ph-label">D&eacute;tail fonctionnel &mdash; Encaissement</div>
+</div><div class="pn">5</div>
+<div class="pb">
+
+  <h2 style="margin-bottom:4px">L&rsquo;encaissement &mdash; le quotidien de l&rsquo;&eacute;conome.</h2>
+  <p style="margin-bottom:14px">C&rsquo;est l&rsquo;action la plus fr&eacute;quente dans Sukulu. Elle est volontairement simple et rapide.</p>
+
+  <div class="section-title">Les 3 &eacute;tapes</div>
+
+  <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px">
+    <div class="card" style="display:flex;align-items:flex-start;gap:12px">
+      <div style="width:26px;height:26px;border-radius:50%;background:#4f46e5;color:white;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">1</div>
+      <div>
+        <div style="font-size:12px;font-weight:700;margin-bottom:3px">&Eacute;tape 1 &mdash; Trouver l&rsquo;&eacute;l&egrave;ve</div>
+        <p>L&rsquo;&eacute;conome tape le nom ou le pr&eacute;nom de l&rsquo;&eacute;l&egrave;ve dans la barre de recherche. Les r&eacute;sultats apparaissent imm&eacute;diatement. Il peut aussi filtrer par classe. Il s&eacute;lectionne l&rsquo;&eacute;l&egrave;ve concern&eacute;.</p>
+      </div>
+    </div>
+    <div class="card" style="display:flex;align-items:flex-start;gap:12px">
+      <div style="width:26px;height:26px;border-radius:50%;background:#4f46e5;color:white;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">2</div>
+      <div>
+        <div style="font-size:12px;font-weight:700;margin-bottom:3px">&Eacute;tape 2 &mdash; Saisir le paiement</div>
+        <p>Il saisit le montant en FCFA, la date (pr&eacute;-remplie avec la date du jour), la tranche concern&eacute;e (Tranche 1, 2, 3 ou mensualit&eacute;), le moyen de paiement et &eacute;ventuellement le nom de la personne venue payer.</p>
+      </div>
+    </div>
+    <div class="card" style="display:flex;align-items:flex-start;gap:12px">
+      <div style="width:26px;height:26px;border-radius:50%;background:#4f46e5;color:white;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">3</div>
+      <div>
+        <div style="font-size:12px;font-weight:700;margin-bottom:3px">&Eacute;tape 3 &mdash; Valider et imprimer le re&ccedil;u</div>
+        <p>Il valide. Le re&ccedil;u est g&eacute;n&eacute;r&eacute; instantan&eacute;ment avec un num&eacute;ro unique. Il indique le nom de l&rsquo;&eacute;l&egrave;ve, la classe, le montant vers&eacute;, le reste &agrave; payer et le moyen utilis&eacute;. Le directeur voit le paiement sur son tableau de bord dans la seconde.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title">Moyens de paiement accept&eacute;s</div>
+  <div style="display:flex;gap:8px;margin-bottom:14px">
+    <span class="badge bb">Esp&egrave;ces</span>
+    <span class="badge bg">Mobile Money</span>
+    <span class="badge" style="background:#f0fdf4;color:#15803d">Virement bancaire</span>
+    <span class="badge bo">Ch&egrave;que</span>
+  </div>
+
+  <div class="section-title">Le statut de paiement d&rsquo;un &eacute;l&egrave;ve</div>
+  <p style="margin-bottom:8px">Apr&egrave;s chaque paiement, Sukulu recalcule automatiquement le statut de l&rsquo;&eacute;l&egrave;ve :</p>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px">
+    <div class="card"><span class="badge bg" style="margin-bottom:5px">SOLD&Eacute;</span><p>La totalit&eacute; du montant annuel est couverte. L&rsquo;&eacute;l&egrave;ve n&rsquo;a plus rien &agrave; payer pour cette ann&eacute;e.</p></div>
+    <div class="card"><span class="badge bb" style="margin-bottom:5px">EN COURS</span><p>Des paiements ont &eacute;t&eacute; effectu&eacute;s mais le compte n&rsquo;est pas sold&eacute;. Aucun retard d&eacute;tect&eacute;.</p></div>
+    <div class="card"><span class="badge br" style="margin-bottom:5px">EN RETARD</span><p>Une &eacute;ch&eacute;ance &eacute;tait due et n&rsquo;est pas couverte. Le nombre de jours de retard est calcul&eacute; automatiquement.</p></div>
+    <div class="card"><span class="badge bo" style="margin-bottom:5px">NON PAY&Eacute;</span><p>Aucun paiement enregistr&eacute; pour cette ann&eacute;e. L&rsquo;&eacute;ch&eacute;ance n&rsquo;est pas encore d&eacute;pass&eacute;e.</p></div>
+  </div>
+
+  <div class="section-title">Le mode hors-ligne</div>
+  <div class="hl-g hl">
+    <p>Si la connexion est absente, l&rsquo;&eacute;conome continue de travailler normalement. Les paiements sont sauvegard&eacute;s sur l&rsquo;appareil. D&egrave;s que la connexion revient, Sukulu les envoie automatiquement au serveur. Le directeur les voit alors sur son tableau de bord. <strong>Aucun paiement ne se perd.</strong></p>
+  </div>
+
+</div>
+<div class="pn">5</div></div>
+<div class="page">
+<div class="ph">
+  <div class="ph-logo"><div class="ph-icon"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.75" stroke-linecap="round"><path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1 2.7 2.5 6 2.5s6-1.5 6-2.5v-5"/></svg></div><span class="ph-name">Suku<span>lu</span></span></div>
+  <div class="ph-label">D&eacute;tail fonctionnel &mdash; Bar&egrave;mes &amp; Ann&eacute;es scolaires</div>
+</div><div class="pn">6</div>
+<div class="pb">
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+    <div>
+      <div class="section-title">Les 3 modes de paiement</div>
+      <p style="margin-bottom:10px">Chaque niveau p&eacute;dagogique (CP, CE1, CM2, 6&egrave;me&hellip;) a son propre mode de paiement, ind&eacute;pendant des autres.</p>
+
+      <div class="card" style="margin-bottom:8px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">
+          <span style="font-size:12px;font-weight:700">Paiement unique</span>
+          <span class="badge bb">UNIQUE</span>
+        </div>
+        <p>100% du montant annuel est d&ucirc; &agrave; l&rsquo;inscription. Le statut passe imm&eacute;diatement &agrave; SOLD&Eacute; d&egrave;s paiement complet.</p>
+      </div>
+
+      <div class="card" style="margin-bottom:8px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+          <span style="font-size:12px;font-weight:700">3 tranches</span>
+          <span class="badge bo">TRANCHES</span>
+        </div>
+        <div class="tranches">
+          <div class="t1">T1<br>40%</div>
+          <div class="t2">T2<br>30%</div>
+          <div class="t3">T3<br>30%</div>
+        </div>
+        <p>Tranche 1 &agrave; l&rsquo;inscription, Tranche 2 &agrave; 3 mois, Tranche 3 &agrave; 6 mois. Les pourcentages sont fixes (40/30/30). Le syst&egrave;me suit chaque &eacute;ch&eacute;ance ind&eacute;pendamment.</p>
+      </div>
+
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">
+          <span style="font-size:12px;font-weight:700">Mensualit&eacute;s</span>
+          <span class="badge bg">MENSUEL</span>
+        </div>
+        <p>10 mensualit&eacute;s liss&eacute;es sur l&rsquo;ann&eacute;e scolaire (octobre &agrave; juillet). Chaque mensualit&eacute; est identique, sauf la derni&egrave;re qui absorbe les arrondis. Le syst&egrave;me suit chaque mois.</p>
+      </div>
+    </div>
+
+    <div>
+      <div class="section-title">Les ann&eacute;es scolaires</div>
+      <p style="margin-bottom:10px">Chaque ann&eacute;e scolaire est une p&eacute;riode totalement isol&eacute;e. Les donn&eacute;es d&rsquo;une ann&eacute;e ne se m&eacute;langent jamais avec une autre.</p>
+
+      <div class="card" style="margin-bottom:8px">
+        <h3>Cr&eacute;er une ann&eacute;e</h3>
+        <p>Le directeur cr&eacute;e la nouvelle ann&eacute;e en lui donnant un label (ex. &laquo;&nbsp;2025-2026&nbsp;&raquo;), une date de d&eacute;but et une date de fin. Il peut <strong>dupliquer la structure</strong> d&rsquo;une ann&eacute;e pr&eacute;c&eacute;dente (niveaux, classes, tarifs) en un clic.</p>
+      </div>
+
+      <div class="card" style="margin-bottom:8px">
+        <h3>&Eacute;tats d&rsquo;une ann&eacute;e</h3>
+        <div style="display:flex;flex-direction:column;gap:5px;margin-top:5px">
+          <div style="display:flex;align-items:center;gap:8px"><span class="badge" style="background:#fff7ed;color:#d97706">EN PR&Eacute;PARATION</span><span style="font-size:11px;color:#52556b">Configurable, pas encore active</span></div>
+          <div style="display:flex;align-items:center;gap:8px"><span class="badge bg">ACTIVE</span><span style="font-size:11px;color:#52556b">Inscriptions et paiements en cours</span></div>
+          <div style="display:flex;align-items:center;gap:8px"><span class="badge" style="background:#f4f4f5;color:#71717a">CL&Ocirc;TUR&Eacute;E</span><span style="font-size:11px;color:#52556b">Archiv&eacute;e, accessible en lecture</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Passage d&rsquo;ann&eacute;e &mdash; la promotion en masse</h3>
+        <p>Le directeur s&eacute;lectionne une classe source et une classe cible dans la nouvelle ann&eacute;e. Tous les &eacute;l&egrave;ves actifs sont r&eacute;inscrits en un clic. Il peut exclure des &eacute;l&egrave;ves individuellement avant de lancer la promotion.</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+<div class="pn">6</div></div>
+<div class="page">
+<div class="ph">
+  <div class="ph-logo"><div class="ph-icon"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.75" stroke-linecap="round"><path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1 2.7 2.5 6 2.5s6-1.5 6-2.5v-5"/></svg></div><span class="ph-name">Suku<span>lu</span></span></div>
+  <div class="ph-label">D&eacute;tail fonctionnel &mdash; Tableau de bord directeur</div>
+</div><div class="pn">7</div>
+<div class="pb">
+
+  <h2 style="margin-bottom:4px">Ce que voit le directeur &mdash; en temps r&eacute;el.</h2>
+  <p style="margin-bottom:14px">Le tableau de bord se met &agrave; jour instantan&eacute;ment d&egrave;s qu&rsquo;un paiement est enregistr&eacute; par l&rsquo;&eacute;conome. Accessible depuis n&rsquo;importe quel appareil connect&eacute;.</p>
+
+  <div class="section-title">Les indicateurs cl&eacute;s (KPIs)</div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px">
+    <div class="card">
+      <div style="font-size:10px;font-weight:700;color:#9397a8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px">Taux de recouvrement</div>
+      <p>Pourcentage du montant annuel total encaiss&eacute; par rapport au pr&eacute;visionnel. C&rsquo;est l&rsquo;indicateur principal. Il est calcul&eacute; sur l&rsquo;ensemble de l&rsquo;&eacute;cole.</p>
+    </div>
+    <div class="card">
+      <div style="font-size:10px;font-weight:700;color:#9397a8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px">Encaiss&eacute; vs Pr&eacute;visionnel</div>
+      <p>Montant total collect&eacute; depuis le d&eacute;but de l&rsquo;ann&eacute;e vs le total attendu si tous les &eacute;l&egrave;ves payaient &agrave; temps.</p>
+    </div>
+    <div class="card">
+      <div style="font-size:10px;font-weight:700;color:#9397a8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px">Encaissements du jour</div>
+      <p>Total des paiements enregistr&eacute;s aujourd&rsquo;hui. Utile pour v&eacute;rifier la journ&eacute;e de l&rsquo;&eacute;conome en temps r&eacute;el.</p>
+    </div>
+    <div class="card">
+      <div style="font-size:10px;font-weight:700;color:#9397a8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px">Recouvrement par classe</div>
+      <p>Taux de recouvrement calcul&eacute; pour chaque classe. Permet d&rsquo;identifier les classes les moins performantes en un coup d&rsquo;&oelig;il.</p>
+    </div>
+  </div>
+
+  <div class="section-title">Les alertes de retard</div>
+  <div class="hl-o hl" style="margin-bottom:10px">
+    <p>Le directeur fixe un <strong>seuil de tol&eacute;rance</strong> (par d&eacute;faut 30 jours). Tout &eacute;l&egrave;ve dont une &eacute;ch&eacute;ance est d&eacute;pass&eacute;e de plus de ce seuil appara&icirc;t en <strong>alerte prioritaire</strong> avec le montant d&ucirc; et le nombre de jours de retard exact.</p>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px">
+    <div class="card">
+      <h3>Page Alertes d&eacute;di&eacute;e</h3>
+      <p>Liste compl&egrave;te des &eacute;l&egrave;ves en retard, tri&eacute;s par anciennet&eacute; du retard. Informations : nom, classe, montant d&ucirc;, date de la premi&egrave;re &eacute;ch&eacute;ance non couverte, jours de retard.</p>
+    </div>
+    <div class="card">
+      <h3>Export CSV</h3>
+      <p>La liste des alertes prioritaires est exportable en fichier CSV en un clic. Permet d&rsquo;envoyer des courriers de relance ou d&rsquo;appeler les parents concern&eacute;s.</p>
+    </div>
+  </div>
+
+  <div class="section-title">Le graphique pr&eacute;visionnel vs r&eacute;el</div>
+  <div class="card">
+    <p>Une courbe montre mois par mois la diff&eacute;rence entre ce qui &eacute;tait attendu et ce qui a &eacute;t&eacute; r&eacute;ellement encaiss&eacute;. Le directeur voit imm&eacute;diatement si l&rsquo;&eacute;cole prend du retard sur ses objectifs ou si le rythme de recouvrement est bon.</p>
+  </div>
+
+</div>
+<div class="pn">7</div></div>
+<div class="page">
+<div class="ph">
+  <div class="ph-logo"><div class="ph-icon"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.75" stroke-linecap="round"><path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1 2.7 2.5 6 2.5s6-1.5 6-2.5v-5"/></svg></div><span class="ph-name">Suku<span>lu</span></span></div>
+  <div class="ph-label">D&eacute;tail fonctionnel &mdash; Inscriptions &amp; Structure</div>
+</div><div class="pn">8</div>
+<div class="pb">
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+
+    <div>
+      <div class="section-title">Inscription d&rsquo;un &eacute;l&egrave;ve</div>
+      <p style="margin-bottom:10px">R&eacute;alis&eacute;e par la secr&eacute;taire (ou le directeur). Elle cr&eacute;e l&rsquo;identit&eacute; de l&rsquo;&eacute;l&egrave;ve une seule fois.</p>
+
+      <div class="card" style="margin-bottom:8px">
+        <h3>Informations saisies</h3>
+        <div style="display:flex;flex-direction:column;gap:4px;margin-top:6px">
+          <div style="font-size:11px;color:#52556b;display:flex;align-items:center;gap:6px"><div class="dot"></div>Pr&eacute;nom et nom de famille</div>
+          <div style="font-size:11px;color:#52556b;display:flex;align-items:center;gap:6px"><div class="dot"></div>Date de naissance (optionnel)</div>
+          <div style="font-size:11px;color:#52556b;display:flex;align-items:center;gap:6px"><div class="dot"></div>Niveau et classe</div>
+          <div style="font-size:11px;color:#52556b;display:flex;align-items:center;gap:6px"><div class="dot"></div>Date d&rsquo;inscription</div>
+          <div style="font-size:11px;color:#52556b;display:flex;align-items:center;gap:6px"><div class="dot"></div>Nom, t&eacute;l&eacute;phone et lien du parent/tuteur</div>
+          <div style="font-size:11px;color:#52556b;display:flex;align-items:center;gap:6px"><div class="dot"></div>Observations &eacute;ventuelles</div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:8px">
+        <h3>Le matricule</h3>
+        <p>Chaque &eacute;l&egrave;ve re&ccedil;oit automatiquement un matricule unique &agrave; l&rsquo;inscription, bas&eacute; sur son nom, pr&eacute;nom et l&rsquo;heure d&rsquo;inscription. Ex : <span style="font-family:monospace;font-size:10px;background:#f4f5f7;padding:1px 5px;border-radius:4px">DIAAWA-260911-143052</span>. Ce matricule est inclus dans tous les re&ccedil;us de paiement.</p>
+      </div>
+
+      <div class="card">
+        <h3>Fiche &eacute;l&egrave;ve</h3>
+        <p>La secr&eacute;taire et le directeur acc&egrave;dent &agrave; la fiche d&rsquo;un &eacute;l&egrave;ve qui montre l&rsquo;historique de tous ses paiements ann&eacute;e par ann&eacute;e, son statut actuel et les informations du parent.</p>
+      </div>
+    </div>
+
+    <div>
+      <div class="section-title">Structure p&eacute;dagogique</div>
+      <p style="margin-bottom:10px">Le directeur configure la structure de son &eacute;tablissement au d&eacute;but de chaque ann&eacute;e.</p>
+
+      <div class="card" style="margin-bottom:8px">
+        <h3>Niveaux</h3>
+        <p>Un niveau correspond &agrave; une classe d&rsquo;&acirc;ge (CP, CE1, CM2, 6&egrave;me&hellip;). Chaque niveau a un <strong>montant annuel de scolarit&eacute;</strong> et un <strong>mode de paiement</strong> associ&eacute;s. On peut avoir autant de niveaux que n&eacute;cessaire.</p>
+      </div>
+
+      <div class="card" style="margin-bottom:8px">
+        <h3>Classes</h3>
+        <p>Dans chaque niveau, on cr&eacute;e les classes (ex. CM2 A, CM2 B). Une classe a une capacit&eacute; d&eacute;finie. Les &eacute;l&egrave;ves sont inscrits dans une classe sp&eacute;cifique.</p>
+      </div>
+
+      <div class="card" style="margin-bottom:8px">
+        <h3>R&eacute;inscription en masse</h3>
+        <p>En d&eacute;but d&rsquo;ann&eacute;e, la secr&eacute;taire peut r&eacute;inscrire tous les &eacute;l&egrave;ves d&rsquo;une classe vers la classe suivante en un clic. Elle peut exclure des &eacute;l&egrave;ves individuellement avant de valider.</p>
+      </div>
+
+      <div class="section-title">Gestion de l&rsquo;&eacute;quipe</div>
+      <div class="card">
+        <p>Le directeur cr&eacute;e les comptes de ses collaborateurs (secr&eacute;taire, &eacute;conome) directement dans Sukulu. Il choisit le r&ocirc;le, d&eacute;finit l&rsquo;identifiant et le mot de passe provisoire. Il peut <strong>d&eacute;sactiver</strong> un compte &agrave; tout moment (d&eacute;part d&rsquo;un employ&eacute;) sans supprimer l&rsquo;historique.</p>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+<div class="pn">8</div></div>
+<div class="page">
+<div class="ph">
+  <div class="ph-logo"><div class="ph-icon"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.75" stroke-linecap="round"><path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1 2.7 2.5 6 2.5s6-1.5 6-2.5v-5"/></svg></div><span class="ph-name">Suku<span>lu</span></span></div>
+  <div class="ph-label">Arguments cl&eacute;s &mdash; Ce qui diff&eacute;rencie Sukulu</div>
+</div><div class="pn">9</div>
+<div class="pb">
+
+  <h2 style="margin-bottom:4px">Pourquoi Sukulu et pas autre chose.</h2>
+  <p style="margin-bottom:14px">Ces arguments sont &agrave; utiliser face aux h&eacute;sitations. Ils sont bas&eacute;s sur des fonctionnalit&eacute;s r&eacute;elles, pas sur du marketing.</p>
+
+  <div class="section-title">Les 4 arguments qui font la diff&eacute;rence</div>
+
+  <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:18px">
+
+    <div class="card" style="display:flex;align-items:flex-start;gap:12px">
+      <div style="width:36px;height:36px;border-radius:10px;background:#eef2ff;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      </div>
+      <div>
+        <div style="font-size:13px;font-weight:700;margin-bottom:3px">Le directeur voit les encaissements en temps r&eacute;el</div>
+        <p>Pas en fin de journ&eacute;e, pas demain matin. D&egrave;s que l&rsquo;&eacute;conome valide un paiement, le directeur le voit sur son t&eacute;l&eacute;phone. C&rsquo;est le principal argument &agrave; mettre en avant.</p>
+      </div>
+    </div>
+
+    <div class="card" style="display:flex;align-items:flex-start;gap:12px">
+      <div style="width:36px;height:36px;border-radius:10px;background:#ecfdf5;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round"><path d="M1 6s+1-3 5-3 5 6 9 6 5-3 5-3V18s-1 3-5 3-5-6-9-6-5 3-5 3z"/></svg>
+      </div>
+      <div>
+        <div style="font-size:13px;font-weight:700;margin-bottom:3px">Fonctionne sans connexion</div>
+        <p>Quand la connexion coupe, Sukulu continue. L&rsquo;&eacute;conome encaisse normalement. Les paiements se synchronisent automatiquement au retour de la connexion. Z&eacute;ro perte de donn&eacute;es.</p>
+      </div>
+    </div>
+
+    <div class="card" style="display:flex;align-items:flex-start;gap:12px">
+      <div style="width:36px;height:36px;border-radius:10px;background:#fff7ed;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2" stroke-linecap="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/></svg>
+      </div>
+      <div>
+        <div style="font-size:13px;font-weight:700;margin-bottom:3px">Les retards sont d&eacute;tect&eacute;s automatiquement</div>
+        <p>Plus besoin de croiser des listes manuellement. Sukulu sait quelle &eacute;ch&eacute;ance n&rsquo;a pas &eacute;t&eacute; pay&eacute;e et depuis combien de jours. Le directeur a la liste en un clic et peut exporter pour relancer.</p>
+      </div>
+    </div>
+
+    <div class="card" style="display:flex;align-items:flex-start;gap:12px">
+      <div style="width:36px;height:36px;border-radius:10px;background:#f0fdf4;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      </div>
+      <div>
+        <div style="font-size:13px;font-weight:700;margin-bottom:3px">Pas d&rsquo;installation, pas de maintenance</div>
+        <p>Sukulu est accessible depuis n&rsquo;importe quel navigateur. Pas de logiciel &agrave; installer, pas de mise &agrave; jour &agrave; g&eacute;rer, pas de sauvegarde &agrave; faire. Tout est g&eacute;r&eacute; automatiquement.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="section-title">Ce que Sukulu ne fait PAS (honnêtet&eacute; commerciale)</div>
+  <div class="card" style="background:#fafafa">
+    <p style="margin-bottom:6px;font-weight:600;font-size:12px">Quelques limites &agrave; conna&icirc;tre pour ne pas promettre l&rsquo;impossible :</p>
+    <div style="display:flex;flex-direction:column;gap:4px">
+      <div style="font-size:11px;color:#52556b;display:flex;align-items:center;gap:6px"><div style="width:5px;height:5px;border-radius:50%;background:#9397a8;flex-shrink:0"></div>Sukulu ne g&egrave;re pas la comptabilit&eacute; g&eacute;n&eacute;rale de l&rsquo;&eacute;cole (salaires, charges, etc.) &mdash; uniquement les frais de scolarit&eacute;.</div>
+      <div style="font-size:11px;color:#52556b;display:flex;align-items:center;gap:6px"><div style="width:5px;height:5px;border-radius:50%;background:#9397a8;flex-shrink:0"></div>Il ne g&egrave;re pas les notes ou les bulletins scolaires.</div>
+      <div style="font-size:11px;color:#52556b;display:flex;align-items:center;gap:6px"><div style="width:5px;height:5px;border-radius:50%;background:#9397a8;flex-shrink:0"></div>La premi&egrave;re connexion n&eacute;cessite internet (ensuite le mode hors-ligne prend le relais).</div>
+    </div>
+  </div>
+
+</div>
+<div class="pn">9</div></div>
+</body></html>
