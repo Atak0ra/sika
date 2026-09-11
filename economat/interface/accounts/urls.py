@@ -1,29 +1,21 @@
 """
-interface/accounts/urls.py — Routes du module accounts.
-Auto-inscription publique supprimée : le superuser crée les directeurs via /admin/.
+interface/accounts/urls.py
 """
 from django.urls import path
 from . import views
 from .landing import landing
 
 urlpatterns = [
-    # ── Landing page (point d'entrée public) ──────────────────────────────
-    path("",            landing,                    name="landing"),
-
-    # ── Authentification ──────────────────────────────────────────────────
-    path("login/",      views.login_view,           name="login"),
-    path("logout/",     views.logout_view,          name="logout"),
-
-    # ── Sélecteur d'école (après connexion) ──────────────────────────────
-    path("ecoles/",     views.school_selector,      name="school_selector"),
-
-    # ── Gestion de l'équipe (DIRECTOR) ───────────────────────────────────
+    path("",          landing,                  name="landing"),
+    path("login/",    views.login_view,          name="login"),
+    path("logout/",   views.logout_view,         name="logout"),
+    path("ecoles/",   views.school_selector,     name="school_selector"),
     path("<str:school_id>/equipe/",
-         views.team,                name="team"),
+         views.team,                             name="team"),
     path("<str:school_id>/equipe/<str:member_id>/toggle/",
-         views.toggle_collaborator, name="toggle_collaborator"),
-
-    # ── Profil utilisateur (tous rôles) ──────────────────────────────────
-    path("mon-compte/",                  views.profile,         name="profile"),
-    path("mon-compte/mot-de-passe/",     views.change_password, name="change_password"),
+         views.toggle_collaborator,              name="toggle_collaborator"),
+    path("mon-compte/",              views.profile,         name="profile"),
+    path("mon-compte/mot-de-passe/", views.change_password, name="change_password"),
+    # Endpoint PWA : verifier PBKDF2 offline (GET, login_required)
+    path("offline-credential/",      views.offline_credential, name="offline_credential"),
 ]

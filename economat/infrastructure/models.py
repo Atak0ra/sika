@@ -15,6 +15,7 @@ Hiérarchie des tables :
   economat_membership            (inchangé)
 """
 import uuid
+
 from django.db import models
 
 
@@ -29,7 +30,9 @@ class SchoolModel(models.Model):
     updated_at     = models.DateTimeField(auto_now=True)
 
     class Meta:
-        app_label = "economat"; db_table = "economat_school"; ordering = ["name"]
+        app_label  = "economat"
+        db_table   = "economat_school"
+        ordering   = ["name"]
 
     def __str__(self): return f"{self.name} ({self.city})"
 
@@ -48,9 +51,10 @@ class SchoolYearModel(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        app_label = "economat"; db_table = "economat_school_year"
+        app_label    = "economat"
+        db_table     = "economat_school_year"
         unique_together = [("school", "label")]
-        ordering = ["-label"]
+        ordering     = ["-label"]
 
     def __str__(self): return f"{self.school.name} — {self.label} ({self.status})"
 
@@ -67,8 +71,10 @@ class LevelModel(models.Model):
     updated_at   = models.DateTimeField(auto_now=True)
 
     class Meta:
-        app_label = "economat"; db_table = "economat_level"
-        unique_together = [("school_year", "name")]; ordering = ["name"]
+        app_label    = "economat"
+        db_table     = "economat_level"
+        unique_together = [("school_year", "name")]
+        ordering     = ["name"]
 
     def __str__(self): return f"{self.name} ({self.school_year.label})"
 
@@ -80,8 +86,10 @@ class ClassModel(models.Model):
     capacity = models.PositiveSmallIntegerField(default=40)
 
     class Meta:
-        app_label = "economat"; db_table = "economat_class"
-        unique_together = [("level", "name")]; ordering = ["name"]
+        app_label    = "economat"
+        db_table     = "economat_class"
+        unique_together = [("level", "name")]
+        ordering     = ["name"]
 
     def __str__(self): return f"{self.name} ({self.level.name})"
 
@@ -99,6 +107,12 @@ class StudentModel(models.Model):
     first_name    = models.CharField(max_length=100)
     last_name     = models.CharField(max_length=100)
     school        = models.ForeignKey(SchoolModel, on_delete=models.CASCADE, related_name="students")
+    # Matricule déterministe NOM3PRENOM3-AAMMJJ-HHMMSS (généré à l'inscription).
+    # null=True pour la migration des élèves existants (sera rempli via migrate).
+    matricule     = models.CharField(
+        max_length=30, unique=True, db_index=True,
+        null=True, blank=True, default=None,
+    )
     date_of_birth = models.DateField(null=True, blank=True)
     # ── Contact parent / tuteur ──────────────────────────────────────────
     parent_name     = models.CharField(max_length=200, blank=True, default="")
@@ -111,11 +125,14 @@ class StudentModel(models.Model):
     updated_at    = models.DateTimeField(auto_now=True)
 
     class Meta:
-        app_label = "economat"; db_table = "economat_student"
-        ordering = ["last_name", "first_name"]
-        indexes = [models.Index(fields=["school"], name="idx_student_school")]
+        app_label = "economat"
+        db_table  = "economat_student"
+        ordering  = ["last_name", "first_name"]
+        indexes   = [models.Index(fields=["school"], name="idx_student_school")]
 
-    def __str__(self): return f"{self.first_name} {self.last_name.upper()}"
+    def __str__(self):
+        mat = f" [{self.matricule}]" if self.matricule else ""
+        return f"{self.first_name} {self.last_name.upper()}{mat}"
 
 
 class EnrollmentModel(models.Model):
@@ -134,10 +151,11 @@ class EnrollmentModel(models.Model):
     created_at      = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        app_label = "economat"; db_table = "economat_enrollment"
+        app_label    = "economat"
+        db_table     = "economat_enrollment"
         # Un élève ne peut être inscrit qu'une fois par année
         unique_together = [("student", "school_year")]
-        ordering = ["student__last_name", "student__first_name"]
+        ordering     = ["student__last_name", "student__first_name"]
         indexes = [
             models.Index(fields=["school_year", "status"], name="idx_enrollment_year_status"),
             models.Index(fields=["klass", "status"],       name="idx_enrollment_class_status"),
@@ -160,16 +178,26 @@ class PaymentModel(models.Model):
     amount         = models.PositiveIntegerField()
     payment_date   = models.DateField(db_index=True)
     method         = models.CharField(max_length=20, choices=PAYMENT_METHODS, default="ESPECES")
-    receipt_number = models.CharField(max_length=50, unique=True)
+    receipt_number = models.CharField(max_length=120, unique=True)
+    # Libellé de la tranche visée (ex. "T1", "T2", "T3", "M1"…) — utilisé dans le numéro de reçu
+    installment_label = models.CharField(max_length=20, blank=True, default="")
     recorded_by    = models.CharField(max_length=100)
-    paid_by        = models.CharField(max_length=200, blank=True, default="")  # qui est venu payer
+    paid_by        = models.CharField(max_length=200, blank=True, default="")
     state          = models.CharField(max_length=20, choices=PAYMENT_STATES, default="VALID", db_index=True)
     notes          = models.TextField(blank=True, default="")
+    # Clé d'idempotence offline : UUID généré côté navigateur avant soumission.
+    # Garantit qu'un paiement offline ne peut jamais être enregistré 2 fois,
+    # même si la réponse réseau se perd et que le client re-soumet.
+    client_uuid    = models.UUIDField(
+        null=True, blank=True, unique=True, db_index=True,
+        help_text="UUID généré côté client (idempotence offline).",
+    )
     created_at     = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        app_label = "economat"; db_table = "economat_payment"
-        ordering = ["-payment_date","-created_at"]
+        app_label = "economat"
+        db_table  = "economat_payment"
+        ordering  = ["-payment_date", "-created_at"]
         indexes = [
             models.Index(fields=["enrollment", "state"],     name="idx_payment_enrollment_state"),
             models.Index(fields=["student", "payment_date"], name="idx_payment_student_date"),
@@ -194,11 +222,47 @@ class MembershipModel(models.Model):
     created_at   = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        app_label = "economat"; db_table = "economat_membership"
+        app_label    = "economat"
+        db_table     = "economat_membership"
         unique_together = [("user", "school")]
         indexes = [
-            models.Index(fields=["school","role","is_active"], name="idx_membership_school_role"),
-            models.Index(fields=["user","is_active"],          name="idx_membership_user_active"),
+            models.Index(fields=["school", "role", "is_active"], name="idx_membership_school_role"),
+            models.Index(fields=["user",   "is_active"],         name="idx_membership_user_active"),
         ]
 
     def __str__(self): return f"{self.user.username} — {self.role} @ {self.school.name}"
+
+
+class OfflineCredentialModel(models.Model):
+    """
+    Verifier PBKDF2 dédié pour l'authentification offline.
+
+    Séparé du hash Django (auth_user.password) pour isoler les usages :
+    - Ce verifier ne permet PAS de se connecter côté serveur.
+    - Il sert uniquement à déverrouiller le shell PWA en cache, localement.
+    - Sel propre (offline_salt) ≠ sel du hash Django → compromis de ce champ
+      ne compromet pas le mot de passe serveur.
+    - expires_at : 30 jours glissants, renouvelé à chaque connexion en ligne.
+    - failed_attempts : limite à 5 essais offline (anti-brute-force local).
+    """
+    user           = models.OneToOneField(
+        "auth.User", on_delete=models.CASCADE,
+        related_name="offline_credential",
+    )
+    # Hash PBKDF2 calculé côté serveur : format "algorithm$iterations$salt$hash"
+    # Ne jamais exposer dans une API publique.
+    verifier       = models.CharField(max_length=256)
+    # Sel indépendant (base64, 16 bytes) utilisé pour le verifier
+    offline_salt   = models.CharField(max_length=64)
+    iterations     = models.PositiveIntegerField(default=200_000)
+    expires_at     = models.DateTimeField()
+    # Compteur d'échecs offline (reset à 0 après connexion en ligne réussie)
+    failed_attempts = models.PositiveSmallIntegerField(default=0)
+    updated_at     = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        app_label = "economat"
+        db_table  = "economat_offline_credential"
+
+    def __str__(self):
+        return f"OfflineCred({self.user.username}, expires={self.expires_at.date()})"

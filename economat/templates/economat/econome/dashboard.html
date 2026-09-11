@@ -354,13 +354,22 @@ const clearBtn      = document.getElementById('clearStudent');
 const classFilter   = document.getElementById('classFilter');
 let debounceTimer;
 
-function selectStudent(id, label) {
+function selectStudent(id, label, matricule, className) {
   studentField.value = id;
   selectedSpan.textContent = label;
   selectedBadge.style.display = 'flex';
   searchInput.value = '';
   searchList.classList.add('hidden');
   searchInput.blur();
+  // Stocke les data-* sur le formulaire pour offline-sync.js
+  var form = document.getElementById('paymentForm');
+  form.dataset.studentMatricule = matricule || '';
+  form.dataset.studentName      = label    || '';
+  form.dataset.studentClass     = className|| '';
+  // Stocke le school_name pour le reçu offline
+  form.dataset.schoolName = document.querySelector('[data-school-name]')
+    ? document.querySelector('[data-school-name]').dataset.schoolName
+    : '{{ school.name|escapejs|default:"École" }}';
 }
 
 clearBtn.addEventListener('click', () => {
@@ -403,7 +412,12 @@ searchInput.addEventListener('input', () => {
           li.onmouseleave = () => li.style.background = '';
           li.addEventListener('mousedown', e => {
             e.preventDefault();
-            selectStudent(s.id, s.name + (s.class ? ' (' + s.class + ')' : ''));
+            selectStudent(
+              s.id,
+              s.name + (s.class ? ' (' + s.class + ')' : ''),
+              s.matricule || '',
+              s.class || ''
+            );
           });
           searchList.appendChild(li);
         });

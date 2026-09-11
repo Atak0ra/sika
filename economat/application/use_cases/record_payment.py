@@ -1,19 +1,37 @@
 """
-application/use_cases/record_payment.py — REFONTE (passe par Enrollment).
+application/use_cases/record_payment.py
+=========================================
+USE CASE : RecordPaymentUseCase — Acteur : Économe / Directeur
+
+Supporte le mode offline :
+  - client_uuid fourni + déjà en base → idempotent (pas de doublon)
+  - receipt_number fourni (généré côté client) → utilisé tel quel
+  - Sinon : fallback génération serveur classique
 """
 from __future__ import annotations
 
+import logging
+
 from economat.application.dto import RecordPaymentCommand, RecordPaymentResult
 from economat.application.ports.repositories import (
-    EnrollmentRepository, PaymentRepository, SchoolYearRepository, StudentRepository,
+    EnrollmentRepository,
+    PaymentRepository,
+    SchoolYearRepository,
+    StudentRepository,
 )
 from economat.domain.payment.entities import Payment, PaymentState
 from economat.domain.payment.payment_status import PaymentStatusCalculator
 from economat.domain.payment.value_objects import PaymentMethod
 from economat.domain.school.value_objects import SchoolYearId
-from economat.domain.shared.errors import DomainError, EntityNotFoundError, ZeroAmountError
+from economat.domain.shared.errors import (
+    DomainError,
+    EntityNotFoundError,
+    ZeroAmountError,
+)
 from economat.domain.shared.value_objects import Money
 from economat.domain.student.value_objects import StudentId
+
+logger = logging.getLogger(__name__)
 
 
 class RecordPaymentUseCase:
@@ -36,19 +54,47 @@ class RecordPaymentUseCase:
         except DomainError as e:
             return RecordPaymentResult(success=False, error_message=str(e))
         except Exception as e:
-            return RecordPaymentResult(success=False, error_message=f"Erreur inattendue : {type(e).__name__} — {e}")
+            logger.exception("Erreur inattendue dans RecordPaymentUseCase")
+            return RecordPaymentResult(
+                success=False,
+                error_message=f"Erreur inattendue : {type(e).__name__} — {e}",
+            )
 
     def _execute(self, cmd: RecordPaymentCommand) -> RecordPaymentResult:
+        # ── Idempotence offline ───────────────────────────────────────────────
+        # Si client_uuid déjà en base : paiement déjà enregistré, on retourne
+        # le résultat original sans rien re-créer.
+        if cmd.client_uuid:
+            from economat.infrastructure.models import PaymentModel as _PM
+            existing_pm = (
+                _PM.objects
+                .select_related("student")
+                .filter(client_uuid=cmd.client_uuid)
+                .first()
+            )
+            if existing_pm:
+                return RecordPaymentResult(
+                    success=True,
+                    payment_id=str(existing_pm.id),
+                    receipt_number=existing_pm.receipt_number,
+                    student_name=(
+                        f"{existing_pm.student.first_name} "
+                        f"{existing_pm.student.last_name.upper()}"
+                    ),
+                    amount_paid=existing_pm.amount,
+                    new_balance=None,
+                    payment_status="already_synced",
+                    class_name="", level_name="",
+                )
+
         if cmd.amount_fcfa <= 0:
             raise ZeroAmountError("Le montant doit être supérieur à 0 FCFA.")
 
-        # 1. Charger l'élève
         student_id = StudentId(value=cmd.student_id)
         student    = self._students.find_by_id(student_id)
         if student is None:
             raise EntityNotFoundError(f"Élève introuvable (id={cmd.student_id}).")
 
-        # 2. Charger l'année scolaire
         year_id = SchoolYearId(cmd.year_id)
         year    = self._years.find_by_id(year_id)
         if year is None:
@@ -56,7 +102,6 @@ class RecordPaymentUseCase:
         if year.is_closed:
             raise DomainError("Impossible d'enregistrer un paiement sur une année clôturée.")
 
-        # 3. Charger l'Enrollment de cet élève pour cette année
         enrollment = self._enrollments.find_by_student_and_year(student_id, year_id)
         if enrollment is None:
             raise EntityNotFoundError(
@@ -65,16 +110,16 @@ class RecordPaymentUseCase:
         if not enrollment.is_active():
             raise DomainError(f"L'inscription de {student.name.full_name} est inactive.")
 
-        # 4. Charger le niveau pour le barème
-        level = year.get_level(enrollment.level_id)
+        level    = year.get_level(enrollment.level_id)
         schedule = level.get_payment_schedule(year.start_date)
-
-        # 5. Paiements existants pour cet enrollment
         existing = self._payments.find_by_enrollment(enrollment.id)
 
-        # 6. Construire l'entité Payment
-        receipt_n = self._payments.last_receipt_number(student.school_id) + 1
-        receipt   = f"REC-{student.school_id.value[:8].upper()}-{receipt_n:04d}"
+        # Numéro de reçu : client (déterministe offline) ou fallback serveur
+        if cmd.receipt_number:
+            receipt = cmd.receipt_number
+        else:
+            receipt_n = self._payments.last_receipt_number(student.school_id) + 1
+            receipt   = f"REC-{student.school_id.value[:8].upper()}-{receipt_n:04d}"
 
         payment = Payment(
             id=self._payments.next_id(),
@@ -89,21 +134,22 @@ class RecordPaymentUseCase:
             notes=cmd.notes,
         )
 
-        # 7. Calcul du nouveau statut
         status_result = self._calculator.calculate(
             schedule=schedule, payments=existing + [payment],
             as_of=cmd.payment_date,
         )
 
-        # 8. Persistance
         self._payments.save(payment)
 
-        # Mise à jour du champ paid_by (hors domaine, direct ORM)
-        if cmd.paid_by:
-            from economat.infrastructure.models import PaymentModel as _PM
-            _PM.objects.filter(pk=payment.id.value).update(paid_by=cmd.paid_by.strip())
+        # Champs hors domaine (paid_by, client_uuid, installment_label)
+        from economat.infrastructure.models import PaymentModel as _PM2
+        extra: dict = {}
+        if cmd.paid_by:            extra["paid_by"]           = cmd.paid_by.strip()
+        if cmd.client_uuid:        extra["client_uuid"]       = cmd.client_uuid
+        if cmd.installment_label:  extra["installment_label"] = cmd.installment_label
+        if extra:
+            _PM2.objects.filter(pk=payment.id.value).update(**extra)
 
-        # Infos classe/niveau pour le reçu
         klass = level.find_class(enrollment.class_id)
         return RecordPaymentResult(
             success=True, payment_id=str(payment.id),

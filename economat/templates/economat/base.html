@@ -5,6 +5,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}Sukulu{% endblock %}</title>
+  <!-- PWA -->
+  <link rel="manifest" href="/manifest.webmanifest">
+  <meta name="theme-color" content="#4f46e5">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Sukulu">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -290,43 +297,119 @@
     .modal-backdrop.is-open .modal-panel { transform: scale(1) translateY(0); }
 
     /* ==== TOASTS ==== */
+    /*
+     * Design : pill sombre centré en bas, icône SVG selon le type,
+     * barre de progression fine en bas, pas de couleurs agressives.
+     * Inspiré de Vercel / Linear : sobre, lisible, contextuel.
+     */
     #toastContainer {
-      position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%);
+      position: fixed;
+      bottom: 1.75rem;
+      left: 50%;
+      transform: translateX(-50%);
       z-index: 200;
-      display: flex; flex-direction: column; align-items: center; gap: .5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: .5rem;
       pointer-events: none;
+      width: max-content;
+      max-width: min(32rem, calc(100vw - 2rem));
     }
     .toast {
-      display: inline-flex; align-items: center; gap: .6rem;
-      padding: .65rem 1rem .65rem .85rem;
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      gap: .65rem;
+      padding: .7rem 1rem .7rem .85rem;
       background: #1a1d29;
-      border-radius: 999px;
-      box-shadow: 0 8px 32px rgba(0,0,0,.28), 0 2px 8px rgba(0,0,0,.18);
-      font-size: .84375rem; font-weight: 500; color: #fff;
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 12px;
+      box-shadow: 0 8px 28px rgba(0,0,0,.32), 0 2px 6px rgba(0,0,0,.2);
+      font-size: .84rem;
+      font-weight: 500;
+      color: #f0f1f5;
       pointer-events: auto;
-      max-width: 30rem;
-      white-space: nowrap;
-      animation: toast-in .22s cubic-bezier(.34,1.56,.64,1) forwards;
+      width: max-content;
+      max-width: min(32rem, calc(100vw - 2rem));
+      white-space: normal;
+      word-break: break-word;
+      overflow: hidden;
+      animation: toast-in .2s cubic-bezier(.34,1.46,.64,1) forwards;
     }
-    .toast.toast-out { animation: toast-out .16s ease forwards; }
-    /* Point coloré indicateur de type */
-    .toast-dot {
-      width: .55rem; height: .55rem; border-radius: 50%; flex-shrink: 0;
+    .toast.toast-out {
+      animation: toast-out .15s ease forwards;
+      pointer-events: none;
     }
-    .toast-success .toast-dot { background: #10b981; }
-    .toast-error   .toast-dot { background: #ef4444; }
-    .toast-warning .toast-dot { background: #f59e0b; }
-    .toast-info    .toast-dot { background: #818cf8; }
-    /* Bouton fermer discret */
+
+    /* Icône SVG à gauche */
+    .toast-icon {
+      flex-shrink: 0;
+      width: 1rem;
+      height: 1rem;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      fill: none;
+    }
+    .toast-success .toast-icon { stroke: #34d399; }
+    .toast-error   .toast-icon { stroke: #f87171; }
+    .toast-warning .toast-icon { stroke: #fbbf24; }
+    .toast-info    .toast-icon { stroke: #818cf8; }
+
+    /* Texte */
+    .toast-text { flex: 1; line-height: 1.45; }
+
+    /* Bouton fermer */
     .toast-close {
-      margin-left: .35rem; opacity: .45; cursor: pointer; background: none;
-      border: none; padding: 0; color: #fff; display: flex; align-items: center;
+      flex-shrink: 0;
+      margin-left: .2rem;
+      opacity: .35;
+      cursor: pointer;
+      background: none;
+      border: none;
+      padding: 0;
+      color: #f0f1f5;
+      display: flex;
+      align-items: center;
       transition: opacity .12s;
+      line-height: 1;
     }
-    .toast-close:hover { opacity: 1; }
-    @keyframes toast-in  { from { opacity:0; transform:translateY(8px) scale(.96); } to { opacity:1; transform:none; } }
-    @keyframes toast-out { from { opacity:1; transform:none; } to { opacity:0; transform:translateY(4px) scale(.97); } }
-    @media (prefers-reduced-motion: reduce) { .toast { animation: none; } }
+    .toast-close:hover { opacity: .9; }
+    .toast-close svg {
+      width: .8rem; height: .8rem;
+      stroke: currentColor; fill: none;
+      stroke-width: 2; stroke-linecap: round;
+    }
+
+    /* Barre de progression en bas */
+    .toast-progress {
+      position: absolute;
+      bottom: 0; left: 0;
+      height: 2px;
+      border-radius: 0 0 12px 12px;
+      animation: toast-progress linear forwards;
+    }
+    .toast-success .toast-progress { background: #34d399; }
+    .toast-error   .toast-progress { background: #f87171; }
+    .toast-warning .toast-progress { background: #fbbf24; }
+    .toast-info    .toast-progress { background: #818cf8; }
+
+    @keyframes toast-in {
+      from { opacity: 0; transform: translateY(10px) scale(.97); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    @keyframes toast-out {
+      from { opacity: 1; transform: translateY(0) scale(1); }
+      to   { opacity: 0; transform: translateY(4px) scale(.97); }
+    }
+    @keyframes toast-progress {
+      from { width: 100%; }
+      to   { width: 0%; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .toast, .toast-progress { animation: none; }
+    }
 
     /* ================================================================
        ACCORDÉON SIDEBAR — Niveaux > Classes
@@ -846,26 +929,52 @@
   {% if messages %}
   <script>
   (function(){
-    var TYPES={success:'toast-success',error:'toast-error',warning:'toast-warning',info:'toast-info'};
-    var container=document.getElementById('toastContainer');
-    function showToast(text,type){
-      var t=document.createElement('div');
-      t.className='toast '+(TYPES[type]||'toast-info');
-      t.innerHTML='<span class="toast-dot"></span>'
-        +'<span>'+text+'</span>'
-        +'<button class="toast-close" onclick="closeToast(this.closest(\'.toast\'))" aria-label="Fermer">'
-        +'<svg style="width:.85em;height:.85em;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>'
-        +'</button>';
-      container.appendChild(t);
-      setTimeout(function(){closeToast(t);},4500);
-    }
-    window.closeToast=function(el){
-      if(!el)return;
-      el.classList.add('toast-out');
-      setTimeout(function(){if(el.parentNode)el.parentNode.removeChild(el);},180);
+    var DURATION = 4500;
+
+    /* SVG paths par type de message */
+    var ICONS = {
+      success: '<polyline points="20 6 9 17 4 12"/>',
+      error:   '<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>',
+      warning: '<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>',
+      info:    '<circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>'
     };
+    var TYPE_CLASS = {
+      success: 'toast-success',
+      error:   'toast-error',
+      warning: 'toast-warning',
+      info:    'toast-info'
+    };
+
+    var container = document.getElementById('toastContainer');
+
+    function closeToast(el) {
+      if (!el || el._closing) return;
+      el._closing = true;
+      el.classList.add('toast-out');
+      setTimeout(function(){ if (el.parentNode) el.parentNode.removeChild(el); }, 150);
+    }
+    window.closeToast = closeToast;
+
+    function showToast(text, type) {
+      var cls   = TYPE_CLASS[type] || 'toast-info';
+      var icon  = ICONS[type]      || ICONS.info;
+      var el    = document.createElement('div');
+      el.className = 'toast ' + cls;
+      el.setAttribute('role', 'alert');
+      el.innerHTML =
+        '<svg class="toast-icon" viewBox="0 0 24 24">' + icon + '</svg>'
+        + '<span class="toast-text">' + text + '</span>'
+        + '<button class="toast-close" onclick="closeToast(this.closest(\'.toast\'))" aria-label="Fermer">'
+        +   '<svg viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>'
+        + '</button>'
+        + '<span class="toast-progress" style="animation-duration:' + DURATION + 'ms"></span>';
+      container.appendChild(el);
+      /* Fermeture automatique */
+      setTimeout(function(){ closeToast(el); }, DURATION);
+    }
+
     {% for msg in messages %}
-    showToast("{{ msg.message|escapejs }}","{{ msg.tags|default:'info' }}");
+    showToast("{{ msg.message|escapejs }}", "{{ msg.tags|default:'info' }}");
     {% endfor %}
   })();
   </script>
@@ -1004,5 +1113,27 @@
   </script>
 
   {% block extra_js %}{% endblock %}
+
+  <!-- ============================================================
+       PWA — Service Worker + Offline Sync
+       Chargés en dernier pour ne pas bloquer le rendu.
+  ============================================================ -->
+  {% load static %}
+  <script src="{% static 'economat/js/matricule.js' %}"></script>
+  <script src="{% static 'economat/js/auth-offline.js' %}"></script>
+  <script src="{% static 'economat/js/offline-sync.js' %}"></script>
+  <script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('/sw.js', { scope: '/' })
+        .then(function (reg) {
+          console.log('[Sukulu SW] Enregistré, scope:', reg.scope);
+        })
+        .catch(function (err) {
+          console.warn('[Sukulu SW] Échec enregistrement:', err);
+        });
+    });
+  }
+  </script>
 </body>
 </html>

@@ -5,17 +5,26 @@ USE CASE : RegisterStudentUseCase
 Crée l'identité Student (si nouvelle) ET l'Enrollment dans l'année active.
 """
 from __future__ import annotations
+
 import datetime
 
 from economat.application.dto import RegisterStudentCommand, RegisterStudentResult
 from economat.application.ports.repositories import (
-    EnrollmentRepository, SchoolYearRepository, StudentRepository,
+    EnrollmentRepository,
+    SchoolYearRepository,
+    StudentRepository,
 )
 from economat.domain.enrollment.entities import Enrollment
 from economat.domain.enrollment.value_objects import EnrollmentStatus
-from economat.domain.school.value_objects import ClassId, LevelId, SchoolId, SchoolYearId
+from economat.domain.school.value_objects import (
+    ClassId,
+    LevelId,
+    SchoolId,
+    SchoolYearId,
+)
 from economat.domain.shared.errors import DomainError, EntityNotFoundError
 from economat.domain.student.entities import Student
+from economat.domain.student.matricule import generate_matricule
 from economat.domain.student.value_objects import StudentName
 
 
@@ -65,9 +74,16 @@ class RegisterStudentUseCase:
         )
         self._students.save(student)
 
+        # Génère et persiste le matricule déterministe après save (pour éviter les conflits)
+        enrolled_dt = datetime.datetime.now()
+        matricule = generate_matricule(
+            cmd.last_name.strip(), cmd.first_name.strip(), enrolled_dt
+        )
+        from economat.infrastructure.models import StudentModel as _SM
+        _SM.objects.filter(pk=student.id.value).update(matricule=matricule)
+
         # Mise à jour des champs parent (hors domaine, direct ORM)
         if cmd.parent_name or cmd.parent_phone or cmd.parent_relation:
-            from economat.infrastructure.models import StudentModel as _SM
             _SM.objects.filter(pk=student.id.value).update(
                 parent_name=cmd.parent_name.strip(),
                 parent_phone=cmd.parent_phone.strip(),

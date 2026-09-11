@@ -44,6 +44,12 @@ INSTALLED_APPS = [
 # ── Middleware ────────────────────────────────────────────────────────────────
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    # WhiteNoise : sert les fichiers statiques directement depuis Django/Gunicorn.
+    # Positionné juste après SecurityMiddleware (avant tout le reste) pour
+    # court-circuiter les requêtes /static/ sans passer par les vues Django.
+    # Requis en prod (Vercel) pour que le Service Worker puisse mettre en cache
+    # les assets JS/CSS offline de manière fiable.
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -116,8 +122,12 @@ USE_I18N = True
 USE_TZ = True
 
 # ── Fichiers statiques ────────────────────────────────────────────────────────
-STATIC_URL = "/static/"
+STATIC_URL  = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
+
+# WhiteNoise : compression gzip/brotli + headers Cache-Control immuables
+# pour les assets versionnés. Améliore les scores Lighthouse et le cache SW.
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 # Uploads et fichiers temporaires (SQLite externes, CSV convertis)
 MEDIA_URL = "/media/"
@@ -125,10 +135,6 @@ MEDIA_ROOT = BASE_DIR / "media"
 
 # ── Clé primaire par défaut ───────────────────────────────────────────────────
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-
-# ── Chemin vers la base SQLite interne (utilisé par le chat IA directeur)
-# Reste utile en local (DATABASE_URL absent) ; sans objet en prod Postgres.
-SQLITE_DB_PATH = str(BASE_DIR / "db.sqlite3")
 
 # Taille max des uploads (50 MB)
 DATA_UPLOAD_MAX_MEMORY_SIZE = 52_428_800

@@ -1,31 +1,35 @@
 """
 infrastructure/ai/groq_llm_adapter.py
 =======================================
-Adapter LLM — implémentation du port LLMPort via Groq + LangChain.
+Adapter LLM — Groq via LangChain pour le Text-to-SQL économat.
 
-- Implémente l'interface LLMPort (contrat du domaine/application).
-- Accepte un system_context métier injecté (vocabulaire économat).
-- Filtre les tables pour ne cibler que les tables economat_*.
-- Protégé par le garde-fous sql_guard (read-only).
+- Implémente LLMPort (contrat domaine/application).
+- Exécute le SQL via django.db.connection — la vraie base du projet
+  (SQLite en dev, Postgres en prod). Plus de db_path SQLite codé en dur.
+- Protégé par sql_guard (read-only).
+- Historique de conversation intégré au contexte LLM.
 """
 
 from __future__ import annotations
-import os, re, sqlite3, warnings
+
+import os
+import re
+import warnings
 from typing import List, Optional
 
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 warnings.filterwarnings("ignore", message=".*langchain.*", category=UserWarning)
 
-from langchain_community.utilities import SQLDatabase
-from langchain_classic.chains import create_sql_query_chain
+from django.db import connection
+
+from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 from langchain_groq import ChatGroq
-from langchain_core.messages import HumanMessage, SystemMessage
 
-from economat.infrastructure.ai.sql_guard import validate_read_only, UnsafeSQLError
 from economat.application.ports.llm_port import ChatMessage, LLMPort, LLMQueryResult
+from economat.infrastructure.ai.sql_guard import UnsafeSQLError, validate_read_only
 
-_SKIP_PREFIXES = ("sqlite_%", "django_%", "auth_%", "contenttypes%", "sessions_%")
 
+# ── Helpers ──────────────────────────────────────────────────────────────────
 
 def _make_llm(api_key: str) -> ChatGroq:
     model = os.environ.get("GROQ_MODEL", "llama-3.3-70b-versatile").strip()
@@ -33,27 +37,67 @@ def _make_llm(api_key: str) -> ChatGroq:
 
 
 def _clean_sql(raw: str) -> str:
+    """Supprime les balises markdown et préfixes parasites générés par le LLM."""
     raw = re.sub(r"```(?:sql)?\s*", "", raw, flags=re.IGNORECASE)
     raw = re.sub(r"```", "", raw)
     raw = re.sub(r"(?i)^(sql\s*query\s*:|sql\s*:|sqlquery\s*:)\s*", "", raw.strip())
     return raw.strip()
 
 
-def _get_economat_tables(db_path: str) -> list:
-    skip_where = " AND ".join(f"name NOT LIKE '{p}'" for p in _SKIP_PREFIXES)
-    try:
-        with sqlite3.connect(f"file:{db_path}?mode=ro", uri=True) as conn:
-            rows = conn.execute(
-                f"SELECT name FROM sqlite_master WHERE type='table' "
-                f"AND name LIKE 'economat_%' AND {skip_where} ORDER BY name"
-            ).fetchall()
-            return [r[0] for r in rows]
-    except Exception:
-        return []
+def _get_economat_table_schema() -> str:
+    """
+    Introspecte le schéma des tables economat_* via django.db.connection.
+    Fonctionne avec SQLite ET Postgres.
+    Retourne une chaîne décrivant les colonnes de chaque table
+    pour alimenter le prompt LLM.
+    """
+    schema_lines = []
+    table_names = [
+        name for name in connection.introspection.table_names()
+        if name.startswith("economat_")
+    ]
+    for table in sorted(table_names):
+        try:
+            cols = connection.introspection.get_table_description(connection.cursor(), table)
+            col_list = ", ".join(c.name for c in cols)
+            schema_lines.append(f"- {table} ({col_list})")
+        except Exception:
+            schema_lines.append(f"- {table}")
+    return "\n".join(schema_lines) if schema_lines else "(aucune table economat_ trouvée)"
 
+
+def _execute_sql(sql: str) -> tuple[list[str], list[tuple]]:
+    """
+    Exécute le SQL via django.db.connection (read-only coté applicatif —
+    le garde-fous sql_guard a déjà validé que c'est un SELECT).
+    Fonctionne avec SQLite ET Postgres.
+    """
+    with connection.cursor() as cursor:
+        cursor.execute(sql)
+        columns = [desc[0] for desc in cursor.description] if cursor.description else []
+        rows = cursor.fetchmany(500)
+    return columns, rows
+
+
+def _build_history_messages(history: List[ChatMessage]) -> list:
+    """Convertit l'historique ChatMessage en messages LangChain (Human/AI)."""
+    msgs = []
+    for msg in history:
+        if msg.role == "user":
+            msgs.append(HumanMessage(content=msg.content))
+        elif msg.role == "assistant":
+            msgs.append(AIMessage(content=msg.content))
+    return msgs
+
+
+# ── Adapter ───────────────────────────────────────────────────────────────────
 
 class GroqLLMAdapter(LLMPort):
-    """Adapter LLM concret — Groq via LangChain pour le Text-to-SQL économat."""
+    """Adapter LLM concret — Groq pour le Text-to-SQL économat.
+
+    SQL exécuté via django.db.connection → base du projet
+    (SQLite en dev, Postgres en prod).
+    """
 
     _INTENT_SYSTEM = (
         "Tu es un classificateur d'intention pour une application de gestion d'économat scolaire. "
@@ -69,8 +113,6 @@ class GroqLLMAdapter(LLMPort):
     def answer(
         self,
         question: str,
-        db_path: str,
-        table: Optional[str] = None,
         history: Optional[List[ChatMessage]] = None,
         system_context: Optional[str] = None,
     ) -> LLMQueryResult:
@@ -80,50 +122,55 @@ class GroqLLMAdapter(LLMPort):
             result.error = "Clé API Groq manquante. Définissez GROQ_API_KEY dans .env."
             return result
 
+        history_msgs = _build_history_messages(history or [])
+
         try:
             llm = _make_llm(api_key)
+
+            # ── Classification de l'intention ───────────────────────────
             intent_resp = llm.invoke([
                 SystemMessage(content=self._INTENT_SYSTEM),
+                *history_msgs[-6:],
                 HumanMessage(content=question),
             ])
             intent = intent_resp.content.strip().lower().rstrip(".")
             result.intent = "conversational" if "conv" in intent else "analytical"
 
             if result.intent == "conversational":
-                resp = llm.invoke([SystemMessage(content=self._CHAT_SYSTEM),
-                                   HumanMessage(content=question)])
+                resp = llm.invoke([
+                    SystemMessage(content=self._CHAT_SYSTEM),
+                    *history_msgs[-10:],
+                    HumanMessage(content=question),
+                ])
                 result.chat_reply = resp.content.strip()
                 return result
 
-            tables = _get_economat_tables(db_path)
-            if not tables:
-                result.error = "Aucune table economat_ trouvée. Lancez d'abord migrate."
-                return result
-            active_table = table if (table and table in tables) else tables[0]
-
-            db = SQLDatabase.from_uri(
-                f"sqlite:///{db_path}", include_tables=[active_table], sample_rows_in_table_info=2,
-            )
-            chain = create_sql_query_chain(llm, db)
+            # ── Mode analytique : génération SQL ─────────────────────────
+            # Schéma réel introspecté depuis la vraie base (SQLite ou Postgres)
+            live_schema = _get_economat_table_schema()
             ctx = system_context or ""
-            enriched = (
-                f"{ctx}\n\n{question}\n\n"
-                f"IMPORTANT: génère UNIQUEMENT un SELECT SQLite. "
-                f"Table principale : '{active_table}'. Ne sélectionne PAS 'id'. SQL brut uniquement."
+            full_prompt = (
+                f"{ctx}\n\n"
+                f"Schéma réel des tables disponibles :\n{live_schema}\n\n"
+                f"{question}\n\n"
+                f"Génère UNIQUEMENT un SELECT SQL standard (compatible PostgreSQL). "
+                f"SQL brut uniquement, sans explication, sans balise markdown."
             )
-            raw_sql = chain.invoke({"question": enriched})
-            result.sql = _clean_sql(str(raw_sql))
+
+            sql_resp = llm.invoke([
+                *history_msgs[-6:],
+                HumanMessage(content=full_prompt),
+            ])
+            result.sql = _clean_sql(sql_resp.content)
+
+            # ── Validation garde-fous ────────────────────────────────
             safe_sql = validate_read_only(result.sql)
 
-            with sqlite3.connect(f"file:{db_path}?mode=ro", uri=True) as conn:
-                cursor = conn.execute(safe_sql)
-                result.columns = [d[0] for d in cursor.description] if cursor.description else []
-                result.rows = list(cursor.fetchmany(500))
+            # ── Exécution via django.db.connection ────────────────────
+            result.columns, result.rows = _execute_sql(safe_sql)
 
         except UnsafeSQLError as e:
             result.error = f"Requête bloquée (garde-fous) : {e.reason}"
-        except sqlite3.OperationalError as e:
-            result.error = f"Erreur SQLite : {e}\nSQL : {result.sql or 'N/A'}"
         except Exception as e:  # noqa: BLE001
             result.error = f"Erreur ({type(e).__name__}) : {e}"
 

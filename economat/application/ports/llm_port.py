@@ -6,7 +6,9 @@ PORT SORTANT — Interface du connecteur LLM (IA).
 Ce port abstrait découple le use case AskDirectorChatQuery
 de la technologie LLM concrète (Groq, OpenAI, local Ollama…).
 
-L'infrastructure fournit l'implémentation (GroqLLMAdapter).
+Note : le port ne reçoit plus de db_path. L'exécution SQL
+utilise django.db.connection — la vraie base du projet,
+qu'elle soit SQLite (dev) ou Postgres (prod).
 """
 
 from __future__ import annotations
@@ -45,20 +47,16 @@ class LLMQueryResult:
 class LLMPort(ABC):
     """Port sortant : connecteur vers un modèle de langage.
 
-    Usage dans AskDirectorChatQuery :
-        result = self._llm.answer(
-            question="Combien d'élèves en retard de paiement ?",
-            db_path="/path/to/db.sqlite3",
-            table="economat_payment",
-        )
+    Le SQL généré est exécuté via django.db.connection,
+    qui utilise automatiquement la base configurée dans
+    settings.DATABASES["default"] (SQLite en dev, Postgres en prod).
+    Aucun db_path nécessaire.
     """
 
     @abstractmethod
     def answer(
         self,
         question: str,
-        db_path: str,
-        table: Optional[str] = None,
         history: Optional[List[ChatMessage]] = None,
         system_context: Optional[str] = None,
     ) -> LLMQueryResult:
@@ -66,8 +64,6 @@ class LLMPort(ABC):
 
         Args:
             question       : question en langage naturel (directeur).
-            db_path        : chemin vers la base SQLite à interroger.
-            table          : table principale à interroger (auto si None).
             history        : historique de la conversation (pour le contexte).
             system_context : contexte métier injecté dans le prompt système.
         """

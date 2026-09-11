@@ -6,11 +6,13 @@ Réinscrit en masse les élèves d'une classe source vers une classe cible (nouv
 Le directeur peut exclure des élèves individuellement.
 """
 from __future__ import annotations
+
 import datetime
 
 from economat.application.dto import PromoteClassCommand, PromoteClassResult
 from economat.application.ports.repositories import (
-    EnrollmentRepository, SchoolYearRepository,
+    EnrollmentRepository,
+    SchoolYearRepository,
 )
 from economat.domain.enrollment.entities import Enrollment
 from economat.domain.enrollment.value_objects import EnrollmentStatus

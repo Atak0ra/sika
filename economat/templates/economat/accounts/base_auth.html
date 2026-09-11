@@ -76,7 +76,40 @@
     .badge-info    { background:#eef2ff;color:#4338ca;border-color:#c7d2fe; }
     .badge-warning { background:#fff7ed;color:#c2410c;border-color:#fed7aa; }
     .badge-neutral { background:#f4f4f5;color:#52525b;border-color:#e4e4e7; }
-    .field-error { font-size:.75rem;color:#b91c1c;margin-top:.25rem; }
+    /* Messages inline (pages auth) */
+    .alert {
+      display: flex;
+      align-items: flex-start;
+      gap: .55rem;
+      padding: .7rem .85rem;
+      border-radius: 9px;
+      font-size: .8375rem;
+      font-weight: 500;
+      line-height: 1.45;
+      border: 1px solid;
+    }
+    .alert-success {
+      background: #f0fdf4;
+      color: #15803d;
+      border-color: #bbf7d0;
+    }
+    .alert-error {
+      background: #fef2f2;
+      color: #b91c1c;
+      border-color: #fecaca;
+    }
+    .alert svg {
+      flex-shrink: 0;
+      width: .95rem;
+      height: .95rem;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      margin-top: .05rem;
+    }
+    .field-error { font-size:.75rem; color:#b91c1c; margin-top:.25rem; }
   </style>
 </head>
 <body>
@@ -103,9 +136,14 @@
       {% if messages %}
       <div style="margin-bottom:1.25rem;display:flex;flex-direction:column;gap:.5rem;">
         {% for msg in messages %}
-        <div style="padding:.65rem .9rem;border-radius:9px;font-size:.8375rem;border:1px solid;
-          {% if msg.tags == 'success' %}background:#ecfdf5;color:#047857;border-color:#a7f3d0;
-          {% else %}background:#fef2f2;color:#b91c1c;border-color:#fecaca;{% endif %}">{{ msg }}</div>
+        <div class="alert {% if msg.tags == 'success' %}alert-success{% else %}alert-error{% endif %}">
+          {% if msg.tags == 'success' %}
+          <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+          {% else %}
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          {% endif %}
+          <span>{{ msg }}</span>
+        </div>
         {% endfor %}
       </div>
       {% endif %}
@@ -125,5 +163,7 @@
       });
     });
   </script>
+  {% load static %}
+  <script src="{% static 'economat/js/auth-offline.js' %}"></script>
 </body>
 </html>

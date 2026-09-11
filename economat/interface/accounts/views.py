@@ -9,20 +9,29 @@ Chaque utilisateur se connecte sur /eco/login/ avec son identifiant fourni.
 """
 from __future__ import annotations
 
+import json
+
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from django.http import HttpResponseForbidden, JsonResponse
 from django.shortcuts import redirect, render
 
 from economat.application.dto_identity import CreateCollaboratorCommand
 from economat.composition import (
     get_create_collaborator_use_case,
     get_list_memberships_query,
+    get_user_repository,
 )
-from economat.infrastructure.models import MembershipModel, SchoolModel
+from economat.domain.shared.errors import DomainError
+from django.contrib.auth import update_session_auth_hash
+from economat.infrastructure.models import (
+    MembershipModel,
+    SchoolModel,
+    SchoolYearModel,
+)
 from economat.interface.decorators import require_membership
-from economat.infrastructure.models import SchoolYearModel
-from .forms import CreateCollaboratorForm, LoginForm
+from .forms import ChangePasswordForm, CreateCollaboratorForm, LoginForm, ProfileForm
 
 
 # ── Connexion / Déconnexion ───────────────────────────────────────────────────
@@ -34,13 +43,21 @@ def login_view(request):
     form  = LoginForm(request.POST or None)
     error = None
     if request.method == "POST" and form.is_valid():
-        user = authenticate(
-            request,
-            username=form.cleaned_data["username"],
-            password=form.cleaned_data["password"],
-        )
+        username = form.cleaned_data["username"]
+        password = form.cleaned_data["password"]
+        user = authenticate(request, username=username, password=password)
         if user:
             login(request, user)
+            # ── Génère le verifier offline après connexion en ligne réussie ──
+            # Le client recevra les données via l'endpoint /eco/offline-credential/
+            # déclenché automatiquement par le JS de login (voir auth-offline.js).
+            try:
+                from economat.infrastructure.auth.offline_credential_service import (
+                    save_offline_credential,
+                )
+                save_offline_credential(user, password)
+            except Exception:
+                pass  # Ne jamais bloquer le login si la génération échoue
             return redirect(request.GET.get("next") or "economat:school_selector")
         error = "Identifiant ou mot de passe incorrect."
     return render(request, "economat/accounts/login.html",
@@ -86,8 +103,6 @@ def school_selector(request):
 @require_membership
 def team(request, school_id: str, membership=None):
     """Liste des membres + formulaire de création de collaborateur."""
-    from economat.domain.shared.errors import DomainError
-    from django.http import HttpResponseForbidden
     try:
         membership.guard_manage_team()
     except DomainError as e:
@@ -138,7 +153,6 @@ def toggle_collaborator(request, school_id: str, member_id: str, membership=None
     """Active / désactive un collaborateur (POST, DIRECTOR uniquement)."""
     if request.method != "POST":
         return redirect("economat:team", school_id=school_id)
-    from economat.domain.shared.errors import DomainError
     try:
         membership.guard_manage_team()
         target = MembershipModel.objects.get(pk=member_id, school_id=school_id)
@@ -173,9 +187,7 @@ def _redirect_for_role(role: str, school_id: str):
 @login_required
 def profile(request):
     """Affiche et met à jour le profil (nom, prénom, email)."""
-    from economat.composition import get_user_repository
     from economat.infrastructure.models import LevelModel
-    from .forms import ProfileForm
 
     user_repo  = get_user_repository()
     memberships = MembershipModel.objects.select_related("school").filter(
@@ -221,7 +233,7 @@ def profile(request):
         request.user.first_name = form.cleaned_data["first_name"]
         request.user.last_name  = form.cleaned_data["last_name"]
         request.user.email      = form.cleaned_data["email"] or ""
-        messages.success(request, "✅ Profil mis à jour.")
+        messages.success(request, "Profil mis à jour.")
         return redirect("economat:profile")
 
     return render(request, "economat/accounts/profile.html", {
@@ -241,10 +253,7 @@ def profile(request):
 @login_required
 def change_password(request):
     """Changement de mot de passe avec vérification de l'ancien."""
-    from django.contrib.auth import update_session_auth_hash
-    from economat.composition import get_user_repository
     from economat.infrastructure.models import LevelModel
-    from .forms import ChangePasswordForm
 
     user_repo = get_user_repository()
     form = ChangePasswordForm(request.POST or None)
@@ -282,7 +291,7 @@ def change_password(request):
             )
             # Maintenir la session active après le changement
             update_session_auth_hash(request, request.user)
-            messages.success(request, "✅ Mot de passe modifié avec succès.")
+            messages.success(request, "Mot de passe modifié avec succès.")
             return redirect("economat:profile")
 
     return render(request, "economat/accounts/change_password.html", {
@@ -296,3 +305,47 @@ def change_password(request):
         "user_role":      user_role,
         "active_nav":     "profil",
     })
+
+
+# ── Auth offline PWA ──────────────────────────────────────────────────────────
+
+@login_required
+def offline_credential(request):
+    """
+    Retourne le verifier PBKDF2 dédié pour l'auth offline PWA.
+
+    Appelé (GET) automatiquement par auth-offline.js après une connexion
+    en ligne réussie. Retourne les données à stocker dans IndexedDB :
+      { verifier, offline_salt, iterations, expires_at, username }
+
+    Sécurité :
+    - Requiert @login_required (session valide obligatoire).
+    - Le verifier retourné ne permet PAS de se connecter côté serveur.
+    - Si aucun credential n'existe encore, génère et stocke à la volée.
+    """
+    from economat.infrastructure.models import OfflineCredentialModel
+    from economat.infrastructure.auth.offline_credential_service import (
+        OFFLINE_CREDENTIAL_TTL_DAYS,
+    )
+    from django.utils import timezone
+    import datetime
+
+    try:
+        cred = OfflineCredentialModel.objects.get(user=request.user)
+        # Si expiré → on supprime pour forcer une nouvelle connexion en ligne
+        if cred.expires_at < timezone.now():
+            cred.delete()
+            return JsonResponse({"error": "credential_expired"}, status=410)
+
+        return JsonResponse({
+            "username":     request.user.username,
+            "verifier":     cred.verifier,
+            "offline_salt": cred.offline_salt,
+            "iterations":   cred.iterations,
+            "expires_at":   cred.expires_at.isoformat(),
+        })
+    except OfflineCredentialModel.DoesNotExist:
+        # Pas encore de credential (l'utilisateur vient de se connecter mais
+        # le verifier n'a pas encore été généré — cas rare).
+        return JsonResponse({"error": "no_credential"}, status=404)
+

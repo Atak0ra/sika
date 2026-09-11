@@ -144,14 +144,22 @@ class PromoteClassResult:
 
 @dataclass(frozen=True)
 class RecordPaymentCommand:
-    student_id:   str
-    year_id:      str    # année scolaire concernée
-    amount_fcfa:  int
-    payment_date: datetime.date
-    method:       str
-    recorded_by:  str
-    notes:        str = ""
-    paid_by:      str = ""
+    student_id:        str
+    year_id:           str    # année scolaire concernée
+    amount_fcfa:       int
+    payment_date:      datetime.date
+    method:            str
+    recorded_by:       str
+    notes:             str = ""
+    paid_by:           str = ""
+    # ── Champs offline / déterministes ───────────────────────────────────
+    # receipt_number fourni : généré côté client (déterministe) ou laissé vide
+    # pour que le serveur le génère en fallback (mode online classique).
+    receipt_number:    str = ""
+    # Tranche visée (ex. "T1", "T2", "T3", "M1"…) — incluse dans le numéro de reçu.
+    installment_label: str = ""
+    # UUID idempotence : si fourni, le paiement ne sera enregistré qu'une fois.
+    client_uuid:       str = ""
 
 @dataclass
 class RecordPaymentResult:

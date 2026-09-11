@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hors-ligne — Sukulu</title>
+  <style>
+    :root { --brand:#4f46e5; --text-1:#1a1d29; --text-2:#52556b; --bg:#fbfbfd; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg); color: var(--text-1);
+      min-height: 100vh; display: flex; align-items: center;
+      justify-content: center; padding: 2rem;
+      -webkit-font-smoothing: antialiased;
+    }
+    .card {
+      background: #fff; border: 1px solid #ecedf1; border-radius: 18px;
+      padding: 2.5rem 2rem; max-width: 22rem; width: 100%; text-align: center;
+      box-shadow: 0 4px 24px rgba(10,10,20,.07);
+    }
+    .icon-wrap {
+      width: 3.5rem; height: 3.5rem; border-radius: 50%;
+      background: #fff7ed; display: flex; align-items: center;
+      justify-content: center; margin: 0 auto 1.25rem;
+    }
+    h1 { font-size: 1.125rem; font-weight: 700; letter-spacing: -0.02em; margin-bottom: .5rem; }
+    p  { font-size: .875rem; color: var(--text-2); line-height: 1.6; margin-bottom: 1.5rem; }
+    .btn {
+      display: inline-flex; align-items: center; gap: .4rem;
+      background: var(--brand); color: #fff; font-weight: 600;
+      font-size: .875rem; border-radius: 9px; padding: .65rem 1.25rem;
+      border: none; cursor: pointer; text-decoration: none;
+      transition: background .15s;
+    }
+    .btn:hover { background: #4338ca; }
+    .badge {
+      display: inline-flex; align-items: center; gap: .3rem;
+      background: #fff7ed; color: #d97706; border: 1px solid #fed7aa;
+      border-radius: 999px; font-size: .73rem; font-weight: 600;
+      padding: .2rem .65rem; margin-bottom: 1.25rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="icon-wrap">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none"
+           stroke="#d97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="1" y1="1" x2="23" y2="23"/>
+        <path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"/>
+        <path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"/>
+        <path d="M10.71 5.05A16 16 0 0 1 22.56 9"/>
+        <path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"/>
+        <path d="M8.53 16.11a6 6 0 0 1 6.95 0"/>
+        <line x1="12" y1="20" x2="12.01" y2="20"/>
+      </svg>
+    </div>
+    <div class="badge">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <circle cx="12" cy="12" r="10"/>
+        <line x1="12" y1="8" x2="12" y2="12"/>
+        <line x1="12" y1="16" x2="12.01" y2="16"/>
+      </svg>
+      Mode hors-ligne
+    </div>
+    <h1>Page non disponible hors-ligne</h1>
+    <p>
+      Cette page n'a pas encore été mise en cache.
+      Naviguez vers les pages déjà visitées ou attendez le retour de votre connexion.
+    </p>
+    <a href="/" class="btn" onclick="window.history.back(); return false;">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <polyline points="15 18 9 12 15 6"/>
+      </svg>
+      Retour
+    </a>
+  </div>
+</body>
+</html>

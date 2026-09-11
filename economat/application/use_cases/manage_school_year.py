@@ -8,16 +8,25 @@ Use Cases de gestion du cycle de vie des années scolaires.
   - CloseSchoolYearUseCase    : clôturer l'année active
 """
 from __future__ import annotations
+
 import uuid
 
 from economat.application.dto import (
-    ActivateSchoolYearCommand, CloseSchoolYearCommand,
-    CreateSchoolYearCommand, SchoolYearResult,
+    ActivateSchoolYearCommand,
+    CloseSchoolYearCommand,
+    CreateSchoolYearCommand,
+    SchoolYearResult,
 )
-from economat.application.ports.repositories import SchoolRepository, SchoolYearRepository
-from economat.domain.school.entities import SchoolYear, Level, Class, SchoolYearStatus
+from economat.application.ports.repositories import (
+    SchoolRepository,
+    SchoolYearRepository,
+)
+from economat.domain.school.entities import Class, Level, SchoolYear, SchoolYearStatus
 from economat.domain.school.value_objects import (
-    ClassId, LevelId, SchoolId, SchoolYearId,
+    ClassId,
+    LevelId,
+    SchoolId,
+    SchoolYearId,
 )
 from economat.domain.shared.errors import DomainError, EntityNotFoundError
 

@@ -5,38 +5,30 @@ USE CASE (Query) : AskDirectorChatQuery — Acteur : Directeur
 Action           : Poser une question en langage naturel sur les données de l'école
 
 C'est une QUERY (lecture seule) — pas d'écriture en base.
-Le LLM traduit la question en SQL → exécuté en read-only → résultat tabulaire.
-
-Le port LLMPort abstrait la technologie (Groq, OpenAI…).
-Le garde-fou SQL (sql_guard) est dans l'implémentation de l'adapter.
-
-Contexte métier injecté dans le prompt LLM :
-- Le schéma des tables de l'économat (pour que le LLM génère du SQL pertinent).
-- Le vocabulaire métier (élève, classe, niveau, paiement, tranche, solde…).
+Le LLM traduit la question en SQL → exécuté via django.db.connection
+(la vraie base du projet : SQLite en dev, Postgres en prod).
 """
 
 from __future__ import annotations
 
-from django.conf import settings  # Seule dépendance Django autorisée ici : chemin DB
-
 from economat.application.dto import AskDirectorChatCommand, AskDirectorChatResult
-from economat.application.ports.llm_port import LLMPort, ChatMessage
+from economat.application.ports.llm_port import ChatMessage, LLMPort
 
-# Contexte métier injecté dans le prompt LLM pour améliorer la qualité du SQL
+# Contexte métier injecté dans le prompt LLM
 _ECONOMAT_CONTEXT = """
 Tu analyses les données d'un système de gestion d'économat scolaire en Afrique de l'Ouest.
 
-Schéma réel des tables (SQLite) :
-- economat_school      : écoles        (id UUID, name, city, country, tolerance_days)
-- economat_school_year : années sco.   (id UUID, school_id→school, label ex."2025-2026", status ACTIVE/DRAFT/CLOSED)
-- economat_level       : niveaux       (id UUID, school_year_id→school_year, name, annual_fee entier FCFA, payment_mode)
-- economat_class       : classes       (id UUID, level_id→level, name, capacity)
-- economat_student     : identité élève (id UUID, school_id→school, first_name, last_name, date_of_birth)
-- economat_enrollment  : inscription   (id UUID, student_id→student, school_year_id→school_year,
-                                        level_id→level, class_id→class, enrollment_date, status ACTIVE/INACTIVE/PROMOTED)
-- economat_payment     : paiements     (id UUID, enrollment_id→enrollment, amount entier FCFA,
-                                        payment_date, method ESPECES/MOBILE/VIREMENT/CHEQUE,
-                                        receipt_number, state VALID/CANCELLED, created_at)
+Schéma des tables :
+- economat_school      : écoles        (id, name, city, country, tolerance_days)
+- economat_school_year : années sco.   (id, school_id, label ex."2025-2026", status ACTIVE/DRAFT/CLOSED)
+- economat_level       : niveaux       (id, school_year_id, name, annual_fee entier FCFA, payment_mode)
+- economat_class       : classes       (id, level_id, name, capacity)
+- economat_student     : identité élève (id, school_id, first_name, last_name, date_of_birth)
+- economat_enrollment  : inscription   (id, student_id, school_year_id, level_id,
+                                        class_id, enrollment_date, status ACTIVE/INACTIVE/PROMOTED)
+- economat_payment     : paiements     (id, enrollment_id, student_id, amount entier FCFA,
+                                        payment_date, method ESPECES/MOBILE_MONEY/VIREMENT/CHEQUE,
+                                        receipt_number, state VALID/CANCELLED, recorded_by, created_at)
 
 Règles importantes :
 - Un élève = une ligne dans economat_student. Son inscription annuelle = economat_enrollment.
@@ -44,7 +36,8 @@ Règles importantes :
 - Pour les paiements : SUM(amount) sur economat_payment WHERE state='VALID'.
 - Les montants sont en FCFA (entiers).
 - Toujours filtrer par school_year_id pour isoler une année scolaire.
-- Génère du SQL SQLite valide, SELECT uniquement (pas d'INSERT/UPDATE/DELETE).
+- Génère du SQL standard (compatible PostgreSQL et SQLite), SELECT uniquement.
+- Ne génère PAS de INSERT, UPDATE, DELETE, DROP, ALTER.
 """.strip()
 
 
@@ -64,14 +57,12 @@ class AskDirectorChatQuery:
             )
 
     def _execute(self, command: AskDirectorChatCommand) -> AskDirectorChatResult:
-        # Reconstruction de l'historique de conversation pour le contexte LLM
         history = [
             ChatMessage(role=m["role"], content=m["content"])
             for m in command.history
             if "role" in m and "content" in m
         ]
 
-        # La question enrichie avec le contexte de l'année scolaire et de l'école
         enriched_question = (
             f"{command.question}\n"
             f"[Contexte : school_id='{command.school_id}', year_id='{command.year_id}'"
@@ -79,13 +70,8 @@ class AskDirectorChatQuery:
             + "]"
         )
 
-        # Chemin de la base SQLite (partagée — même db.sqlite3 que tout le projet)
-        db_path = str(settings.SQLITE_DB_PATH)
-
         result = self._llm.answer(
             question=enriched_question,
-            db_path=db_path,
-            table=None,  # auto-détection parmi les tables economat_*
             history=history,
             system_context=_ECONOMAT_CONTEXT,
         )

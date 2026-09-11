@@ -45,3 +45,7 @@ htmlcov/
 
 # Medias
 media/
+# Fichiers statiques collectés (généré par collectstatic)
+staticfiles/
+# Backups audit
+*.py.bak

@@ -1,0 +1,37 @@
+"""
+interface/director/views/__init__.py
+=======================================
+Ré-exporte toutes les vues du package pour que director/urls.py
+(`from . import views; views.dashboard`) fonctionne sans modification.
+
+Organisation interne :
+  _shared.py    — helpers communs + base_context
+  dashboard.py  — dashboard + switch_year
+  years.py      — manage_years, activate_year, close_year
+  structure.py  — add_level, add_class, configure_pricing
+  students.py   — students_list, register_student, student_detail,
+                  class_detail, promote_class
+  misc.py       — alerts, export_renvoyables, school_settings, chat
+"""
+
+from .dashboard import dashboard, switch_year
+from .misc import alerts, chat, export_renvoyables, school_settings
+from .structure import add_class, add_level, configure_pricing
+from .students import (
+    class_detail,
+    promote_class,
+    register_student,
+    student_detail,
+    students_list,
+)
+from .years import activate_year, close_year, manage_years
+
+__all__ = [
+    "dashboard", "switch_year",
+    "manage_years", "activate_year", "close_year",
+    "add_level", "add_class", "configure_pricing",
+    "students_list", "register_student", "student_detail",
+    "class_detail", "promote_class",
+    "alerts", "export_renvoyables", "school_settings", "chat",
+]
+

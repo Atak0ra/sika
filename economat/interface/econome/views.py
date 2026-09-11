@@ -3,9 +3,11 @@ interface/econome/views.py — REFONTE (passe par Enrollment + year_id).
 """
 from __future__ import annotations
 import datetime
+import json
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.db import transaction
 from django.db.models import Count, Q, Sum
 from django.http import JsonResponse
 from django.shortcuts import redirect, render
@@ -139,11 +141,11 @@ def record_payment(request):
     if result.success:
         messages.success(
             request,
-            f"✅ Reçu {result.receipt_number} | {result.amount_paid:,} FCFA | "
+            f"Reçu {result.receipt_number} | {result.amount_paid:,} FCFA | "
             f"{result.student_name} | {result.payment_status}",
         )
         return redirect("economat:econome_dashboard")
-    messages.error(request, f"❌ {result.error_message}")
+    messages.error(request, f"{result.error_message}")
     return render(request, "economat/econome/dashboard.html", {
         "form": form, "search_form": StudentSearchForm(),
         "page_title": "Saisie des encaissements",
@@ -175,10 +177,130 @@ def student_search_api(request):
 
     results = [
         {
-            "id":    str(e.student_id),
-            "name":  f"{e.student.first_name} {e.student.last_name.upper()}",
-            "class": e.klass.name if e.klass_id else "",
+            "id":        str(e.student_id),
+            "name":      f"{e.student.first_name} {e.student.last_name.upper()}",
+            "class":     e.klass.name if e.klass_id else "",
+            "matricule": e.student.matricule or "",
         }
         for e in qs[:10]
     ]
+    return JsonResponse({"results": results})
+
+
+# ── Synchronisation offline batch ─────────────────────────────────────────────
+
+@login_required
+@require_POST
+def sync_payments(request):
+    """
+    Endpoint de synchronisation batch pour les paiements enregistrés offline.
+
+    Reçoit : {"payments": [{client_uuid, student_id, year_id, amount_fcfa,
+                             payment_date, method, notes, paid_by,
+                             receipt_number, installment_label}, ...]}
+
+    Retourne : {"results": [{client_uuid, status: "synced"|"duplicate"|"failed",
+                              receipt_number?, error?}]}
+
+    Chaque item est traité indépendamment dans sa propre transaction pour éviter
+    qu'un échec unique ne bloque les autres.
+
+    Idempotence : le RecordPaymentUseCase détecte les client_uuid déjà en base
+    et retourne status="duplicate" sans créer de doublon.
+    """
+    if request.content_type and "application/json" not in request.content_type:
+        return JsonResponse({"error": "Content-Type application/json requis."}, status=400)
+
+    try:
+        body = json.loads(request.body)
+    except (json.JSONDecodeError, ValueError):
+        return JsonResponse({"error": "JSON invalide."}, status=400)
+
+    payments_data = body.get("payments", [])
+    if not isinstance(payments_data, list):
+        return JsonResponse({"error": "payments doit être une liste."}, status=400)
+
+    if len(payments_data) > 100:
+        return JsonResponse({"error": "Trop d'items (max 100 par batch)."}, status=400)
+
+    _, active_year = _get_user_active_year(request)
+    results = []
+
+    for item in payments_data:
+        client_uuid = item.get("client_uuid", "")
+        if not client_uuid:
+            results.append({"client_uuid": "", "status": "failed",
+                             "error": "client_uuid manquant."})
+            continue
+
+        try:
+            # Validation minimale des champs obligatoires
+            amount = int(item.get("amount_fcfa", 0))
+            if amount <= 0:
+                raise ValueError("Montant invalide.")
+
+            payment_date_str = item.get("payment_date", "")
+            payment_date = datetime.date.fromisoformat(payment_date_str)
+
+            method = item.get("method", "ESPECES")
+            if method not in ("ESPECES", "MOBILE_MONEY", "VIREMENT", "CHEQUE"):
+                raise ValueError(f"Méthode inconnue : {method}")
+
+            year_id = item.get("year_id", "")
+            if not year_id and active_year:
+                year_id = str(active_year.id)
+            if not year_id:
+                raise ValueError("year_id manquant et aucune année active.")
+
+            cmd = RecordPaymentCommand(
+                student_id=item.get("student_id", ""),
+                year_id=year_id,
+                amount_fcfa=amount,
+                payment_date=payment_date,
+                method=method,
+                recorded_by=request.user.username,
+                notes=item.get("notes", ""),
+                paid_by=item.get("paid_by", ""),
+                receipt_number=item.get("receipt_number", ""),
+                installment_label=item.get("installment_label", ""),
+                client_uuid=client_uuid,
+            )
+
+            with transaction.atomic():
+                result = get_record_payment_use_case().execute(cmd)
+
+            if not result.success:
+                results.append({
+                    "client_uuid": client_uuid,
+                    "status": "failed",
+                    "error": result.error_message,
+                })
+            elif result.payment_status == "already_synced":
+                results.append({
+                    "client_uuid":    client_uuid,
+                    "status":         "duplicate",
+                    "receipt_number": result.receipt_number,
+                })
+            else:
+                results.append({
+                    "client_uuid":    client_uuid,
+                    "status":         "synced",
+                    "receipt_number": result.receipt_number,
+                    "student_name":   result.student_name,
+                    "amount_paid":    result.amount_paid,
+                })
+
+        except (ValueError, TypeError, KeyError) as e:
+            results.append({
+                "client_uuid": client_uuid,
+                "status":      "failed",
+                "error":       f"Validation : {e}",
+            })
+        except Exception as e:  # noqa: BLE001
+            results.append({
+                "client_uuid": client_uuid,
+                "status":      "failed",
+                "error":       f"Erreur serveur : {type(e).__name__}",
+            })
+
     return JsonResponse({"results": results})
