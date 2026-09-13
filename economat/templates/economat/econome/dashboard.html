@@ -1,7 +1,7 @@
-{% extends "economat/base.html" %}
+{% extends "economat/director/_base_director.html" %}
 {% load economat_tags %}
 {% block title %}Encaissement — Économe{% endblock %}
-{% block content %}
+{% block director_content %}
 
 {% if receipt %}
 <!-- ================================================================
@@ -259,6 +259,35 @@
             <span class="method-label">Chèque</span>
           </label>
         </div>
+
+        <div id="operatorField" style="margin-top:.9rem;{% if form.method.value != 'MOBILE_MONEY' %}display:none;{% endif %}">
+          <label class="field-label">{{ form.mobile_operator.label }}</label>
+          <div id="operatorGroup" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(6.5rem,1fr));gap:.5rem;">
+            {% for opt in form.mobile_operator_options %}
+            <label id="lbl-op-{{ forloop.counter }}" class="method-card">
+              <input type="radio" name="mobile_operator" value="{{ opt.value }}"
+                     class="operator-radio" style="display:none;"
+                     data-fg="{{ opt.style.fg }}" data-bg="{{ opt.style.bg }}"
+                     {% if form.mobile_operator.value == opt.value %}checked{% endif %}>
+              <span class="method-icon" style="background:{{ opt.style.bg }};color:{{ opt.style.fg }};font-size:.68rem;font-weight:800;">{{ opt.style.short }}</span>
+              <span class="method-label">{{ opt.value }}</span>
+            </label>
+            {% endfor %}
+          </div>
+          {% if form.mobile_operator.errors %}
+          <p class="field-error">{{ form.mobile_operator.errors.0 }}</p>
+          {% endif %}
+
+          <div style="margin-top:.75rem;">
+            <label class="field-label">{{ form.mobile_number.label }}</label>
+            <input type="text" name="mobile_number" class="form-input" inputmode="tel"
+                   placeholder="Ex : 07 00 00 00 00"
+                   value="{{ form.mobile_number.value|default:'' }}" style="font-size:.875rem;">
+            {% if form.mobile_number.errors %}
+            <p class="field-error">{{ form.mobile_number.errors.0 }}</p>
+            {% endif %}
+          </div>
+        </div>
       </div>
 
       <div style="margin-bottom:1.75rem;">
@@ -339,10 +368,44 @@ function refreshMethodUI() {
     }
   });
 }
+function refreshOperatorField() {
+  var moneyRadio = document.querySelector('.method-radio[value="MOBILE_MONEY"]');
+  var box = document.getElementById('operatorField');
+  if (!moneyRadio || !box) return;
+  box.style.display = moneyRadio.checked ? 'block' : 'none';
+}
 document.querySelectorAll('.method-radio').forEach(r =>
-  r.addEventListener('change', refreshMethodUI)
+  r.addEventListener('change', function () { refreshMethodUI(); refreshOperatorField(); })
 );
 refreshMethodUI();
+refreshOperatorField();
+
+/* ================================================================
+   Boutons radio visuels opérateur Mobile Money — surlignés dans la
+   couleur de marque de l'opérateur sélectionné.
+================================================================ */
+function refreshOperatorUI() {
+  document.querySelectorAll('.operator-radio').forEach(radio => {
+    const lbl = radio.closest('.method-card');
+    if (!lbl) return;
+    const label = lbl.querySelector('.method-label');
+    if (radio.checked) {
+      lbl.style.borderColor = radio.dataset.fg;
+      lbl.style.background  = radio.dataset.bg;
+      label.style.color      = radio.dataset.fg;
+      label.style.fontWeight = '600';
+    } else {
+      lbl.style.borderColor = '#ecedf1';
+      lbl.style.background  = '';
+      label.style.color      = '#52556b';
+      label.style.fontWeight = '500';
+    }
+  });
+}
+document.querySelectorAll('.operator-radio').forEach(r =>
+  r.addEventListener('change', refreshOperatorUI)
+);
+refreshOperatorUI();
 
 /* ================================================================
    Autocomplétion recherche élève
@@ -469,6 +532,8 @@ document.getElementById('paymentForm').addEventListener('submit', function(e) {
     user-select:none;
   }
   .method-card:hover { border-color:#c7d2fe;background:#fafbff; }
+  #operatorGroup .method-card { min-height:4.6rem; }
+  #operatorGroup .method-label { white-space:normal; line-height:1.15; }
   .method-icon {
     width:2rem;height:2rem;border-radius:8px;
     display:flex;align-items:center;justify-content:center;flex-shrink:0;

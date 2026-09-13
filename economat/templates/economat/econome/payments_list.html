@@ -1,7 +1,7 @@
-{% extends "economat/base.html" %}
+{% extends "economat/director/_base_director.html" %}
 {% load economat_tags %}
 {% block title %}Encaissements — Économe{% endblock %}
-{% block content %}
+{% block director_content %}
 
 <!-- ================================================================
      EN-TÊTE + NAV RETOUR
@@ -192,6 +192,11 @@
               {% else %}background:#faf5ff;color:#6b21a8;{% endif %}">
               {{ p.get_method_display }}
             </span>
+            {% if method == 'MOBILE_MONEY' and p.mobile_operator %}
+            <div style="font-size:.7rem;color:#9397a8;margin-top:.15rem;">
+              {{ p.mobile_operator }}{% if p.mobile_number %} &middot; {{ p.mobile_number }}{% endif %}
+            </div>
+            {% endif %}
             {% endwith %}
           </td>
           <td style="padding:.75rem .75rem;text-align:center;">

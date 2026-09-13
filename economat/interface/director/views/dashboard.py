@@ -37,10 +37,12 @@ def dashboard(request):
     """
     result = get_list_memberships_query().execute(user_id=str(request.user.pk))
 
-    # ── Garde de rôle : sans rôle DIRECTOR → dashboard secrétaire ────────────
-    has_director_role = any(m["role"] == "DIRECTOR" for m in result.memberships)
-    if not has_director_role:
-        return redirect("economat:secretary_dashboard")
+    # ── Garde de rôle : sans rôle DIRECTOR → dashboard de son propre rôle ────
+    roles = {m["role"] for m in result.memberships}
+    if "DIRECTOR" not in roles:
+        if "SECRETARY" in roles:
+            return redirect("economat:secretary_dashboard")
+        return redirect("economat:econome_dashboard")
 
     my_ids = [
         m["school_id"]
@@ -190,21 +192,23 @@ def secretary_dashboard(request):
 @login_required
 @require_membership
 def switch_year(request, school_id: str, membership=None):
-    """Change l'année active et redirige vers le dashboard de la nouvelle année."""
+    """Change l'année active et redirige vers le dashboard de la nouvelle année.
+    Seul le directeur peut naviguer entre années ; secrétaire/économe sont
+    toujours sur l'année active et retombent simplement sur leur accueil.
+    """
+    role = membership.role.value if membership else ""
+    home = {
+        "SECRETARY": "economat:secretary_dashboard",
+        "ECONOME":   "economat:econome_dashboard",
+    }.get(role, "economat:director_dashboard")
+
     year_id = request.GET.get("year_id", "").strip()
-    if not year_id:
-        return redirect("economat:director_dashboard")
+    if role != "DIRECTOR" or not year_id:
+        return redirect(home)
 
     year = SchoolYearModel.objects.filter(pk=year_id, school_id=school_id).first()
     if not year:
-        return redirect("economat:director_dashboard")
-
-    url = reverse("economat:director_dashboard") + f"?school={school_id}&year={year_id}"
-    return redirect(url)
-
-    year = SchoolYearModel.objects.filter(pk=year_id, school_id=school_id).first()
-    if not year:
-        return redirect("economat:director_dashboard")
+        return redirect(home)
 
     url = reverse("economat:director_dashboard") + f"?school={school_id}&year={year_id}"
     return redirect(url)

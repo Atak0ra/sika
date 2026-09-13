@@ -124,6 +124,7 @@
         client_uuid:uuid, student_id:fd.get('student_id'), year_id:fd.get('year_id'),
         amount_fcfa:parseInt(fd.get('amount_fcfa')||'0',10), payment_date:fd.get('payment_date'),
         method:fd.get('method')||'ESPECES', notes:fd.get('notes')||'', paid_by:fd.get('paid_by')||'',
+        mobile_operator:fd.get('mobile_operator')||'', mobile_number:fd.get('mobile_number')||'',
         installment_label:inst, receipt_number:rec,
         student_name:name, class_name:cls, school_name:school, _queued_at:now.toISOString(),
       };

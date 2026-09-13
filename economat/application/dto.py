@@ -152,6 +152,11 @@ class RecordPaymentCommand:
     recorded_by:       str
     notes:             str = ""
     paid_by:           str = ""
+    # Opérateur Mobile Money (Orange Money, Wave, MTN…) — pertinent seulement
+    # si method == "MOBILE_MONEY".
+    mobile_operator:   str = ""
+    # Numéro ayant servi à la transaction — pertinent seulement si method == "MOBILE_MONEY".
+    mobile_number:     str = ""
     # ── Champs offline / déterministes ───────────────────────────────────
     # receipt_number fourni : généré côté client (déterministe) ou laissé vide
     # pour que le serveur le génère en fallback (mode online classique).

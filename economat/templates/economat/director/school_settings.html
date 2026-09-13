@@ -29,6 +29,16 @@
         <p class="field-error">{{ form.tolerance_days.errors.0 }}</p>
         {% endif %}
       </div>
+      <div>
+        <label class="field-label">{{ form.country.label }}</label>
+        {{ form.country }}
+        {% if form.country.help_text %}
+        <p class="field-hint">{{ form.country.help_text }}</p>
+        {% endif %}
+        {% if form.country.errors %}
+        <p class="field-error">{{ form.country.errors.0 }}</p>
+        {% endif %}
+      </div>
       <button type="submit" class="btn-primary" data-loading-text="Enregistrement…">
         <svg class="icon" style="width:.9em;height:.9em;"><use href="#icon-save"/></svg>
         Enregistrer

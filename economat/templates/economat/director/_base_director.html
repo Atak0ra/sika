@@ -20,64 +20,45 @@
         <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
 
-      {% if school %}
-      <div style="padding:.4rem .55rem .5rem;margin-bottom:.4rem;">
-        <div style="font-size:.7375rem;font-weight:600;color:#9397a8;text-transform:uppercase;letter-spacing:.05em;">École</div>
-        <div style="font-size:.8375rem;font-weight:700;color:#1a1d29;margin-top:.2rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ school.name }}</div>
-      </div>
-
+      {% if school and not school_year and user_role == 'DIRECTOR' %}
       <div style="margin-bottom:.5rem;">
-        {% if school_year %}
-        <a href="{% url "economat:manage_years" school.id %}"
-           style="display:block;padding:.5rem .55rem;border-radius:8px;text-decoration:none;transition:background .12s;"
-           onmouseover="this.style.background='#f4f5f9'" onmouseout="this.style.background=''"
-        >
-          <div style="font-size:.7375rem;font-weight:600;color:#9397a8;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.2rem;">Année scolaire</div>
-          <div style="display:flex;align-items:center;justify-content:space-between;gap:.35rem;">
-            <span style="font-size:.9rem;font-weight:700;color:#1a1d29;letter-spacing:-0.01em;">{{ school_year.label }}</span>
-            {% if school_year.status == 'ACTIVE' %}
-            <span style="font-size:.68rem;font-weight:600;padding:.1rem .45rem;border-radius:999px;background:#ecfdf5;color:#059669;white-space:nowrap;">Active</span>
-            {% elif school_year.status == 'DRAFT' %}
-            <span style="font-size:.68rem;font-weight:600;padding:.1rem .45rem;border-radius:999px;background:#fff7ed;color:#d97706;white-space:nowrap;">Préparation</span>
-            {% else %}
-            <span style="font-size:.68rem;font-weight:600;padding:.1rem .45rem;border-radius:999px;background:#f4f4f5;color:#71717a;white-space:nowrap;">Clôturée</span>
-            {% endif %}
-          </div>
-          {% if all_years|length > 1 %}
-          <div style="font-size:.72rem;color:#9397a8;margin-top:.15rem;">{{ all_years|length }} années · changer</div>
-          {% endif %}
-        </a>
-        {% else %}
         <a href="{% url "economat:manage_years" school.id %}"
            style="display:flex;align-items:center;gap:.4rem;padding:.55rem .65rem;border-radius:8px;font-size:.8125rem;font-weight:600;color:#d97706;text-decoration:none;background:#fff7ed;border:1px solid #fed7aa;">
           Créer l&rsquo;année scolaire
         </a>
-        {% endif %}
       </div>
       {% endif %}
 
+      <!-- École + année scolaire déjà affichés dans le bandeau en haut de page -->
       <div style="height:1px;background:#ecedf1;margin:.35rem 0 .5rem;"></div>
 
       <nav style="display:flex;flex-direction:column;gap:.15rem;">
 
-        {% if user_role != 'SECRETARY' %}
-        <a href="{% url 'economat:director_dashboard' %}"
-           class="nav-link {% if active_nav == 'dashboard' %}nav-link-active{% endif %}"
-           style="font-size:.84375rem;">
-          <svg class="icon" style="width:1em;height:1em;"><use href="#icon-bar-chart"/></svg>
-          Tableau de bord
-        </a>
-        {% else %}
+        {% if user_role == 'SECRETARY' %}
         <a href="{% url 'economat:secretary_dashboard' %}"
            class="nav-link {% if active_nav == 'dashboard_secretaire' %}nav-link-active{% endif %}"
            style="font-size:.84375rem;">
           <svg class="icon" style="width:1em;height:1em;"><use href="#icon-users"/></svg>
           Accueil
         </a>
+        {% elif user_role == 'ECONOME' %}
+        <a href="{% url 'economat:econome_dashboard' %}"
+           class="nav-link {% if active_nav == 'dashboard_econome' %}nav-link-active{% endif %}"
+           style="font-size:.84375rem;">
+          <svg class="icon" style="width:1em;height:1em;"><use href="#icon-bar-chart"/></svg>
+          Tableau de bord
+        </a>
+        {% else %}
+        <a href="{% url 'economat:director_dashboard' %}"
+           class="nav-link {% if active_nav == 'dashboard' %}nav-link-active{% endif %}"
+           style="font-size:.84375rem;">
+          <svg class="icon" style="width:1em;height:1em;"><use href="#icon-bar-chart"/></svg>
+          Tableau de bord
+        </a>
         {% endif %}
 
         {% if school_year %}
-        {% if user_role != 'SECRETARY' %}
+        {% if user_role == 'DIRECTOR' %}
         <a href="{% url 'economat:alerts' school.id school_year.id %}"
            class="nav-link {% if active_nav == 'alertes' %}nav-link-active{% endif %}"
            style="font-size:.84375rem;">
@@ -91,7 +72,7 @@
         {% endif %}
 
         {% if school %}
-        {% if user_role != 'SECRETARY' %}
+        {% if user_role == 'DIRECTOR' %}
         <a href="{% url 'economat:manage_years' school.id %}"
            class="nav-link {% if active_nav == 'annees' %}nav-link-active{% endif %}"
            style="font-size:.84375rem;">
@@ -104,7 +85,7 @@
         {% if school_year %}
         <div style="height:1px;background:#ecedf1;margin:.2rem 0;"></div>
 
-        {% if user_role != 'SECRETARY' %}
+        {% if user_role == 'DIRECTOR' %}
         <a href="{% url 'economat:add_level' school.id school_year.id %}"
            class="nav-link {% if active_nav == 'niveaux' %}nav-link-active{% endif %}"
            style="font-size:.84375rem;">
@@ -119,12 +100,14 @@
         </a>
         {% endif %}
 
+        {% if user_role != 'ECONOME' %}
         <a href="{% url 'economat:students_list' school.id school_year.id %}"
            class="nav-link {% if active_nav == 'eleves' %}nav-link-active{% endif %}"
            style="font-size:.84375rem;">
           <svg class="icon" style="width:1em;height:1em;"><use href="#icon-users"/></svg>
           Élèves
         </a>
+        {% endif %}
 
         {% if sidebar_levels %}
         <div class="sb-tree">
@@ -166,11 +149,19 @@
                      style="padding-left:.75rem;">
                   <div class="sb-classes-inner">
                     {% for klass in item.classes %}
+                    {% if user_role == 'ECONOME' %}
+                    <a href="{% url 'economat:econome_payments' %}?class={{ klass.id }}"
+                       class="sb-class-link">
+                      <span class="sb-class-dot"></span>
+                      {{ klass.name }}
+                    </a>
+                    {% else %}
                     <a href="{% url 'economat:class_detail' school.id school_year.id klass.id %}"
                        class="sb-class-link {% if active_class_id == klass.id|stringformat:'s' %}active{% endif %}">
                       <span class="sb-class-dot"></span>
                       {{ klass.name }}
                     </a>
+                    {% endif %}
                     {% endfor %}
                   </div>
                 </div>
@@ -182,6 +173,20 @@
         </div>
         {% endif %}
 
+        {% if user_role == 'ECONOME' %}
+        <a href="{% url 'economat:record_payment' %}"
+           class="nav-link {% if active_nav == 'encaisser' %}nav-link-active{% endif %}"
+           style="font-size:.84375rem;">
+          <svg class="icon" style="width:1em;height:1em;"><use href="#icon-plus"/></svg>
+          Encaisser
+        </a>
+        <a href="{% url 'economat:econome_payments' %}"
+           class="nav-link {% if active_nav == 'encaissements' %}nav-link-active{% endif %}"
+           style="font-size:.84375rem;">
+          <svg class="icon" style="width:1em;height:1em;"><use href="#icon-coins"/></svg>
+          Encaissements
+        </a>
+        {% else %}
         <!-- Encaissements — accessible à tous les rôles -->
         <a href="{% url 'economat:econome_dashboard' %}"
            class="nav-link {% if active_nav == 'encaissements' %}nav-link-active{% endif %}"
@@ -189,17 +194,17 @@
           <svg class="icon" style="width:1em;height:1em;"><use href="#icon-coins"/></svg>
           Encaissements
         </a>
+        {% endif %}
 
         {% endif %}
 
-        {% if school %}
+        {% if school and user_role == 'DIRECTOR' %}
         <a href="{% url 'economat:team' school.id %}"
            class="nav-link {% if active_nav == 'equipe' %}nav-link-active{% endif %}"
            style="font-size:.84375rem;">
           <svg class="icon" style="width:1em;height:1em;"><use href="#icon-user-plus"/></svg>
           Équipe
         </a>
-        {% if user_role != 'SECRETARY' %}
         <a href="{% url 'economat:school_settings' school.id %}"
            class="nav-link {% if active_nav == 'settings' %}nav-link-active{% endif %}"
            style="font-size:.84375rem;">
@@ -207,9 +212,8 @@
           Paramètres
         </a>
         {% endif %}
-        {% endif %}
 
-        {% if school_year and user_role != 'SECRETARY' %}
+        {% if school_year and user_role == 'DIRECTOR' %}
         <div style="height:1px;background:#ecedf1;margin:.2rem 0;"></div>
         <button type="button" id="sidebarChatOpen"
                 class="nav-link" style="font-size:.84375rem;width:100%;text-align:left;"

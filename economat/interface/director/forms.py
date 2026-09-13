@@ -132,10 +132,25 @@ class DirectorChatForm(forms.Form):
     )
 
 
+SCHOOL_COUNTRY_CHOICES = [
+    ("Sénégal",        "Sénégal"),
+    ("Côte d'Ivoire",  "Côte d'Ivoire"),
+    ("Togo",           "Togo"),
+    ("Bénin",          "Bénin"),
+    ("Guinée Conakry", "Guinée Conakry"),
+]
+
+
 class SchoolSettingsForm(forms.Form):
     tolerance_days = forms.IntegerField(
         label="Seuil de tolérance (jours avant alerte prioritaire)",
         min_value=1, max_value=365,
         widget=forms.NumberInput(attrs={"class":"form-input","placeholder":"30"}),
         help_text="Nombre de jours de retard au-delà duquel un élève passe en alerte prioritaire.",
+    )
+    country = forms.ChoiceField(
+        label="Pays",
+        choices=SCHOOL_COUNTRY_CHOICES,
+        widget=forms.Select(attrs={"class":"form-select"}),
+        help_text="Détermine les opérateurs Mobile Money proposés à l'encaissement.",
     )

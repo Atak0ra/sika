@@ -125,7 +125,7 @@
       </div>
       <div>
         <div class="dl">Mode de règlement</div>
-        <div class="dv">{{ method_label }}</div>
+        <div class="dv">{{ method_label }}{% if payment.mobile_operator %} &middot; {{ payment.mobile_operator }}{% if payment.mobile_number %} ({{ payment.mobile_number }}){% endif %}{% endif %}</div>
       </div>
       {% if payment.installment_label %}
       <div>

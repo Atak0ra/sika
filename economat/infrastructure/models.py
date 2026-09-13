@@ -178,6 +178,10 @@ class PaymentModel(models.Model):
     amount         = models.PositiveIntegerField()
     payment_date   = models.DateField(db_index=True)
     method         = models.CharField(max_length=20, choices=PAYMENT_METHODS, default="ESPECES")
+    # Opérateur Mobile Money (Orange Money, Wave, MTN…) — rempli seulement si method=MOBILE_MONEY.
+    mobile_operator = models.CharField(max_length=40, blank=True, default="")
+    # Numéro ayant servi à la transaction Mobile Money — rempli seulement si method=MOBILE_MONEY.
+    mobile_number   = models.CharField(max_length=20, blank=True, default="")
     receipt_number = models.CharField(max_length=120, unique=True)
     # Libellé de la tranche visée (ex. "T1", "T2", "T3", "M1"…) — utilisé dans le numéro de reçu
     installment_label = models.CharField(max_length=20, blank=True, default="")

@@ -19,6 +19,7 @@ from economat.composition import get_record_payment_use_case
 from economat.infrastructure.models import (
     ClassModel, EnrollmentModel, LevelModel, MembershipModel, PaymentModel, SchoolYearModel,
 )
+from economat.interface.director.views._shared import _sidebar_levels
 from .forms import RecordPaymentForm, StudentSearchForm
 
 
@@ -29,6 +30,24 @@ def _get_user_active_year(request):
         return None, None
     year = SchoolYearModel.objects.filter(school_id=m.school_id, status="ACTIVE").first()
     return m.school, year
+
+
+def _sidebar_ctx(school, active_year, active_nav: str) -> dict:
+    """
+    Contexte de la sidebar partagée avec le directeur/la secrétaire
+    (_base_director.html) : école, année, arbre niveaux > classes.
+    """
+    return {
+        "school":         school,
+        "school_year":    active_year,
+        "sidebar_levels": _sidebar_levels(active_year),
+        "user_role":      "ECONOME",
+        "active_nav":     active_nav,
+        "all_years": (
+            SchoolYearModel.objects.filter(school_id=school.id).order_by("-label")
+            if school else []
+        ),
+    }
 
 
 def _activity_stats(active_year):
@@ -172,9 +191,8 @@ def collection_dashboard(request):
         round(total_collected / total_expected * 100) if total_expected else 0
     )
 
-    return render(request, "economat/econome/collection_dashboard.html", {
-        "school":          school,
-        "school_year":     active_year,
+    ctx = _sidebar_ctx(school, active_year, "dashboard_econome")
+    ctx.update({
         "stats":           stats,
         "classes_data":    classes_data,
         "total_expected":  total_expected,
@@ -184,6 +202,7 @@ def collection_dashboard(request):
         "recent_payments": recent_payments,
         "page_title":      "Tableau de bord — Économe",
     })
+    return render(request, "economat/econome/collection_dashboard.html", ctx)
 
 
 @login_required
@@ -287,11 +306,10 @@ def payments_list(request):
     f_date_to   = date_to.isoformat()   if date_to   else ""
     is_today    = (date_from == today and date_to == today and not level_id and not class_id)
 
-    return render(request, "economat/econome/payments_list.html", {
+    ctx = _sidebar_ctx(school, active_year, "encaissements")
+    ctx.update({
         "page_obj":     page_obj,
         "paginator":    paginator,
-        "school":       school,
-        "school_year":  active_year,
         "recap_total":  recap_total,
         "recap_count":  recap_count,
         "levels":       levels,
@@ -304,6 +322,7 @@ def payments_list(request):
         "is_today":     is_today,
         "page_title":   "Encaissements",
     })
+    return render(request, "economat/econome/payments_list.html", ctx)
 
 
 @login_required
@@ -330,27 +349,30 @@ def record_payment(request):
                 .select_related("student", "enrollment__klass")
                 .order_by("-created_at")[:10]
             )
-        return render(request, "economat/econome/dashboard.html", {
+        ctx = _sidebar_ctx(school, active_year, "encaisser")
+        ctx.update({
             "form":            RecordPaymentForm(
-                initial={"year_id": str(active_year.id)} if active_year else {}
+                initial={"year_id": str(active_year.id)} if active_year else {},
+                country=school.country if school else None,
             ),
             "search_form":     StudentSearchForm(),
             "recent_payments": recent_payments,
-            "school":          school,
-            "school_year":     active_year,
             "classes":         classes,
             "stats":           _activity_stats(active_year),
             "page_title":      "Saisie des encaissements",
         })
+        return render(request, "economat/econome/dashboard.html", ctx)
 
     # ── POST : enregistrer le paiement ───────────────────────────────────────
-    form = RecordPaymentForm(request.POST)
+    form = RecordPaymentForm(request.POST, country=school.country if school else None)
     if not form.is_valid():
-        return render(request, "economat/econome/dashboard.html", {
+        ctx = _sidebar_ctx(school, active_year, "encaisser")
+        ctx.update({
             "form": form, "search_form": StudentSearchForm(),
-            "school": school, "school_year": active_year, "classes": classes,
+            "classes": classes,
             "page_title": "Saisie des encaissements",
         })
+        return render(request, "economat/econome/dashboard.html", ctx)
     if not active_year:
         messages.error(request, "Aucune année scolaire active. Contactez le directeur.")
         return redirect("economat:econome_dashboard")
@@ -364,6 +386,8 @@ def record_payment(request):
         recorded_by=request.user.username,
         notes=form.cleaned_data.get("notes", ""),
         paid_by=form.cleaned_data.get("paid_by", ""),
+        mobile_operator=form.cleaned_data.get("mobile_operator", ""),
+        mobile_number=form.cleaned_data.get("mobile_number", ""),
     )
     result = get_record_payment_use_case().execute(command)
     if result.success:
@@ -374,11 +398,13 @@ def record_payment(request):
         )
         return redirect("economat:receipt_view", payment_id=result.payment_id)
     messages.error(request, f"{result.error_message}")
-    return render(request, "economat/econome/dashboard.html", {
+    ctx = _sidebar_ctx(school, active_year, "encaisser")
+    ctx.update({
         "form": form, "search_form": StudentSearchForm(),
-        "school": school, "school_year": active_year, "classes": classes,
+        "classes": classes,
         "page_title": "Saisie des encaissements",
     })
+    return render(request, "economat/econome/dashboard.html", ctx)
 
 
 @login_required
@@ -544,6 +570,8 @@ def sync_payments(request):
                 receipt_number=item.get("receipt_number", ""),
                 installment_label=item.get("installment_label", ""),
                 client_uuid=client_uuid,
+                mobile_operator=item.get("mobile_operator", ""),
+                mobile_number=item.get("mobile_number", ""),
             )
 
             with transaction.atomic():
