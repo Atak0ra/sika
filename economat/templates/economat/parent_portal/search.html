@@ -1,0 +1,36 @@
+{% extends "economat/base.html" %}
+{% block title %}Payer les frais de scolarité{% endblock %}
+{% block content %}
+<div style="max-width:420px;margin:3rem auto;">
+  <div class="card" style="padding:1.75rem;">
+    <h1 style="font-size:1.125rem;font-weight:700;margin-bottom:.35rem;">Payer les frais de scolarité</h1>
+    <p style="font-size:.8375rem;color:#9397a8;margin-bottom:1.5rem;">
+      Sélectionnez l'école et saisissez le matricule complet de votre enfant.
+    </p>
+    {% if form.non_field_errors %}
+    <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:.75rem 1rem;margin-bottom:1.25rem;color:#b91c1c;font-size:.84375rem;">
+      {{ form.non_field_errors.0 }}
+    </div>
+    {% endif %}
+    <form method="post" style="display:flex;flex-direction:column;gap:1rem;">
+      {% csrf_token %}
+      <div>
+        <label class="field-label">{{ form.school.label }}</label>
+        {{ form.school }}
+        {% if form.school.errors %}<p class="field-error">{{ form.school.errors.0 }}</p>{% endif %}
+      </div>
+      <div>
+        <label class="field-label">{{ form.matricule.label }}</label>
+        {{ form.matricule }}
+        {% if form.matricule.errors %}<p class="field-error">{{ form.matricule.errors.0 }}</p>{% endif %}
+      </div>
+      <button type="submit" class="btn-primary" style="width:100%;padding:.8rem;font-weight:600;">
+        Rechercher mon enfant
+      </button>
+    </form>
+  </div>
+  <p style="text-align:center;font-size:.78125rem;color:#9397a8;margin-top:1rem;">
+    Le matricule vous a été communiqué par l'école lors de l'inscription.
+  </p>
+</div>
+{% endblock %}
