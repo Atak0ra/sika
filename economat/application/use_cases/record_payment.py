@@ -130,7 +130,7 @@ class RecordPaymentUseCase:
             method=PaymentMethod(cmd.method),
             receipt_number=receipt,
             recorded_by=cmd.recorded_by,
-            state=PaymentState.VALID,
+            state=PaymentState(cmd.initial_state),
             notes=cmd.notes,
         )
 
@@ -149,6 +149,9 @@ class RecordPaymentUseCase:
         if cmd.installment_label:  extra["installment_label"] = cmd.installment_label
         if cmd.mobile_operator:    extra["mobile_operator"]   = cmd.mobile_operator.strip()
         if cmd.mobile_number:      extra["mobile_number"]     = cmd.mobile_number.strip()
+        if cmd.channel:            extra["channel"]           = cmd.channel
+        if cmd.gateway_transaction_ref:
+            extra["gateway_transaction_ref"] = cmd.gateway_transaction_ref
         if extra:
             _PM2.objects.filter(pk=payment.id.value).update(**extra)
 

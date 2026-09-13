@@ -157,6 +157,17 @@ class RecordPaymentCommand:
     mobile_operator:   str = ""
     # Numéro ayant servi à la transaction — pertinent seulement si method == "MOBILE_MONEY".
     mobile_number:     str = ""
+    # ── Portail de paiement parent ────────────────────────────────────────
+    # État initial du paiement créé. "VALID" (défaut, comportement guichet
+    # inchangé) ou "PENDING" (paiement en ligne, en attente de confirmation
+    # de la passerelle avant de compter dans un solde).
+    initial_state:     str = "VALID"
+    # Canal d'encaissement : "" (défaut → GUICHET côté modèle) ou
+    # "PORTAIL_PARENT" pour un paiement fait par le parent en ligne.
+    channel:           str = ""
+    # Référence de transaction chez la passerelle de paiement (CinetPay),
+    # pertinent seulement pour un paiement portail.
+    gateway_transaction_ref: str = ""
     # ── Champs offline / déterministes ───────────────────────────────────
     # receipt_number fourni : généré côté client (déterministe) ou laissé vide
     # pour que le serveur le génère en fallback (mode online classique).
