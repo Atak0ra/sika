@@ -67,7 +67,7 @@ def login_view(request):
 
 def logout_view(request):
     logout(request)
-    return redirect("economat:login")
+    return redirect("economat:landing")
 
 
 # ── Sélecteur d'école (après connexion) ───────────────────────────────────────────
