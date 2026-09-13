@@ -144,3 +144,18 @@ def get_financial_dashboard_query():
 def get_user_repository():
     from economat.infrastructure.persistence.identity_repositories import DjangoUserRepository
     return DjangoUserRepository()
+
+
+# ─ Portail de paiement parent ──────────────────────────────────────────────────
+
+def get_payment_gateway():
+    from django.conf import settings
+    if settings.PAYMENT_GATEWAY == "cinetpay":
+        from economat.infrastructure.payment.cinetpay_gateway import CinetPayGateway
+        return CinetPayGateway(
+            api_key=settings.CINETPAY_API_KEY,
+            site_id=settings.CINETPAY_SITE_ID,
+            secret_key=settings.CINETPAY_SECRET_KEY,
+        )
+    from economat.infrastructure.payment.fake_gateway import FakePaymentGateway
+    return FakePaymentGateway()
