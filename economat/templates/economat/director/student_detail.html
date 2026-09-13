@@ -48,6 +48,12 @@
 
       <!-- Infos scolaires -->
       <dl style="display:flex;flex-direction:column;gap:.55rem;margin-bottom:1.25rem;">
+        {% if student.matricule %}
+        <div style="display:flex;justify-content:space-between;">
+          <dt style="font-size:.8rem;color:#9397a8;">Matricule</dt>
+          <dd style="font-size:.8rem;font-weight:600;font-variant-numeric:tabular-nums;">{{ student.matricule }}</dd>
+        </div>
+        {% endif %}
         {% if student.date_of_birth %}
         <div style="display:flex;justify-content:space-between;">
           <dt style="font-size:.8rem;color:#9397a8;">Naissance</dt>
