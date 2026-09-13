@@ -169,7 +169,8 @@ class PaymentModel(models.Model):
         ("ESPECES","Espèces"),("MOBILE_MONEY","Mobile Money"),
         ("VIREMENT","Virement"),("CHEQUE","Chèque"),
     ]
-    PAYMENT_STATES = [("VALID","Valide"),("CANCELLED","Annulé")]
+    PAYMENT_STATES = [("VALID","Valide"),("PENDING","En attente"),("CANCELLED","Annulé")]
+    PAYMENT_CHANNELS = [("GUICHET","Guichet"),("PORTAIL_PARENT","Portail parent")]
 
     id             = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     enrollment     = models.ForeignKey(EnrollmentModel, on_delete=models.CASCADE, related_name="payments")
@@ -182,6 +183,14 @@ class PaymentModel(models.Model):
     mobile_operator = models.CharField(max_length=40, blank=True, default="")
     # Numéro ayant servi à la transaction Mobile Money — rempli seulement si method=MOBILE_MONEY.
     mobile_number   = models.CharField(max_length=20, blank=True, default="")
+    # Canal d'encaissement : au guichet par le personnel, ou en ligne par le
+    # parent via le portail de paiement. Distinction affichée partout où les
+    # paiements sont listés.
+    channel = models.CharField(max_length=20, choices=PAYMENT_CHANNELS, default="GUICHET")
+    # Référence de transaction chez la passerelle de paiement (CinetPay) —
+    # rempli uniquement pour channel=PORTAIL_PARENT, sert à faire le lien
+    # avec le webhook de confirmation.
+    gateway_transaction_ref = models.CharField(max_length=100, blank=True, default="")
     receipt_number = models.CharField(max_length=120, unique=True)
     # Libellé de la tranche visée (ex. "T1", "T2", "T3", "M1"…) — utilisé dans le numéro de reçu
     installment_label = models.CharField(max_length=20, blank=True, default="")
