@@ -7,3 +7,5 @@ langchain-community>=0.4
 langchain-classic>=1.0
 langchain-groq>=1.1
 python-dotenv>=1.0
+requests>=2.32
+requests-mock>=1.12  # tests uniquement (CinetPayGateway)
