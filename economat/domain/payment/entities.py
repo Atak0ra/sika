@@ -20,6 +20,7 @@ from .value_objects import PaymentId, PaymentMethod
 
 class PaymentState(str, Enum):
     VALID     = "VALID"
+    PENDING   = "PENDING"    # créé côté portail parent, en attente de confirmation du paiement Mobile Money
     CANCELLED = "CANCELLED"
 
 
@@ -51,6 +52,10 @@ class Payment:
         self.state = PaymentState.CANCELLED
         if reason:
             self.notes = f"[ANNULÉ] {reason}" + (f" — {self.notes}" if self.notes else "")
+
+    def confirm(self) -> None:
+        """Transition PENDING → VALID : le paiement en ligne est confirmé par la passerelle."""
+        self.state = PaymentState.VALID
 
     def is_valid(self) -> bool:
         return self.state == PaymentState.VALID
