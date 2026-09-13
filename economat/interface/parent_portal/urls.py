@@ -19,4 +19,6 @@ urlpatterns = [
     path("attente/<uuid:payment_id>/", views.waiting, name="parent_portal_waiting"),
     path("statut/<uuid:payment_id>/", views.status, name="parent_portal_status"),
     path("webhook/cinetpay/", views.webhook_cinetpay, name="parent_portal_webhook_cinetpay"),
+    path("recu/<uuid:payment_id>/", views.receipt, name="parent_portal_receipt"),
+    path("historique/", views.history, name="parent_portal_history"),
 ]

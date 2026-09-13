@@ -159,3 +159,50 @@ def webhook_cinetpay(request):
         return JsonResponse({"status": "ignored", "detail": result.error_message})
 
     return JsonResponse({"status": "ok"})
+
+
+def receipt(request, payment_id: str):
+    """Reçu — uniquement si le paiement est confirmé (VALID)."""
+    from economat.infrastructure.models import PaymentModel
+    payment = PaymentModel.objects.select_related(
+        "student", "enrollment__klass", "enrollment__klass__level", "enrollment__school_year",
+    ).filter(pk=payment_id, channel="PORTAIL_PARENT").first()
+    if payment is None:
+        return redirect("economat:parent_portal_search")
+    if payment.state != "VALID":
+        return redirect("economat:parent_portal_waiting", payment_id=payment_id)
+
+    return render(request, "economat/parent_portal/receipt.html", {
+        "payment": payment, "school": payment.enrollment.school_year.school,
+        "klass": payment.enrollment.klass, "level": payment.enrollment.klass.level,
+        "school_year": payment.enrollment.school_year,
+        "page_title": f"Reçu {payment.receipt_number}",
+    })
+
+
+def history(request):
+    """Même recherche que l'accueil, liste les paiements VALID de l'élève (tous canaux)."""
+    payments = None
+    student = None
+    if request.method == "POST":
+        form = SchoolMatriculeForm(request.POST)
+        if form.is_valid():
+            school = form.cleaned_data["school"]
+            matricule = form.cleaned_data["matricule"]
+            from economat.infrastructure.models import PaymentModel, StudentModel
+            student = StudentModel.objects.filter(school_id=school.id, matricule=matricule).first()
+            if student is not None:
+                payments = (
+                    PaymentModel.objects
+                    .filter(student_id=student.id, state="VALID")
+                    .order_by("-payment_date", "-created_at")
+                )
+            else:
+                form.add_error(None, GENERIC_NOT_FOUND)
+    else:
+        form = SchoolMatriculeForm()
+
+    return render(request, "economat/parent_portal/history.html", {
+        "form": form, "student": student, "payments": payments,
+        "page_title": "Historique de mes paiements",
+    })

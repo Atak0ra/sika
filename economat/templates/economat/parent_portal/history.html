@@ -1,0 +1,44 @@
+{% extends "economat/base.html" %}
+{% block title %}Historique de mes paiements{% endblock %}
+{% block content %}
+<div style="max-width:520px;margin:3rem auto;">
+  <div class="card" style="padding:1.75rem;margin-bottom:1.25rem;">
+    <h1 style="font-size:1.125rem;font-weight:700;margin-bottom:1rem;">Historique de mes paiements</h1>
+    {% if form.non_field_errors %}
+    <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:.75rem 1rem;margin-bottom:1rem;color:#b91c1c;font-size:.84375rem;">
+      {{ form.non_field_errors.0 }}
+    </div>
+    {% endif %}
+    <form method="post" style="display:flex;flex-direction:column;gap:1rem;">
+      {% csrf_token %}
+      <div><label class="field-label">{{ form.school.label }}</label>{{ form.school }}</div>
+      <div><label class="field-label">{{ form.matricule.label }}</label>{{ form.matricule }}</div>
+      <button type="submit" class="btn-primary" style="width:100%;padding:.75rem;font-weight:600;">Voir mes paiements</button>
+    </form>
+  </div>
+
+  {% if payments is not None %}
+  <div class="card" style="padding:1.5rem;">
+    <div style="font-size:.8125rem;color:#9397a8;margin-bottom:1rem;">
+      {{ student.first_name }} {{ student.last_name|upper }} &middot; {{ payments|length }} paiement(s)
+    </div>
+    {% for p in payments %}
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:.65rem 0;{% if not forloop.last %}border-bottom:1px solid #f4f5f7;{% endif %}">
+      <div>
+        <div style="font-size:.84375rem;font-weight:600;">{{ p.amount }} FCFA</div>
+        <div style="font-size:.75rem;color:#9397a8;">
+          {{ p.payment_date|date:"d/m/Y" }} &middot; {{ p.get_method_display }}
+          {% if p.channel == 'PORTAIL_PARENT' %}&middot; <span style="color:#7c3aed;font-weight:600;">Portail parent</span>{% endif %}
+        </div>
+      </div>
+      {% if p.channel == 'PORTAIL_PARENT' %}
+      <a href="{% url 'economat:parent_portal_receipt' p.id %}" style="font-size:.75rem;color:#4f46e5;font-weight:600;text-decoration:none;">Reçu</a>
+      {% endif %}
+    </div>
+    {% empty %}
+    <p style="font-size:.84375rem;color:#9397a8;">Aucun paiement enregistré pour l'instant.</p>
+    {% endfor %}
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
