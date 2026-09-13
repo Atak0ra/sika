@@ -212,3 +212,31 @@ def switch_year(request, school_id: str, membership=None):
 
     url = reverse("economat:director_dashboard") + f"?school={school_id}&year={year_id}"
     return redirect(url)
+
+
+@login_required
+def dashboard_refresh(request):
+    """
+    Endpoint JSON léger, pollé par le dashboard directeur (JS, toutes les
+    20s) pour signaler les nouveaux encaissements sans reload de page.
+    Renvoie le même total que bi.kpi.collected_today calculé par dashboard().
+    """
+    from django.http import JsonResponse
+    from economat.infrastructure.models import PaymentModel
+    import datetime
+    from django.db.models import Sum
+
+    school_id_p = request.GET.get("school")
+    year_id_p = request.GET.get("year")
+    if not school_id_p or not year_id_p:
+        return JsonResponse({"collected_today": 0})
+
+    today = datetime.date.today()
+    collected_today = (
+        PaymentModel.objects
+        .filter(state="VALID", payment_date=today,
+                enrollment__school_year_id=year_id_p,
+                enrollment__school_year__school_id=school_id_p)
+        .aggregate(t=Sum("amount"))["t"] or 0
+    )
+    return JsonResponse({"collected_today": collected_today})

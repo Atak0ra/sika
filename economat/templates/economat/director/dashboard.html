@@ -423,4 +423,27 @@
   });
 })();
 </script>
+
+<script>
+(function () {
+  var lastCollectedToday = {{ bi.kpi.collected_today|default:0 }};
+  var schoolId = "{{ school.id|default:'' }}";
+  var yearId = "{{ school_year.id|default:'' }}";
+  if (!schoolId || !yearId) return;
+
+  setInterval(function () {
+    fetch("{% url 'economat:dashboard_refresh' %}?school=" + schoolId + "&year=" + yearId)
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (data.collected_today > lastCollectedToday) {
+          var delta = data.collected_today - lastCollectedToday;
+          if (window.showToast) {
+            window.showToast("+" + delta.toLocaleString('fr-FR') + " FCFA encaissé", "success");
+          }
+          lastCollectedToday = data.collected_today;
+        }
+      });
+  }, 20000);
+})();
+</script>
 {% endblock %}

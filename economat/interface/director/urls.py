@@ -9,6 +9,9 @@ urlpatterns = [
     path("<str:school_id>/switch-year/",
          views.switch_year, name="switch_year"),
 
+    # Rafraîchissement JSON des encaissements du jour (polling dashboard)
+    path("actualisation/", views.dashboard_refresh, name="dashboard_refresh"),
+
     # Années scolaires
     path("<str:school_id>/annees/",                         views.manage_years,         name="manage_years"),
     path("<str:school_id>/annees/<str:year_id>/activer/",   views.activate_year,        name="activate_year"),
