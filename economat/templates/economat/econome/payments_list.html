@@ -197,6 +197,12 @@
               {{ p.mobile_operator }}{% if p.mobile_number %} &middot; {{ p.mobile_number }}{% endif %}
             </div>
             {% endif %}
+            {% if p.channel == 'PORTAIL_PARENT' %}
+            <div style="font-size:.68rem;font-weight:700;color:#7c3aed;background:#faf5ff;
+                        display:inline-block;padding:.1rem .5rem;border-radius:999px;margin-top:.25rem;">
+              Portail parent
+            </div>
+            {% endif %}
             {% endwith %}
           </td>
           <td style="padding:.75rem .75rem;text-align:center;">
