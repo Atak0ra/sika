@@ -167,3 +167,16 @@ def get_payment_gateway():
         )
     from economat.infrastructure.payment.fake_gateway import FakePaymentGateway
     return FakePaymentGateway()
+
+
+def get_initiate_online_payment_use_case():
+    from economat.application.use_cases.initiate_online_payment import InitiateOnlinePaymentUseCase
+    return InitiateOnlinePaymentUseCase(
+        record_payment_use_case=get_record_payment_use_case(),
+        gateway=get_payment_gateway(),
+    )
+
+
+def get_confirm_online_payment_use_case():
+    from economat.application.use_cases.confirm_online_payment import ConfirmOnlinePaymentUseCase
+    return ConfirmOnlinePaymentUseCase(payment_repo=get_payment_repo())
