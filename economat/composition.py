@@ -25,6 +25,14 @@ def _repos():
     }
 
 
+def get_school_year_repo():
+    return _repos()["year"]
+
+
+def get_payment_repo():
+    return _repos()["payment"]
+
+
 # ─ Année scolaire ────────────────────────────────────────────────────────────────────
 
 def get_create_school_year_use_case():
