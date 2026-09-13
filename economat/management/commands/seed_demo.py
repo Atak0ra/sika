@@ -20,6 +20,7 @@ from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand
 from django.db import transaction
 
+from economat.domain.student.matricule import generate_matricule
 from economat.infrastructure.models import (
     ClassModel, EnrollmentModel, LevelModel, MembershipModel,
     PaymentModel, SchoolModel, SchoolYearModel, StudentModel,
@@ -166,6 +167,7 @@ class Command(BaseCommand):
                         first_name=prenom, last_name=nom.upper(),
                         school=school,
                         date_of_birth=_random_dob(level_type),
+                        matricule=generate_matricule(nom, prenom),
                     )
 
                     enrollment_date = year_start + datetime.timedelta(days=random.randint(0, 14))
