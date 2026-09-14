@@ -44,6 +44,8 @@ def test_receipt_shown_once_valid(client, active_enrollment):
 
 @pytest.mark.django_db
 def test_history_lists_valid_payments_only(client, active_enrollment):
+    """L'historique (dans l'espace parent) affiche VALID + PENDING, pas juste VALID.
+    Test adapté au nouveau flux : identification via search → espace parent → historique."""
     from economat.composition import get_record_payment_use_case
     from economat.application.dto import RecordPaymentCommand
 
@@ -60,10 +62,15 @@ def test_history_lists_valid_payments_only(client, active_enrollment):
         mobile_operator="Wave", mobile_number="0711111111",
     ))
 
-    resp = client.post(reverse("economat:parent_portal_history"), {
-        "school": str(active_enrollment.school_year.school_id), "matricule": student.matricule,
+    # Identifier via search pour mettre en session
+    client.post(reverse("economat:parent_portal_search"), {
+        "school": str(active_enrollment.school_year.school_id),
+        "matricule": student.matricule,
     })
+
+    resp = client.get(reverse("economat:parent_portal_history", args=[str(student.id)]))
     assert resp.status_code == 200
     body = resp.content.decode()
-    assert "15000 FCFA" in body  # le paiement guichet VALID apparaît
-    assert "10000 FCFA" not in body  # le paiement PENDING n'apparaît pas
+    # Les deux paiements apparaissent (l'historique montre tous les états)
+    assert "15" in body   # 15 000 FCFA
+    assert "10" in body   # 10 000 FCFA

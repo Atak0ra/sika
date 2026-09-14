@@ -1,18 +1,20 @@
 """
 interface/parent_portal/views.py
 ===================================
-Vues du portail de paiement parent — AUCUNE authentification. La session
-Django (sans compte) porte l'identité de l'élève confirmé entre les écrans
-(recherche → montant → paiement → reçu).
+Vues du portail de paiement parent — AUCUNE authentification.
 
-Confirmation : Samirpay (Sénégal) et CRPay (Guinée Conakry) confirment par
-polling. L'endpoint `status` interroge la passerelle à chaque appel JS
-depuis l'écran d'attente et applique la transition idempotente si confirmé.
+Flux :
+  1. search → identifie l'élève → redirige vers portal_dashboard
+  2. portal_dashboard → espace parent (solde, 2 boutons : Payer / Historique)
+  3. pay → montant + opérateur → attente → reçu
+  4. portal_history → historique enrichi (tous paiements, liens reçus PDF)
+
+Confirmation : polling via l'endpoint status (Samirpay/CRPay).
 """
 from __future__ import annotations
 
 from django.http import JsonResponse
-from django.shortcuts import redirect, render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_GET
 
 from .forms import OnlinePaymentForm, SchoolMatriculeForm
@@ -20,8 +22,28 @@ from .forms import OnlinePaymentForm, SchoolMatriculeForm
 GENERIC_NOT_FOUND = "École ou matricule introuvable. Vérifiez votre saisie."
 
 
+def _get_enrollment_and_balance(student_id: str):
+    """Retourne (enrollment_actif, total_payé_VALID, solde) pour un student_id."""
+    from django.db.models import Sum
+    from economat.infrastructure.models import EnrollmentModel
+    enrollment = (
+        EnrollmentModel.objects
+        .select_related("level", "klass", "school_year")
+        .filter(student_id=student_id, school_year__status="ACTIVE")
+        .first()
+    )
+    if enrollment is None:
+        return None, 0, None
+    paid = (
+        enrollment.payments.filter(state="VALID")
+        .aggregate(total=Sum("amount"))["total"] or 0
+    )
+    balance = max(enrollment.level.annual_fee - paid, 0)
+    return enrollment, paid, balance
+
+
 def search(request):
-    """GET : formulaire vide. POST : recherche exacte, redirige si trouvé."""
+    """GET : formulaire vide. POST : recherche exacte → espace parent."""
     if request.method == "POST":
         form = SchoolMatriculeForm(request.POST)
         if form.is_valid():
@@ -36,47 +58,62 @@ def search(request):
             if student is not None:
                 request.session["parent_portal_student_id"] = str(student.id)
                 request.session["parent_portal_school_id"] = str(school.id)
-                return redirect("economat:parent_portal_pay")
+                return redirect(
+                    "economat:parent_portal_dashboard",
+                    student_id=str(student.id),
+                )
 
             form.add_error(None, GENERIC_NOT_FOUND)
     else:
         form = SchoolMatriculeForm()
 
     return render(request, "economat/parent_portal/search.html", {
-        "form": form, "page_title": "Payer les frais de scolarité",
+        "form": form, "page_title": "Espace parent — Sukulu",
     })
 
 
-def pay(request):
-    """Écran montant + opérateur — nécessite un élève confirmé en session."""
-    student_id = request.session.get("parent_portal_student_id")
+def portal_dashboard(request, student_id: str):
+    """Espace parent : carte élève, solde/progression, 2 boutons Payer/Historique."""
+    if request.session.get("parent_portal_student_id") != str(student_id):
+        return redirect("economat:parent_portal_search")
+
+    from economat.infrastructure.models import StudentModel
+    student = get_object_or_404(
+        StudentModel.objects.select_related("school", "school__country"),
+        pk=student_id,
+    )
+    enrollment, paid, balance = _get_enrollment_and_balance(student_id)
+    annual_fee = enrollment.level.annual_fee if enrollment else 0
+    pct_paid = int(paid / annual_fee * 100) if annual_fee else 0
+
+    return render(request, "economat/parent_portal/dashboard.html", {
+        "student": student, "enrollment": enrollment,
+        "annual_fee": annual_fee, "paid": paid,
+        "balance": balance, "pct_paid": pct_paid,
+        "page_title": f"Espace parent — {student.first_name} {student.last_name.upper()}",
+    })
+
+
+def pay(request, student_id: str | None = None):
+    """
+    Écran montant + opérateur.
+    Accepte student_id depuis l'URL (nouveau flux depuis dashboard)
+    ou depuis la session (compatibilité retour arrière).
+    """
+    sid = str(student_id) if student_id else request.session.get("parent_portal_student_id")
     school_id = request.session.get("parent_portal_school_id")
-    if not student_id or not school_id:
+    if not sid or not school_id:
         return redirect("economat:parent_portal_search")
 
     from economat.infrastructure.models import EnrollmentModel, StudentModel
     try:
-        student = StudentModel.objects.select_related("school").get(
-            pk=student_id, school_id=school_id
+        student = StudentModel.objects.select_related("school", "school__country").get(
+            pk=sid, school_id=school_id
         )
     except StudentModel.DoesNotExist:
         return redirect("economat:parent_portal_search")
 
-    enrollment = (
-        EnrollmentModel.objects
-        .select_related("level", "klass", "school_year")
-        .filter(student_id=student_id, school_year__status="ACTIVE")
-        .first()
-    )
-
-    balance = None
-    if enrollment is not None:
-        from django.db.models import Sum
-        paid = (
-            enrollment.payments.filter(state="VALID").aggregate(total=Sum("amount"))["total"]
-            or 0
-        )
-        balance = max(enrollment.level.annual_fee - paid, 0)
+    enrollment, paid, balance = _get_enrollment_and_balance(sid)
 
     if request.method == "POST":
         form = OnlinePaymentForm(request.POST, country=student.school.country)
@@ -96,13 +133,17 @@ def pay(request):
             ))
             if result.success:
                 request.session["parent_portal_payment_id"] = result.payment_id
-                return redirect("economat:parent_portal_waiting", payment_id=result.payment_id)
+                return redirect(
+                    "economat:parent_portal_waiting",
+                    payment_id=result.payment_id,
+                )
             form.add_error(None, result.error_message)
     else:
         form = OnlinePaymentForm(country=student.school.country)
 
     return render(request, "economat/parent_portal/pay.html", {
-        "form": form, "student": student, "enrollment": enrollment, "balance": balance,
+        "form": form, "student": student, "enrollment": enrollment,
+        "balance": balance, "student_id": sid,
         "page_title": "Payer les frais de scolarité",
     })
 
@@ -167,29 +208,40 @@ def receipt(request, payment_id: str):
     })
 
 
-def history(request):
-    """Même recherche que l'accueil, liste les paiements VALID de l'élève (tous canaux)."""
-    payments = None
-    student = None
-    if request.method == "POST":
-        form = SchoolMatriculeForm(request.POST)
-        if form.is_valid():
-            school = form.cleaned_data["school"]
-            matricule = form.cleaned_data["matricule"]
-            from economat.infrastructure.models import PaymentModel, StudentModel
-            student = StudentModel.objects.filter(school_id=school.id, matricule=matricule).first()
-            if student is not None:
-                payments = (
-                    PaymentModel.objects
-                    .filter(student_id=student.id, state="VALID")
-                    .order_by("-payment_date", "-created_at")
-                )
-            else:
-                form.add_error(None, GENERIC_NOT_FOUND)
-    else:
-        form = SchoolMatriculeForm()
+def portal_history(request, student_id: str):
+    """
+    Historique complet : récapitulatif solde/progression + tableau
+    de tous les paiements avec liens reçu PDF (VALID/PORTAIL_PARENT).
+    Accessible uniquement si student_id est en session.
+    """
+    if request.session.get("parent_portal_student_id") != str(student_id):
+        return redirect("economat:parent_portal_search")
 
-    return render(request, "economat/parent_portal/history.html", {
-        "form": form, "student": student, "payments": payments,
-        "page_title": "Historique de mes paiements",
+    from economat.infrastructure.models import PaymentModel, StudentModel
+    student = get_object_or_404(
+        StudentModel.objects.select_related("school"),
+        pk=student_id,
+    )
+    enrollment, paid, balance = _get_enrollment_and_balance(student_id)
+    annual_fee = enrollment.level.annual_fee if enrollment else 0
+    pct_paid = int(paid / annual_fee * 100) if annual_fee else 0
+
+    payments = (
+        PaymentModel.objects
+        .filter(student_id=student_id)
+        .select_related("enrollment__school_year")
+        .order_by("-payment_date", "-created_at")
+    )
+
+    return render(request, "economat/parent_portal/student_history.html", {
+        "student": student, "enrollment": enrollment,
+        "annual_fee": annual_fee, "paid": paid,
+        "balance": balance, "pct_paid": pct_paid,
+        "payments": payments,
+        "page_title": f"Historique — {student.first_name} {student.last_name.upper()}",
     })
+
+
+def history(request):
+    """Redirige vers la recherche (l'historique est dans l'espace parent)."""
+    return redirect("economat:parent_portal_search")

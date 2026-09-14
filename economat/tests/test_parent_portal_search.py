@@ -16,14 +16,14 @@ def test_search_page_loads_without_authentication(client):
 
 
 @pytest.mark.django_db
-def test_valid_school_and_matricule_redirects_to_payment_screen(client, active_enrollment):
+def test_valid_school_and_matricule_redirects_to_dashboard(client, active_enrollment):
     student = active_enrollment.student
     resp = client.post(reverse("economat:parent_portal_search"), {
         "school": str(active_enrollment.school_year.school_id),
         "matricule": student.matricule,
     })
     assert resp.status_code == 302
-    assert resp.url == reverse("economat:parent_portal_pay")
+    assert resp.url == reverse("economat:parent_portal_dashboard", args=[str(student.id)])
     session = client.session
     assert session["parent_portal_student_id"] == str(student.id)
 
