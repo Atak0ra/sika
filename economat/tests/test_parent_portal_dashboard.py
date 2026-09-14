@@ -9,8 +9,10 @@ from django.urls import reverse
 
 def _identify(client, active_enrollment):
     student = active_enrollment.student
+    school = active_enrollment.school_year.school
     resp = client.post(reverse("economat:parent_portal_search"), {
-        "school": str(active_enrollment.school_year.school_id),
+        "country": str(school.country_id),
+        "school": str(school.id),
         "matricule": student.matricule,
     })
     assert resp.status_code == 302

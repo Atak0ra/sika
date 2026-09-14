@@ -10,8 +10,10 @@ from django.urls import reverse
 
 def _search_and_open_pay(client, active_enrollment):
     student = active_enrollment.student
+    school = active_enrollment.school_year.school
     client.post(reverse("economat:parent_portal_search"), {
-        "school": str(active_enrollment.school_year.school_id),
+        "country": str(school.country_id),
+        "school": str(school.id),
         "matricule": student.matricule,
     })
     return student

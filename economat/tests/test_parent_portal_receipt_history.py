@@ -63,8 +63,10 @@ def test_history_lists_valid_payments_only(client, active_enrollment):
     ))
 
     # Identifier via search pour mettre en session
+    school = active_enrollment.school_year.school
     client.post(reverse("economat:parent_portal_search"), {
-        "school": str(active_enrollment.school_year.school_id),
+        "country": str(school.country_id),
+        "school": str(school.id),
         "matricule": student.matricule,
     })
 

@@ -14,15 +14,31 @@
     {% endif %}
     <form method="post" style="display:flex;flex-direction:column;gap:1rem;">
       {% csrf_token %}
-      <div style="position:relative;">
+
+      {# ── Sélecteur Pays (pré-sélectionné par IP) ───────────────────── #}
+      <div>
+        <label class="field-label">{{ form.country.label }}</label>
+        {{ form.country }}
+        {% if form.country.errors %}<p class="field-error">{{ form.country.errors.0 }}</p>{% endif %}
+      </div>
+
+      {# ── Autocomplete École (filtrée par pays côté JS) ──────────────── #}
+      <div>
         <label class="field-label">{{ form.school.label }}</label>
-        <input type="text" id="schoolSearchInput" class="form-input" autocomplete="off"
-               placeholder="Taper le nom de l'école…"
-               value="{% for s in form.school.field.queryset %}{% if form.school.value|stringformat:'s' == s.id|stringformat:'s' %}{{ s.name }}{% endif %}{% endfor %}">
-        <input type="hidden" name="school" id="schoolIdInput" value="{{ form.school.value|default:'' }}">
-        <ul id="schoolResults" style="position:absolute;top:calc(100% + .2rem);left:0;right:0;z-index:50;background:#fff;border:1px solid #ecedf1;border-radius:10px;box-shadow:0 8px 28px rgba(0,0,0,.1);list-style:none;padding:.2rem 0;margin:0;max-height:200px;overflow-y:auto;" class="hidden"></ul>
+        <div style="position:relative;">
+          <input type="text" id="schoolSearchInput" class="form-input" autocomplete="off"
+                 placeholder="Taper le nom de l'école…" value="">
+          {# Le select caché soumet l'id Django #}
+          {{ form.school }}
+          <ul id="schoolResults" style="position:absolute;top:calc(100% + .2rem);left:0;right:0;z-index:50;
+             background:#fff;border:1px solid #ecedf1;border-radius:10px;
+             box-shadow:0 8px 28px rgba(0,0,0,.1);list-style:none;padding:.2rem 0;
+             margin:0;max-height:200px;overflow-y:auto;" class="hidden"></ul>
+        </div>
         {% if form.school.errors %}<p class="field-error">{{ form.school.errors.0 }}</p>{% endif %}
       </div>
+
+      {# ── Matricule ─────────────────────────────────────────────────── #}
       <div>
         <label class="field-label">{{ form.matricule.label }}</label>
         {{ form.matricule }}
@@ -58,31 +74,58 @@
 
     <script>
     (function () {
+      // SCHOOLS : toutes les écoles avec pays — filtrées côté JS selon le pays sélectionné
       var SCHOOLS = [
-        {% for s in form.school.field.queryset %}{id: "{{ s.id }}", name: "{{ s.name|escapejs }}"},{% endfor %}
+        {% for s in form.school.field.queryset %}
+        {
+          id: "{{ s.id }}",
+          name: "{{ s.name|escapejs }}",
+          city: "{{ s.city|escapejs }}",
+          countryId: "{{ s.country_id|default:'' }}"
+        },
+        {% endfor %}
       ];
+
+      var countrySelect = document.getElementById('countrySelect');
+      var schoolSelect  = document.getElementById('id_school');  // le <select> caché Django
       var input   = document.getElementById('schoolSearchInput');
-      var hidden  = document.getElementById('schoolIdInput');
       var results = document.getElementById('schoolResults');
 
+      // ── Filtrage : retourne les écoles du pays sélectionné ────────────
+      function schoolsForCountry() {
+        var countryId = countrySelect ? countrySelect.value : '';
+        if (!countryId) return SCHOOLS;
+        return SCHOOLS.filter(function (s) { return s.countryId === countryId; });
+      }
+
+      // ── Vider la sélection d'école ────────────────────────────────────
+      function clearSchool() {
+        input.value = '';
+        schoolSelect.value = '';
+        results.classList.add('hidden');
+      }
+
+      // ── Rendu des résultats ───────────────────────────────────────────
       function renderResults(list) {
         results.innerHTML = '';
         if (!list.length) {
-          results.innerHTML = '<li style="padding:.6rem 1rem;font-size:.84375rem;color:#9397a8;">Aucune école trouvée</li>';
+          results.innerHTML = '<li style="padding:.6rem 1rem;font-size:.84375rem;color:#9397a8;">Aucune école trouvée dans ce pays</li>';
           results.classList.remove('hidden');
           return;
         }
         list.forEach(function (s, i) {
           var li = document.createElement('li');
-          li.textContent = s.name;
+          // Afficher "Nom — Ville" (le pays est déjà fixé par le sélecteur)
+          var label = s.name + (s.city ? ' — ' + s.city : '');
+          li.textContent = label;
           li.style.cssText = 'padding:.55rem 1rem;cursor:pointer;font-size:.875rem;color:#1a1d29;transition:background .1s;'
             + (i === list.length - 1 ? '' : 'border-bottom:1px solid #f4f5f7;');
           li.onmouseenter = function () { li.style.background = '#f4f5f9'; };
           li.onmouseleave = function () { li.style.background = ''; };
           li.addEventListener('mousedown', function (e) {
             e.preventDefault();
-            input.value = s.name;
-            hidden.value = s.id;
+            input.value = label;
+            schoolSelect.value = s.id;
             results.classList.add('hidden');
           });
           results.appendChild(li);
@@ -90,11 +133,23 @@
         results.classList.remove('hidden');
       }
 
+      // ── Changer de pays → vider l'école ──────────────────────────────
+      if (countrySelect) {
+        countrySelect.addEventListener('change', function () {
+          clearSchool();
+        });
+      }
+
+      // ── Autocomplete école ────────────────────────────────────────────
       input.addEventListener('input', function () {
-        hidden.value = '';
+        schoolSelect.value = '';
         var q = input.value.trim().toLowerCase();
         if (!q) { results.classList.add('hidden'); return; }
-        renderResults(SCHOOLS.filter(function (s) { return s.name.toLowerCase().indexOf(q) !== -1; }));
+        var filtered = schoolsForCountry().filter(function (s) {
+          return s.name.toLowerCase().indexOf(q) !== -1
+              || (s.city && s.city.toLowerCase().indexOf(q) !== -1);
+        });
+        renderResults(filtered);
       });
       input.addEventListener('focus', function () {
         if (input.value.trim()) input.dispatchEvent(new Event('input'));

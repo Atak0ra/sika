@@ -18,8 +18,10 @@ def test_pay_screen_requires_a_confirmed_student_in_session(client):
 @pytest.mark.django_db
 def test_pay_screen_shows_student_full_name_after_search(client, active_enrollment):
     student = active_enrollment.student
+    school = active_enrollment.school_year.school
     client.post(reverse("economat:parent_portal_search"), {
-        "school": str(active_enrollment.school_year.school_id),
+        "country": str(school.country_id),
+        "school": str(school.id),
         "matricule": student.matricule,
     })
     resp = client.get(reverse("economat:parent_portal_pay"))
@@ -33,8 +35,10 @@ def test_pay_screen_shows_student_full_name_after_search(client, active_enrollme
 def test_operator_cards_reflect_school_country(client, active_enrollment):
     # active_enrollment fixture crée une école au Togo (voir conftest.py)
     student = active_enrollment.student
+    school = active_enrollment.school_year.school
     client.post(reverse("economat:parent_portal_search"), {
-        "school": str(active_enrollment.school_year.school_id),
+        "country": str(school.country_id),
+        "school": str(school.id),
         "matricule": student.matricule,
     })
     resp = client.get(reverse("economat:parent_portal_pay"))

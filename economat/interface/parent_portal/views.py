@@ -22,6 +22,37 @@ from .forms import OnlinePaymentForm, SchoolMatriculeForm
 GENERIC_NOT_FOUND = "École ou matricule introuvable. Vérifiez votre saisie."
 
 
+def _detect_country_code(request) -> str | None:
+    """
+    Détecte le pays du parent à partir des headers IP injectés par le proxy.
+
+    Priorité :
+      1. x-vercel-ip-country   (Vercel — automatique, ISO alpha-2)
+      2. cf-ipcountry          (Cloudflare — fallback)
+
+    Fallback : Sénégal (SN), puis 1er pays actif, puis None.
+    Le code est toujours validé contre CountryModel actifs : jamais de
+    pré-sélection d'un pays inconnu du référentiel.
+    """
+    from economat.infrastructure.models import CountryModel
+
+    raw = (
+        request.headers.get("x-vercel-ip-country", "")
+        or request.headers.get("cf-ipcountry", "")
+    ).strip().upper()
+
+    if raw and CountryModel.objects.filter(code=raw, is_active=True).exists():
+        return raw
+
+    # Fallback : Sénégal
+    if CountryModel.objects.filter(code="SN", is_active=True).exists():
+        return "SN"
+
+    # Garde-fou : 1er pays actif, sinon None
+    fallback = CountryModel.objects.filter(is_active=True).first()
+    return fallback.code if fallback else None
+
+
 def _get_enrollment_and_balance(student_id: str):
     """Retourne (enrollment_actif, total_payé_VALID, solde) pour un student_id."""
     from django.db.models import Sum
@@ -43,7 +74,8 @@ def _get_enrollment_and_balance(student_id: str):
 
 
 def search(request):
-    """GET : formulaire vide. POST : recherche exacte → espace parent."""
+    """GET : formulaire vide avec pays pré-sélectionné selon l'IP.
+    POST : recherche exacte pays + école + matricule → espace parent."""
     if request.method == "POST":
         form = SchoolMatriculeForm(request.POST)
         if form.is_valid():
@@ -65,7 +97,7 @@ def search(request):
 
             form.add_error(None, GENERIC_NOT_FOUND)
     else:
-        form = SchoolMatriculeForm()
+        form = SchoolMatriculeForm(initial_country=_detect_country_code(request))
 
     return render(request, "economat/parent_portal/search.html", {
         "form": form, "page_title": "Espace parent — Sukulu",
