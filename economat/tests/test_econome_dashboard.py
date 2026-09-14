@@ -72,15 +72,30 @@ class TestEconomeDashboard:
 
         assert "chart.umd.min.js" not in content.lower()
 
-    def test_econome_acces_saisie_ok(self):
-        """La saisie est accessible sur /encaisser/ (GET 200)."""
+    def test_econome_acces_saisie_redirige_vers_dashboard(self):
+        """/encaisser/ n'est plus une page dédiée (saisie en modale sur le
+        dashboard) — un GET redirige simplement vers l'accueil économe."""
         client = Client()
         user = _create_user("eco4")
         _create_membership(user, _create_school("Éc4"), "ECONOME")
         client.login(username="eco4", password="testpass")
 
         response = client.get(reverse("economat:record_payment"))
-        assert response.status_code == 200
+        assert response.status_code == 302
+        assert response.url == reverse("economat:econome_dashboard")
+
+    def test_econome_dashboard_contient_la_modale_encaissement(self):
+        """La modale d'encaissement (formulaire complet) est incluse
+        directement sur le dashboard — plus besoin de naviguer ailleurs."""
+        client = Client()
+        user = _create_user("eco5")
+        _create_membership(user, _create_school("Éc5"), "ECONOME")
+        client.login(username="eco5", password="testpass")
+
+        response = client.get(reverse("economat:econome_dashboard"))
+        content = response.content.decode()
+        assert 'id="paymentModal"' in content
+        assert 'id="paymentForm"' in content
 
     def test_non_connecte_redirige_login(self):
         """Non connecté → redirigé vers login."""

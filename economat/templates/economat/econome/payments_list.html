@@ -8,16 +8,16 @@
 ================================================================ -->
 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:.75rem;">
   <div>
-    <h1 style="font-size:1.0625rem;font-weight:700;color:#1a1d29;letter-spacing:-.02em;margin-bottom:.2rem;">Encaissements</h1>
+    <h1 style="font-size:1.0625rem;font-weight:700;color:#1a1d29;letter-spacing:-.02em;margin-bottom:.2rem;">Encaissements{% if active_filter_label %} &middot; {{ active_filter_label }}{% endif %}</h1>
     <p style="font-size:.8125rem;color:#9397a8;margin:0;">
       {% if school_year %}{{ school_year.label }}{% endif %}
       {% if school %} · {{ school.name }}{% endif %}
     </p>
   </div>
-  <a href="{% url 'economat:econome_dashboard' %}" class="btn-secondary" style="font-size:.8125rem;">
-    <svg style="width:.85rem;height:.85rem;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
-    Saisir un paiement
-  </a>
+  <button type="button" onclick="openPaymentModal()" class="btn-primary" style="font-size:.8125rem;">
+    <svg style="width:.875rem;height:.875rem;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    Encaisser
+  </button>
 </div>
 
 
@@ -112,7 +112,7 @@
       {% if recap_total %}{{ recap_total|fcfa_long }}{% else %}<span style="color:#d1d5db;">—</span>{% endif %}
     </div>
     <div style="font-size:.75rem;color:#9397a8;margin-top:.2rem;">
-      {% if is_today %}Aujourd'hui{% elif f_date_from or f_date_to %}Du {{ f_date_from|default:"…" }} au {{ f_date_to|default:"…" }}{% else %}Toute l'année{% endif %}{% if f_level_id or f_class_id %} · filtré{% endif %}
+      {% if is_today %}Aujourd'hui{% elif f_date_from or f_date_to %}Du {{ f_date_from|default:"…" }} au {{ f_date_to|default:"…" }}{% else %}Toute l'année{% endif %}{% if active_filter_label %} · {{ active_filter_label }}{% endif %}
     </div>
   </div>
 
@@ -270,6 +270,8 @@
     #recapStrip { grid-template-columns: 1fr 1fr !important; }
   }
 </style>
+
+{% include "economat/econome/_payment_modal.html" %}
 
 {% endblock %}
 

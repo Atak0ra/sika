@@ -12,6 +12,7 @@ from django.db import transaction
 from django.db.models import Count, Q, Sum
 from django.http import JsonResponse
 from django.shortcuts import redirect, render
+from django.urls import reverse
 from django.views.decorators.http import require_GET, require_POST
 
 from economat.application.dto import RecordPaymentCommand
@@ -47,6 +48,29 @@ def _sidebar_ctx(school, active_year, active_nav: str) -> dict:
             SchoolYearModel.objects.filter(school_id=school.id).order_by("-label")
             if school else []
         ),
+    }
+
+
+def _payment_modal_ctx(school, active_year) -> dict:
+    """
+    Contexte nécessaire au partial _payment_modal.html (formulaire
+    d'encaissement en modale), inclus sur le dashboard et la liste des
+    encaissements — un seul point de saisie, jamais de page dédiée.
+
+    Clé "modal_classes" (pas "classes") : payments_list a déjà sa propre
+    variable "classes" pour sa barre de filtres (parfois restreinte par
+    niveau) — la modale a besoin de la liste complète, indépendamment du
+    filtre actif sur la page qui l'inclut.
+    """
+    modal_classes = []
+    if active_year:
+        modal_classes = ClassModel.objects.filter(
+            level__school_year=active_year
+        ).select_related("level").order_by("level__name", "name")
+    return {
+        "form":          RecordPaymentForm(country=school.country if school else None),
+        "search_form":   StudentSearchForm(),
+        "modal_classes": modal_classes,
     }
 
 
@@ -192,6 +216,7 @@ def collection_dashboard(request):
     )
 
     ctx = _sidebar_ctx(school, active_year, "dashboard_econome")
+    ctx.update(_payment_modal_ctx(school, active_year))
     ctx.update({
         "stats":           stats,
         "classes_data":    classes_data,
@@ -224,10 +249,13 @@ def payments_list(request):
     level_id    = request.GET.get("level",  "").strip()
     class_id    = request.GET.get("class",  "").strip()
 
-    # "date_from" et "date_to" présents dans la query string → l'utilisateur
-    # a explicitement choisi une plage (même vide = tout l'historique de l'année).
-    # Absents → première visite, on affiche aujourd'hui par défaut.
-    params_in_qs = "date_from" in request.GET
+    # "date_from" présent dans la query string → l'utilisateur a explicitement
+    # choisi une plage (même vide = tout l'historique de l'année). Un filtre
+    # niveau/classe sans date (ex. clic sur une classe depuis la sidebar) est
+    # traité pareil : l'intention est de voir l'historique de cette classe,
+    # pas seulement ses encaissements du jour. Absent de tout ça → première
+    # visite, on affiche aujourd'hui par défaut.
+    params_in_qs = "date_from" in request.GET or bool(level_id) or bool(class_id)
 
     # Valeurs par défaut : aujourd'hui dans les deux champs
     date_from = today
@@ -306,7 +334,20 @@ def payments_list(request):
     f_date_to   = date_to.isoformat()   if date_to   else ""
     is_today    = (date_from == today and date_to == today and not level_id and not class_id)
 
+    # Nom lisible du filtre actif (classe cliquée depuis la sidebar, etc.)
+    # — affiché explicitement dans l'en-tête plutôt qu'un vague "· filtré".
+    active_filter_label = ""
+    if class_id:
+        active_klass = ClassModel.objects.filter(pk=class_id).select_related("level").first()
+        if active_klass:
+            active_filter_label = f"{active_klass.level.name} {active_klass.name}"
+    elif level_id:
+        active_level = LevelModel.objects.filter(pk=level_id).first()
+        if active_level:
+            active_filter_label = active_level.name
+
     ctx = _sidebar_ctx(school, active_year, "encaissements")
+    ctx.update(_payment_modal_ctx(school, active_year))
     ctx.update({
         "page_obj":     page_obj,
         "paginator":    paginator,
@@ -320,6 +361,7 @@ def payments_list(request):
         "f_level_id":   level_id,
         "f_class_id":   class_id,
         "is_today":     is_today,
+        "active_filter_label": active_filter_label,
         "page_title":   "Encaissements",
     })
     return render(request, "economat/econome/payments_list.html", ctx)
@@ -328,54 +370,36 @@ def payments_list(request):
 @login_required
 def record_payment(request):
     """
-    Écran de saisie d'un encaissement (GET = formulaire, POST = enregistrement).
-    Anciennement / — déplacé sur /encaisser/ pour libérer l'accueil au dashboard.
+    Enregistrement d'un encaissement — POST uniquement, soumis depuis la
+    modale d'encaissement (partial _payment_modal.html, incluse sur le
+    dashboard et la liste des encaissements). Pas de page dédiée : un GET
+    ramène simplement à l'accueil.
+
     Le form id="paymentForm" et le name record_payment sont conservés
     pour la compatibilité avec offline-sync.js.
+
+    En cas d'erreur, on redirige vers le référent (ou le dashboard) avec un
+    message — la modale ne se rouvre pas pré-remplie (compromis assumé :
+    évite de refaire tout le flux en AJAX pour le cas d'erreur, rare).
     """
     school, active_year = _get_user_active_year(request)
-    classes = []
-    if active_year:
-        classes = ClassModel.objects.filter(
-            level__school_year=active_year
-        ).select_related("level").order_by("level__name", "name")
+    fallback_url = reverse("economat:econome_dashboard")
+    referer = request.META.get("HTTP_REFERER", "")
+    if referer and request.get_host() in referer:
+        fallback_url = referer
 
     if request.method == "GET":
-        recent_payments = []
-        if active_year:
-            recent_payments = (
-                PaymentModel.objects
-                .filter(state="VALID", enrollment__school_year=active_year)
-                .select_related("student", "enrollment__klass")
-                .order_by("-created_at")[:10]
-            )
-        ctx = _sidebar_ctx(school, active_year, "encaisser")
-        ctx.update({
-            "form":            RecordPaymentForm(
-                initial={"year_id": str(active_year.id)} if active_year else {},
-                country=school.country if school else None,
-            ),
-            "search_form":     StudentSearchForm(),
-            "recent_payments": recent_payments,
-            "classes":         classes,
-            "stats":           _activity_stats(active_year),
-            "page_title":      "Saisie des encaissements",
-        })
-        return render(request, "economat/econome/dashboard.html", ctx)
+        return redirect("economat:econome_dashboard")
 
     # ── POST : enregistrer le paiement ───────────────────────────────────────
     form = RecordPaymentForm(request.POST, country=school.country if school else None)
     if not form.is_valid():
-        ctx = _sidebar_ctx(school, active_year, "encaisser")
-        ctx.update({
-            "form": form, "search_form": StudentSearchForm(),
-            "classes": classes,
-            "page_title": "Saisie des encaissements",
-        })
-        return render(request, "economat/econome/dashboard.html", ctx)
+        first_error = next(iter(form.errors.values()))[0]
+        messages.error(request, first_error)
+        return redirect(fallback_url)
     if not active_year:
         messages.error(request, "Aucune année scolaire active. Contactez le directeur.")
-        return redirect("economat:econome_dashboard")
+        return redirect(fallback_url)
 
     command = RecordPaymentCommand(
         student_id=form.cleaned_data["student_id"],
@@ -398,13 +422,7 @@ def record_payment(request):
         )
         return redirect("economat:receipt_view", payment_id=result.payment_id)
     messages.error(request, f"{result.error_message}")
-    ctx = _sidebar_ctx(school, active_year, "encaisser")
-    ctx.update({
-        "form": form, "search_form": StudentSearchForm(),
-        "classes": classes,
-        "page_title": "Saisie des encaissements",
-    })
-    return render(request, "economat/econome/dashboard.html", ctx)
+    return redirect(fallback_url)
 
 
 @login_required

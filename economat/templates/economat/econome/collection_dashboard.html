@@ -13,10 +13,10 @@
     </p>
   </div>
   <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
-    <a href="{% url 'economat:record_payment' %}" class="btn-primary" style="font-size:.8125rem;">
+    <button type="button" onclick="openPaymentModal()" class="btn-primary" style="font-size:.8125rem;">
       <svg style="width:.875rem;height:.875rem;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
       Encaisser
-    </a>
+    </button>
     <a href="{% url 'economat:econome_payments' %}" class="btn-secondary" style="font-size:.8125rem;">
       <svg style="width:.875rem;height:.875rem;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;" viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
       Encaissements
@@ -183,6 +183,8 @@
     #kpiStrip { grid-template-columns: 1fr 1fr !important; }
   }
 </style>
+
+{% include "economat/econome/_payment_modal.html" %}
 
 {% endblock %}
 

@@ -174,12 +174,6 @@
         {% endif %}
 
         {% if user_role == 'ECONOME' %}
-        <a href="{% url 'economat:record_payment' %}"
-           class="nav-link {% if active_nav == 'encaisser' %}nav-link-active{% endif %}"
-           style="font-size:.84375rem;">
-          <svg class="icon" style="width:1em;height:1em;"><use href="#icon-plus"/></svg>
-          Encaisser
-        </a>
         <a href="{% url 'economat:econome_payments' %}"
            class="nav-link {% if active_nav == 'encaissements' %}nav-link-active{% endif %}"
            style="font-size:.84375rem;">
