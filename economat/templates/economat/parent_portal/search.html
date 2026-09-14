@@ -2,6 +2,7 @@
 {% block title %}Payer les frais de scolarité{% endblock %}
 {% block content %}
 <div style="max-width:420px;margin:3rem auto;">
+  {% include "economat/parent_portal/_stepper.html" with current_step=1 %}
   <div class="card" style="padding:1.75rem;">
     <h1 style="font-size:1.125rem;font-weight:700;margin-bottom:.35rem;">Payer les frais de scolarité</h1>
     <p style="font-size:.8375rem;color:#9397a8;margin-bottom:1.5rem;">

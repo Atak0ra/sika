@@ -2,6 +2,7 @@
 {% block title %}Payer les frais de scolarité{% endblock %}
 {% block content %}
 <div style="max-width:460px;margin:3rem auto;">
+  {% include "economat/parent_portal/_stepper.html" with current_step=2 %}
   <div class="card" style="padding:1.75rem;margin-bottom:1rem;background:#eef2ff;border-color:#c7d2fe;">
     <div style="font-size:.75rem;font-weight:600;color:#4338ca;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.35rem;">Vous payez pour</div>
     <div style="font-size:1.0625rem;font-weight:700;color:#1a1d29;">{{ student.first_name }} {{ student.last_name|upper }}</div>

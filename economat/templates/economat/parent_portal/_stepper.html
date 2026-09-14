@@ -1,0 +1,48 @@
+<!-- ================================================================
+     PARTIAL : étapier du parcours de paiement parent.
+     À inclure avec la variable current_step passée en paramètre :
+     1 (Élève) / 2 (Paiement) / 3 (Confirmation).
+     Pas inclus sur le reçu — page finale/imprimable, l'arrivée sur le
+     reçu signale déjà que le parcours est terminé.
+================================================================ -->
+<div style="max-width:420px;margin:0 auto 1.75rem;display:flex;align-items:flex-start;">
+
+  <div style="display:flex;flex-direction:column;align-items:center;gap:.4rem;flex:1;">
+    <div style="width:1.75rem;height:1.75rem;border-radius:50%;display:flex;align-items:center;justify-content:center;
+                font-size:.75rem;font-weight:700;
+                {% if current_step > 1 %}background:#4f46e5;color:#fff;
+                {% elif current_step == 1 %}background:#eef2ff;color:#4f46e5;border:1.5px solid #4f46e5;
+                {% else %}background:#f4f5f7;color:#9397a8;{% endif %}">
+      {% if current_step > 1 %}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="width:.8rem;height:.8rem;"><polyline points="20 6 9 17 4 12"/></svg>{% else %}1{% endif %}
+    </div>
+    <span style="font-size:.7rem;font-weight:600;{% if current_step == 1 %}color:#4f46e5;{% else %}color:#9397a8;{% endif %}">Élève</span>
+  </div>
+
+  <div style="height:1.75rem;flex-shrink:0;width:2.5rem;display:flex;align-items:center;">
+    <div style="height:2px;width:100%;{% if current_step > 1 %}background:#4f46e5;{% else %}background:#ecedf1;{% endif %}"></div>
+  </div>
+
+  <div style="display:flex;flex-direction:column;align-items:center;gap:.4rem;flex:1;">
+    <div style="width:1.75rem;height:1.75rem;border-radius:50%;display:flex;align-items:center;justify-content:center;
+                font-size:.75rem;font-weight:700;
+                {% if current_step > 2 %}background:#4f46e5;color:#fff;
+                {% elif current_step == 2 %}background:#eef2ff;color:#4f46e5;border:1.5px solid #4f46e5;
+                {% else %}background:#f4f5f7;color:#9397a8;{% endif %}">
+      {% if current_step > 2 %}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="width:.8rem;height:.8rem;"><polyline points="20 6 9 17 4 12"/></svg>{% else %}2{% endif %}
+    </div>
+    <span style="font-size:.7rem;font-weight:600;{% if current_step == 2 %}color:#4f46e5;{% else %}color:#9397a8;{% endif %}">Paiement</span>
+  </div>
+
+  <div style="height:1.75rem;flex-shrink:0;width:2.5rem;display:flex;align-items:center;">
+    <div style="height:2px;width:100%;{% if current_step > 2 %}background:#4f46e5;{% else %}background:#ecedf1;{% endif %}"></div>
+  </div>
+
+  <div style="display:flex;flex-direction:column;align-items:center;gap:.4rem;flex:1;">
+    <div style="width:1.75rem;height:1.75rem;border-radius:50%;display:flex;align-items:center;justify-content:center;
+                font-size:.75rem;font-weight:700;
+                {% if current_step == 3 %}background:#eef2ff;color:#4f46e5;border:1.5px solid #4f46e5;
+                {% else %}background:#f4f5f7;color:#9397a8;{% endif %}">3</div>
+    <span style="font-size:.7rem;font-weight:600;{% if current_step == 3 %}color:#4f46e5;{% else %}color:#9397a8;{% endif %}">Confirmation</span>
+  </div>
+
+</div>
