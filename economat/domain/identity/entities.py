@@ -142,6 +142,13 @@ class Membership:
                 f"(vous êtes : {self.role.label})."
             )
 
+    def guard_record_payment(self) -> None:
+        """Lève UnauthorizedError si l'utilisateur ne peut pas saisir un paiement."""
+        if not self.can_record_payment():
+            raise UnauthorizedError(
+                "Votre compte est inactif, vous ne pouvez pas saisir de paiement."
+            )
+
     # ── Comportements ─────────────────────────────────────────────────────────
 
     def deactivate(self) -> None:

@@ -37,14 +37,24 @@ from django.db.models import (
 from django.db.models.functions import Coalesce
 from django.shortcuts import redirect, render
 
-from economat.application.dto import CancelPaymentCommand, PromoteClassCommand, RegisterStudentCommand
+from economat.application.dto import (
+    CancelPaymentCommand,
+    PromoteClassCommand,
+    RecordPaymentCommand,
+    RegisterStudentCommand,
+)
 from economat.composition import (
     get_cancel_payment_use_case,
     get_promote_class_use_case,
+    get_record_payment_use_case,
     get_register_student_use_case,
 )
 from economat.domain.identity.value_objects import Role
-from economat.domain.payment.value_objects import PaymentStatus
+from economat.domain.payment.value_objects import (
+    PaymentStatus,
+    mobile_operator_style,
+    mobile_operators_for_country,
+)
 from economat.infrastructure.models import (
     ClassModel,
     EnrollmentModel,
@@ -265,6 +275,49 @@ def student_detail(request, school_id: str, year_id: str, enrollment_id: str, me
             school_id=school_id, year_id=year_id, enrollment_id=enrollment_id,
         )
 
+    # ── Encaissement depuis la fiche élève (POST action=record_payment) ──────
+    if request.method == "POST" and request.POST.get("_action") == "record_payment":
+        try:
+            membership.guard_record_payment()
+        except Exception as e:
+            messages.error(request, str(e))
+            return redirect(
+                "economat:student_detail",
+                school_id=school_id, year_id=year_id, enrollment_id=enrollment_id,
+            )
+
+        import datetime as _dt
+
+        method = request.POST.get("method", "ESPECES").strip()
+        try:
+            amount_fcfa = int(request.POST.get("amount_fcfa", "0"))
+        except ValueError:
+            amount_fcfa = 0
+
+        result = get_record_payment_use_case().execute(RecordPaymentCommand(
+            student_id=str(student.id),
+            year_id=year_id,
+            amount_fcfa=amount_fcfa,
+            payment_date=_dt.date.today(),
+            method=method,
+            recorded_by=request.user.username,
+            notes=request.POST.get("notes", "").strip(),
+            paid_by=request.POST.get("paid_by", "").strip(),
+            mobile_operator=request.POST.get("mobile_operator", "").strip(),
+            mobile_number=request.POST.get("mobile_number", "").strip(),
+        ))
+        if result.success:
+            messages.success(
+                request,
+                f"Reçu {result.receipt_number} · {result.amount_paid:,} FCFA enregistré.".replace(",", " "),
+            )
+        else:
+            messages.error(request, result.error_message)
+        return redirect(
+            "economat:student_detail",
+            school_id=school_id, year_id=year_id, enrollment_id=enrollment_id,
+        )
+
     # ── Modification des infos élève (POST action=edit_student) ──────────────
     if request.method == "POST" and request.POST.get("_action") == "edit_student":
         first_name      = request.POST.get("first_name", "").strip()
@@ -331,6 +384,11 @@ def student_detail(request, school_id: str, year_id: str, enrollment_id: str, me
             "is_current": enr.id == enrollment.id,
         })
 
+    operators = mobile_operators_for_country(school.country)
+    mobile_operator_options = [
+        {"value": op, "style": mobile_operator_style(op)} for op in operators
+    ]
+
     ctx = base_context(
         request, school, year, "eleves", membership=membership,
         enrollment=enrollment, student=student,
@@ -339,6 +397,7 @@ def student_detail(request, school_id: str, year_id: str, enrollment_id: str, me
         pay_status=pay_status, pay_badge=pay_badge,
         history=history,
         active_class_id=str(enrollment.klass_id),
+        mobile_operator_options=mobile_operator_options,
         page_title=f"{student.first_name} {student.last_name.upper()}",
     )
     return render(request, "economat/director/student_detail.html", ctx)

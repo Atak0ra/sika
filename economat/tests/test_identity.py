@@ -118,6 +118,30 @@ class TestMembershipPermissions:
         m.guard_manage_team()
         m.guard_cancel_payment()
 
+    # ── Saisie de paiement (tous rôles actifs) ──────────────────────────────
+
+    def test_can_record_payment_director(self):
+        assert make_membership(Role.DIRECTOR).can_record_payment()
+
+    def test_can_record_payment_secretary(self):
+        assert make_membership(Role.SECRETARY).can_record_payment()
+
+    def test_can_record_payment_econome(self):
+        assert make_membership(Role.ECONOME).can_record_payment()
+
+    def test_cannot_record_payment_inactive(self):
+        assert not make_membership(Role.DIRECTOR, active=False).can_record_payment()
+
+    def test_guard_record_payment_director_ok(self):
+        make_membership(Role.DIRECTOR).guard_record_payment()  # ne doit pas lever
+
+    def test_guard_record_payment_secretary_ok(self):
+        make_membership(Role.SECRETARY).guard_record_payment()  # ne doit pas lever
+
+    def test_guard_record_payment_inactive_raises(self):
+        with pytest.raises(DomainError):
+            make_membership(Role.SECRETARY, active=False).guard_record_payment()
+
 
 class FakeUserRepo:
     def __init__(self): self._u = {}; self._c = 100
