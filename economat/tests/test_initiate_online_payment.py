@@ -9,8 +9,8 @@ from economat.application.use_cases.initiate_online_payment import (
     InitiateOnlinePaymentCommand,
     InitiateOnlinePaymentUseCase,
 )
-from economat.infrastructure.payment.fake_gateway import FakePaymentGateway
 from economat.composition import get_record_payment_use_case
+from economat.infrastructure.payment.fake_gateway import FakePaymentGateway
 
 
 @pytest.fixture
@@ -30,7 +30,6 @@ def test_valid_matricule_creates_a_pending_payment(use_case, active_enrollment):
         amount_fcfa=25000,
         mobile_operator="Orange Money",
         mobile_number="0700000000",
-        notify_url="http://testserver/payer/webhook/cinetpay/",
     )
     result = use_case.execute(cmd)
     assert result.success, result.error_message
@@ -52,27 +51,26 @@ def test_unknown_matricule_fails_with_generic_message(use_case, active_enrollmen
         amount_fcfa=25000,
         mobile_operator="Orange Money",
         mobile_number="0700000000",
-        notify_url="http://testserver/payer/webhook/cinetpay/",
     )
     result = use_case.execute(cmd)
     assert result.success is False
-    # Message générique : ne doit jamais confirmer/infirmer si le matricule
-    # existe dans une AUTRE école — juste "introuvable" pour cette école.
     assert "introuvable" in result.error_message.lower()
 
 
 @pytest.mark.django_db
 def test_matricule_from_another_school_fails(use_case, active_enrollment):
     from economat.infrastructure.models import SchoolModel
-    other_school = SchoolModel.objects.create(name="Autre École", city="Cotonou", country="Bénin")
+    other_school = SchoolModel.objects.create(
+        name="Autre École", city="Cotonou",
+        country=active_enrollment.student.school.country,  # réutilise le pays existant
+    )
     student = active_enrollment.student
     cmd = InitiateOnlinePaymentCommand(
-        school_id=str(other_school.id),  # bonne matricule, mauvaise école
+        school_id=str(other_school.id),
         matricule=student.matricule,
         amount_fcfa=25000,
         mobile_operator="Orange Money",
         mobile_number="0700000000",
-        notify_url="http://testserver/payer/webhook/cinetpay/",
     )
     result = use_case.execute(cmd)
     assert result.success is False
@@ -96,7 +94,6 @@ def test_gateway_failure_does_not_create_a_payment_row(active_enrollment):
         amount_fcfa=25000,
         mobile_operator="Orange Money",
         mobile_number="0700000000",
-        notify_url="http://testserver/payer/webhook/cinetpay/",
     )
     result = use_case.execute(cmd)
     assert result.success is False

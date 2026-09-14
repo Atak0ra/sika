@@ -57,7 +57,8 @@ class CreateSchoolUseCase:
             id=SchoolId(value=str(uuid.uuid4())),
             name=command.school_name.strip(),
             city=command.city.strip(),
-            country=command.country.strip() or "Sénégal",
+            # country est un code ISO (ex. "SN") — le repository résout la FK
+            country=command.country.strip() or "SN",
             currency=Currency(command.currency or "XOF"),
         )
         self._schools.save(school)

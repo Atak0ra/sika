@@ -1,16 +1,14 @@
 """
 application/use_cases/confirm_online_payment.py
 ====================================================
-USE CASE : ConfirmOnlinePaymentUseCase — Acteur : webhook CinetPay.
+USE CASE : ConfirmOnlinePaymentUseCase — Acteur : événement de passerelle.
 
 Applique la confirmation (ou le refus) d'un paiement en ligne PENDING.
-Suppose que l'appelant (la vue webhook) a DÉJÀ vérifié l'authenticité de
-l'événement via PaymentGateway.verify_webhook_signature() — ce use case ne
-refait aucune vérification de signature, il fait confiance à l'événement
-qu'on lui passe.
+Peut être utilisé si une passerelle envoie un callback push.
+Pour le flux principal (polling), voir poll_online_payment.py.
 
-Idempotent : un même transaction_ref reçu plusieurs fois (le fournisseur
-peut retenter un webhook) ne déclenche la transition qu'une seule fois.
+Idempotent : un même transaction_ref reçu plusieurs fois ne déclenche la
+transition qu'une seule fois.
 """
 from __future__ import annotations
 

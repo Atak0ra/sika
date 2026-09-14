@@ -6,7 +6,10 @@ USE CASE : InitiateOnlinePaymentUseCase — Acteur : parent, sans compte.
 Point d'entrée du paiement en ligne. Résout l'élève par (école, matricule)
 en match exact, initie le paiement auprès de la passerelle Mobile Money, et
 si la passerelle répond favorablement, délègue la création du paiement
-PENDING/PORTAIL_PARENT à RecordPaymentUseCase (réutilisation — voir Task 5).
+PENDING/PORTAIL_PARENT à RecordPaymentUseCase (réutilisation).
+
+La passerelle est choisie selon le pays de l'école
+(voir economat.composition.get_payment_gateway).
 
 Sécurité : ne renvoie jamais un message différent selon que l'école existe,
 le matricule existe, ou appartient à une autre école — toujours le même
@@ -35,7 +38,6 @@ class InitiateOnlinePaymentCommand:
     amount_fcfa: int
     mobile_operator: str
     mobile_number: str
-    notify_url: str
 
 
 @dataclass
@@ -63,16 +65,15 @@ class InitiateOnlinePaymentUseCase:
         if cmd.amount_fcfa <= 0:
             return InitiateOnlinePaymentResult(success=False, error_message="Montant invalide.")
 
-        # ── 1. Résolution élève par matricule (match exact, hors-domaine —
-        # matricule n'est pas un champ du domaine Student, cf. register_student.py) ──
+        # ── 1. Résolution élève par matricule ──────────────────────────────────
         from economat.infrastructure.models import StudentModel
         student_orm = StudentModel.objects.filter(
             school_id=cmd.school_id, matricule=cmd.matricule,
-        ).first()
+        ).select_related("school").first()
         if student_orm is None:
             return InitiateOnlinePaymentResult(success=False, error_message=GENERIC_NOT_FOUND)
 
-        # ── 2. Année scolaire active de l'école ───────────────────────────────
+        # ── 2. Année scolaire active de l'école ──────────────────────────────
         from economat.domain.school.value_objects import SchoolId
         year_repo = get_school_year_repo()
         active_year = year_repo.find_active(SchoolId(cmd.school_id))
@@ -82,13 +83,13 @@ class InitiateOnlinePaymentUseCase:
                 error_message="Aucune année scolaire active pour cette école.",
             )
 
-        # ── 3. Initiation auprès de la passerelle ─────────────────────────────
+        # ── 3. Initiation auprès de la passerelle ────────────────────────────
         gateway_result = self._gateway.initiate_payment(
             phone=cmd.mobile_number,
             operator=cmd.mobile_operator,
             amount_fcfa=cmd.amount_fcfa,
             description=f"Frais de scolarité — {student_orm.first_name} {student_orm.last_name}",
-            notify_url=cmd.notify_url,
+            notify_url="",  # confirmation par polling, pas par webhook
         )
         if not gateway_result.success:
             return InitiateOnlinePaymentResult(
@@ -96,7 +97,7 @@ class InitiateOnlinePaymentUseCase:
                 error_message=gateway_result.error_message or "Le paiement n'a pas pu être initié.",
             )
 
-        # ── 4. Création du paiement PENDING (réutilise RecordPaymentUseCase) ──
+        # ── 4. Création du paiement PENDING ──────────────────────────────────
         import datetime
         record_cmd = RecordPaymentCommand(
             student_id=str(student_orm.id),

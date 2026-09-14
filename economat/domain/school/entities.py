@@ -166,7 +166,7 @@ class School:
     id: SchoolId
     name: str
     city: str
-    country: str = "Sénégal"
+    country: str = "SN"   # code ISO alpha-2 (ex. "SN", "GN")
     currency: Currency = Currency.XOF
     tolerance_days: int = 30
     school_years: List[SchoolYear] = field(default_factory=list)

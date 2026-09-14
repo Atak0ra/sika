@@ -3,16 +3,23 @@ application/ports/payment_gateway.py
 =======================================
 Port (interface) pour la passerelle de paiement Mobile Money du portail
 parent. Une seule implémentation concrète tourne à la fois, choisie par
-economat.composition.get_payment_gateway() :
+economat.composition.get_payment_gateway(country) selon le pays de l'école :
 
   - FakePaymentGateway   (economat/infrastructure/payment/fake_gateway.py)
-    → développement/tests, confirme automatiquement après un court délai.
-  - CinetPayGateway      (economat/infrastructure/payment/cinetpay_gateway.py)
-    → production, appelle réellement l'API CinetPay.
+    → développement/tests, confirme via poll_status() sans appel réseau.
+  - SamirPayGateway      (economat/infrastructure/payment/samirpay_gateway.py)
+    → Sénégal : API Samirpay (X-API-KEY / X-SECRET-KEY).
+  - CRPayGateway         (economat/infrastructure/payment/crpay_gateway.py)
+    → Guinée Conakry : API CRPay (JWT login email/password).
 
 Cette abstraction isole tout le reste de l'application (use cases, vues)
 du détail exact de l'API du fournisseur — un changement de fournisseur ne
 touche qu'un seul fichier d'implémentation.
+
+Flux de confirmation : Samirpay et CRPay confirment par polling de statut
+(pas par webhook push). L'endpoint JSON /payer/statut/<id>/ appelle
+poll_status() à chaque interrogation JS depuis l'écran d'attente, ce qui
+déclenche la confirmation idempotente du paiement.
 """
 from __future__ import annotations
 
@@ -38,13 +45,13 @@ class GatewayInitiationResult:
 
 @dataclass(frozen=True)
 class GatewayWebhookEvent:
-    """Événement décodé depuis un callback webhook de la passerelle."""
+    """Événement de statut (issu du polling) de la passerelle."""
     transaction_ref: str
     status: GatewayPaymentStatus
 
 
 class PaymentGateway(ABC):
-    """Port : déclenche un paiement Mobile Money et interprète sa confirmation."""
+    """Port : déclenche un paiement Mobile Money et interroge son statut."""
 
     @abstractmethod
     def initiate_payment(
@@ -58,24 +65,22 @@ class PaymentGateway(ABC):
         """
         Déclenche le paiement : la passerelle pousse une demande de
         confirmation sur le téléphone du parent (USSD/appli opérateur).
-        Ne bloque pas jusqu'à la confirmation — celle-ci arrive de façon
-        asynchrone via un appel à `notify_url` (voir parse_webhook_status).
+        Ne bloque pas jusqu'à la confirmation — celle-ci est obtenue de
+        façon asynchrone via poll_status().
+
+        Le paramètre notify_url est conservé pour compatibilité (certaines
+        passerelles peuvent l'utiliser pour envoyer un callback), mais la
+        confirmation officielle passe toujours par poll_status().
         """
         ...
 
     @abstractmethod
-    def verify_webhook_signature(self, raw_body: bytes, headers: dict) -> bool:
+    def poll_status(self, transaction_ref: str) -> GatewayWebhookEvent:
         """
-        Vérifie l'authenticité d'un callback webhook avant tout traitement.
-        Doit retourner False pour tout webhook non authentifié — ne JAMAIS
-        faire confiance à un webhook non vérifié pour valider un paiement.
-        """
-        ...
-
-    @abstractmethod
-    def parse_webhook_status(self, raw_body: bytes) -> GatewayWebhookEvent:
-        """
-        Décode le corps d'un webhook déjà vérifié en un événement exploitable.
-        Ne doit être appelé qu'après verify_webhook_signature() == True.
+        Interroge la passerelle pour connaître le statut actuel d'une
+        transaction. Appelé périodiquement depuis l'endpoint de statut
+        (/payer/statut/<id>/) afin de confirmer ou annuler un paiement
+        PENDING. Doit être idempotent (plusieurs appels pour la même
+        transaction ne causent pas d'effet de bord côté passerelle).
         """
         ...

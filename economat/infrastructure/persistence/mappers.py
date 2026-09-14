@@ -26,16 +26,20 @@ from economat.infrastructure.models import (
 def school_to_domain(orm: SchoolModel) -> School:
     years = [school_year_to_domain(y)
              for y in orm.school_years.prefetch_related("levels__classes").all()]
+    # country FK → code ISO string (domaine reste pur)
+    country_code = orm.country.code if orm.country else "SN"
     return School(
         id=SchoolId(str(orm.id)), name=orm.name, city=orm.city,
-        country=orm.country, currency=Currency(orm.currency),
+        country=country_code, currency=Currency(orm.currency),
         tolerance_days=orm.tolerance_days, school_years=years,
     )
 
 def school_to_orm(domain: School) -> SchoolModel:
+    # Note : country_id (FK) est résolu dans DjangoSchoolRepository.save()
+    # pour éviter un import circulaire ici. On retourne un objet sans FK.
     return SchoolModel(
         id=domain.id.value, name=domain.name, city=domain.city,
-        country=domain.country, currency=domain.currency.value,
+        currency=domain.currency.value,
         tolerance_days=domain.tolerance_days,
     )
 

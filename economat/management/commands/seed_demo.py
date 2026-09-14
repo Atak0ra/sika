@@ -94,10 +94,19 @@ class Command(BaseCommand):
             ClassModel.objects.all().delete()
             LevelModel.objects.all().delete()
 
+        # ─ Pays Togo ──────────────────────────────────────────────────────
+        from economat.infrastructure.models import CountryModel
+        togo, _ = CountryModel.objects.get_or_create(
+            code="TG",
+            defaults={"name": "Togo", "currency": "XOF", "payment_provider": "",
+                      "mobile_operators": ["Flooz (Togocom)", "T-Money (Togocom)", "Wave"],
+                      "is_active": True},
+        )
+
         # ─ École + année scolaire ──────────────────────────────────────
         school, created = SchoolModel.objects.get_or_create(
             name=SCHOOL_NAME,
-            defaults={"city": SCHOOL_CITY, "country": "Togo", "currency": "XOF"},
+            defaults={"city": SCHOOL_CITY, "country": togo, "currency": "XOF"},
         )
         self.stdout.write(
             (self.style.SUCCESS("Créée") if created else self.style.WARNING("Existante"))

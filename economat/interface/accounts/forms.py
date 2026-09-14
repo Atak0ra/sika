@@ -68,9 +68,11 @@ class CreateSchoolForm(forms.Form):
         label="Ville", max_length=100,
         widget=forms.TextInput(attrs={"class": "form-input", "placeholder": "Ex : Dakar"}),
     )
-    country = forms.CharField(
-        label="Pays", max_length=100, initial="Sénégal",
-        widget=forms.TextInput(attrs={"class": "form-input"}),
+    country = forms.ModelChoiceField(
+        label="Pays",
+        queryset=None,   # initialisé dans __init__
+        widget=forms.Select(attrs={"class": "form-select"}),
+        empty_label=None,
     )
     currency = forms.ChoiceField(
         label="Devise",
@@ -78,6 +80,11 @@ class CreateSchoolForm(forms.Form):
                  ("XAF", "FCFA (XAF) — Afrique Centrale")],
         widget=forms.Select(attrs={"class": "form-select"}),
     )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        from economat.infrastructure.models import CountryModel
+        self.fields["country"].queryset = CountryModel.objects.filter(is_active=True)
 
 
 class CreateCollaboratorForm(forms.Form):

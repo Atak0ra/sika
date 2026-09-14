@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 from django.utils.html import format_html
 
 from economat.infrastructure.models import (
-    ClassModel, EnrollmentModel, LevelModel, MembershipModel,
+    ClassModel, CountryModel, EnrollmentModel, LevelModel, MembershipModel,
     PaymentModel, SchoolModel, SchoolYearModel, StudentModel,
 )
 
@@ -83,13 +83,29 @@ admin.site.unregister(User)
 admin.site.register(User, EconomatUserAdmin)
 
 
+# ─ Country Admin ─────────────────────────────────────────────────────────────
+
+@admin.register(CountryModel)
+class CountryAdmin(admin.ModelAdmin):
+    list_display  = ("code", "name", "currency", "payment_provider", "operators_preview", "is_active")
+    list_filter   = ("payment_provider", "currency", "is_active")
+    search_fields = ("code", "name")
+    list_editable = ("is_active",)
+    ordering      = ("name",)
+
+    @admin.display(description="Opérateurs Mobile Money")
+    def operators_preview(self, obj):
+        ops = obj.mobile_operators or []
+        return ", ".join(ops[:3]) + ("…" if len(ops) > 3 else "")
+
+
 # ─ School Admin ──────────────────────────────────────────────────────────────
 
 @admin.register(SchoolModel)
 class SchoolAdmin(admin.ModelAdmin):
-    list_display  = ("name","city","country","currency","tolerance_days","nb_years")
-    search_fields = ("name","city")
-    list_filter   = ("country","currency")
+    list_display  = ("name", "city", "country", "currency", "tolerance_days", "nb_years")
+    search_fields = ("name", "city")
+    list_filter   = ("country", "currency")
     inlines       = [SchoolYearInline, MembershipInline]
 
     @admin.display(description="Années")

@@ -1,15 +1,14 @@
 """
 tests/test_confirm_online_payment.py
 =======================================
-ConfirmOnlinePaymentUseCase : transition PENDING → VALID/CANCELLED suite
-au webhook de la passerelle. Idempotent, ne fait jamais confiance à
-l'appelant sans vérification préalable de signature (faite en amont, dans
-la vue — ce use case suppose un événement déjà authentifié).
+PollOnlinePaymentUseCase : transition PENDING → VALID/CANCELLED suite
+au polling de la passerelle. Idempotent — si le paiement n'est plus
+PENDING, aucune action n'est effectuée.
 """
 import pytest
 
-from economat.application.ports.payment_gateway import GatewayPaymentStatus, GatewayWebhookEvent
-from economat.application.use_cases.confirm_online_payment import ConfirmOnlinePaymentUseCase
+from economat.application.ports.payment_gateway import GatewayPaymentStatus
+from economat.application.use_cases.poll_online_payment import PollOnlinePaymentUseCase
 from economat.application.use_cases.initiate_online_payment import (
     InitiateOnlinePaymentCommand, InitiateOnlinePaymentUseCase,
 )
@@ -17,7 +16,7 @@ from economat.infrastructure.payment.fake_gateway import FakePaymentGateway
 from economat.composition import get_record_payment_use_case, get_payment_repo
 
 
-def _initiate(active_enrollment) -> str:
+def _initiate(active_enrollment) -> tuple[str, FakePaymentGateway]:
     gateway = FakePaymentGateway()
     use_case = InitiateOnlinePaymentUseCase(
         record_payment_use_case=get_record_payment_use_case(), gateway=gateway,
@@ -26,65 +25,74 @@ def _initiate(active_enrollment) -> str:
         school_id=str(active_enrollment.school_year.school_id),
         matricule=active_enrollment.student.matricule,
         amount_fcfa=25000, mobile_operator="Wave", mobile_number="0700000000",
-        notify_url="http://testserver/payer/webhook/cinetpay/",
     ))
     assert result.success
-    return result.payment_id
+    return result.payment_id, gateway
 
 
 @pytest.mark.django_db
-def test_accepted_event_confirms_pending_payment(active_enrollment):
-    payment_id = _initiate(active_enrollment)
+def test_accepted_poll_confirms_pending_payment(active_enrollment):
+    payment_id, gateway = _initiate(active_enrollment)
     from economat.infrastructure.models import PaymentModel
-    transaction_ref = PaymentModel.objects.get(pk=payment_id).gateway_transaction_ref
+    ref = PaymentModel.objects.get(pk=payment_id).gateway_transaction_ref
 
-    use_case = ConfirmOnlinePaymentUseCase(payment_repo=get_payment_repo())
-    result = use_case.execute(GatewayWebhookEvent(
-        transaction_ref=transaction_ref, status=GatewayPaymentStatus.ACCEPTED,
-    ))
+    gateway.simulate_status(ref, accepted=True)
+    use_case = PollOnlinePaymentUseCase(payment_repo=get_payment_repo(), gateway=gateway)
+    result = use_case.execute(payment_id)
     assert result.success, result.error_message
+    assert result.new_state == "VALID"
 
-    orm = PaymentModel.objects.get(pk=payment_id)
-    assert orm.state == "VALID"
+    assert PaymentModel.objects.get(pk=payment_id).state == "VALID"
 
 
 @pytest.mark.django_db
-def test_refused_event_cancels_pending_payment(active_enrollment):
-    payment_id = _initiate(active_enrollment)
+def test_refused_poll_cancels_pending_payment(active_enrollment):
+    payment_id, gateway = _initiate(active_enrollment)
     from economat.infrastructure.models import PaymentModel
-    transaction_ref = PaymentModel.objects.get(pk=payment_id).gateway_transaction_ref
+    ref = PaymentModel.objects.get(pk=payment_id).gateway_transaction_ref
 
-    use_case = ConfirmOnlinePaymentUseCase(payment_repo=get_payment_repo())
-    result = use_case.execute(GatewayWebhookEvent(
-        transaction_ref=transaction_ref, status=GatewayPaymentStatus.REFUSED,
-    ))
+    gateway.simulate_status(ref, accepted=False)
+    use_case = PollOnlinePaymentUseCase(payment_repo=get_payment_repo(), gateway=gateway)
+    result = use_case.execute(payment_id)
     assert result.success, result.error_message
+    assert result.new_state == "CANCELLED"
 
-    orm = PaymentModel.objects.get(pk=payment_id)
-    assert orm.state == "CANCELLED"
+    assert PaymentModel.objects.get(pk=payment_id).state == "CANCELLED"
 
 
 @pytest.mark.django_db
-def test_unknown_transaction_ref_fails_gracefully(active_enrollment):
-    use_case = ConfirmOnlinePaymentUseCase(payment_repo=get_payment_repo())
-    result = use_case.execute(GatewayWebhookEvent(
-        transaction_ref="FAKE-does-not-exist", status=GatewayPaymentStatus.ACCEPTED,
-    ))
+def test_pending_poll_leaves_payment_pending(active_enrollment):
+    payment_id, gateway = _initiate(active_enrollment)
+    # Pas de simulate_status → reste PENDING
+    use_case = PollOnlinePaymentUseCase(payment_repo=get_payment_repo(), gateway=gateway)
+    result = use_case.execute(payment_id)
+    assert result.success
+    assert result.new_state == "PENDING"
+
+    from economat.infrastructure.models import PaymentModel
+    assert PaymentModel.objects.get(pk=payment_id).state == "PENDING"
+
+
+@pytest.mark.django_db
+def test_unknown_payment_id_fails_gracefully(active_enrollment):
+    gateway = FakePaymentGateway()
+    use_case = PollOnlinePaymentUseCase(payment_repo=get_payment_repo(), gateway=gateway)
+    import uuid
+    result = use_case.execute(str(uuid.uuid4()))
     assert result.success is False
 
 
 @pytest.mark.django_db
-def test_webhook_received_twice_is_idempotent(active_enrollment):
-    payment_id = _initiate(active_enrollment)
+def test_poll_twice_is_idempotent(active_enrollment):
+    payment_id, gateway = _initiate(active_enrollment)
     from economat.infrastructure.models import PaymentModel
-    transaction_ref = PaymentModel.objects.get(pk=payment_id).gateway_transaction_ref
+    ref = PaymentModel.objects.get(pk=payment_id).gateway_transaction_ref
 
-    use_case = ConfirmOnlinePaymentUseCase(payment_repo=get_payment_repo())
-    event = GatewayWebhookEvent(transaction_ref=transaction_ref, status=GatewayPaymentStatus.ACCEPTED)
+    gateway.simulate_status(ref, accepted=True)
+    use_case = PollOnlinePaymentUseCase(payment_repo=get_payment_repo(), gateway=gateway)
 
-    first = use_case.execute(event)
-    second = use_case.execute(event)  # le fournisseur peut renvoyer le même webhook
+    first = use_case.execute(payment_id)
+    second = use_case.execute(payment_id)
     assert first.success and second.success
+    assert PaymentModel.objects.get(pk=payment_id).state == "VALID"
 
-    orm = PaymentModel.objects.get(pk=payment_id)
-    assert orm.state == "VALID"  # toujours VALID, pas d'erreur ni de double-traitement

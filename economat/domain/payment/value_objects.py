@@ -34,24 +34,48 @@ class PaymentMethod(str, Enum):
 
 
 # Opérateurs Mobile Money disponibles par pays — utilisé pour proposer la bonne
-# liste à l'économe selon le pays de l'école (SchoolModel.country), sans lui
-# faire re-choisir un pays qu'on connaît déjà.
-MOBILE_OPERATORS_BY_COUNTRY: dict[str, list[str]] = {
-    "Sénégal":         ["Orange Money", "Wave", "Free Money"],
-    "Côte d'Ivoire":   ["Orange Money", "MTN Mobile Money", "Moov Money", "Wave"],
-    "Togo":            ["Flooz (Togocom)", "T-Money (Togocom)", "Wave"],
-    "Bénin":           ["MTN Mobile Money", "Moov Money"],
-    "Guinée Conakry":  ["Orange Money", "MTN Mobile Money"],
+# liste à l'économe / au portail selon le pays de l'école.
+# Clé : code ISO alpha-2 (ex. "SN") — source de vérité = CountryModel en base.
+# Ce dict sert de FALLBACK quand la base n'est pas disponible (tests unitaires
+# purs, migrations, etc.).
+_FALLBACK_MOBILE_OPERATORS: dict[str, list[str]] = {
+    "SN": ["Orange Money", "Wave", "Free Money"],
+    "CI": ["Orange Money", "MTN Mobile Money", "Moov Money", "Wave"],
+    "TG": ["Flooz (Togocom)", "T-Money (Togocom)", "Wave"],
+    "BJ": ["MTN Mobile Money", "Moov Money"],
+    "GN": ["Orange Money", "MTN Mobile Money"],
 }
 
-# Utilisé si le pays de l'école n'est pas (encore) reconnu — les opérateurs
-# les plus répandus dans la zone, plutôt qu'une liste vide.
 DEFAULT_MOBILE_OPERATORS = ["Orange Money", "MTN Mobile Money", "Moov Money", "Wave"]
 
 
-def mobile_operators_for_country(country: str | None) -> list[str]:
-    """Retourne les opérateurs Mobile Money proposés pour un pays donné."""
-    return MOBILE_OPERATORS_BY_COUNTRY.get((country or "").strip(), DEFAULT_MOBILE_OPERATORS)
+def mobile_operators_for_country(country) -> list[str]:
+    """
+    Retourne les opérateurs Mobile Money pour un pays donné.
+
+    Accepte :
+      - un CountryModel ORM (SchoolModel.country) → lit .mobile_operators directement
+      - un code ISO string ("SN", "GN"…)
+      - None → liste par défaut
+    """
+    # CountryModel instance directe
+    if country is not None and hasattr(country, "mobile_operators"):
+        ops = country.mobile_operators
+        return ops if ops else DEFAULT_MOBILE_OPERATORS
+
+    # Code ISO string — interroge la base, fallback dict si indisponible
+    if isinstance(country, str) and country.strip():
+        code = country.strip().upper()
+        try:
+            from economat.infrastructure.models import CountryModel
+            obj = CountryModel.objects.filter(code=code).first()
+            if obj and obj.mobile_operators:
+                return obj.mobile_operators
+        except Exception:  # noqa: BLE001
+            pass
+        return _FALLBACK_MOBILE_OPERATORS.get(code, DEFAULT_MOBILE_OPERATORS)
+
+    return DEFAULT_MOBILE_OPERATORS
 
 
 # Identité visuelle (monogramme + couleurs) de chaque opérateur — pour un

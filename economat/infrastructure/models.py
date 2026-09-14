@@ -4,6 +4,7 @@ infrastructure/models.py
 Modèles ORM — NOUVEAU SCHEMA avec année scolaire comme racine temporelle.
 
 Hiérarchie des tables :
+  economat_country               (référentiel pays — géré via l'admin)
   economat_school
     └── economat_school_year       ("2024-2025", ACTIVE/CLOSED)
           ├── economat_level           (rattaché à l'année)
@@ -19,11 +20,63 @@ import uuid
 from django.db import models
 
 
+class CountryModel(models.Model):
+    """
+    Référentiel des pays supportés. Géré via l'admin Django : ajouter un
+    pays (Congo, Guinée Bissau…) = créer une entrée ici, sans toucher au code.
+
+    Champs clés :
+      code             — code ISO 3166-1 alpha-2 (ex. "SN", "GN"), clé métier
+      name             — libellé affiché (ex. "Sénégal", "Guinée Conakry")
+      currency         — devise par défaut (XOF, XAF…)
+      payment_provider — passerelle Mobile Money active pour ce pays
+                         ("samirpay", "crpay", ou "" = aucune / Fake)
+      mobile_operators — liste JSON des opérateurs Mobile Money
+                         ex. ["Orange Money", "Wave"]
+      is_active        — faux = pays masqué dans les formulaires (pas supprimé)
+    """
+    PROVIDER_CHOICES = [
+        ("",          "Aucune (mode test / Fake)"),
+        ("samirpay",  "Samirpay (Sénégal)"),
+        ("crpay",     "CRPay (Guinée Conakry)"),
+    ]
+
+    code             = models.CharField(max_length=2, unique=True, db_index=True,
+                                        verbose_name="Code ISO", help_text="Code ISO 3166-1 alpha-2 (ex. SN)")
+    name             = models.CharField(max_length=100, verbose_name="Pays")
+    currency         = models.CharField(max_length=10, default="XOF",
+                                        verbose_name="Devise", help_text="XOF, XAF…")
+    payment_provider = models.CharField(max_length=20, choices=PROVIDER_CHOICES,
+                                        blank=True, default="",
+                                        verbose_name="Passerelle de paiement")
+    mobile_operators = models.JSONField(default=list, blank=True,
+                                        verbose_name="Opérateurs Mobile Money",
+                                        help_text='Liste JSON, ex. ["Orange Money", "Wave"]')
+    is_active        = models.BooleanField(default=True, verbose_name="Actif",
+                                           help_text="Masqué dans les formulaires si décoché")
+
+    class Meta:
+        app_label  = "economat"
+        db_table   = "economat_country"
+        ordering   = ["name"]
+        verbose_name        = "Pays"
+        verbose_name_plural = "Pays"
+
+    def __str__(self):
+        return f"{self.name} ({self.code})"
+
+
 class SchoolModel(models.Model):
     id             = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name           = models.CharField(max_length=200)
     city           = models.CharField(max_length=100)
-    country        = models.CharField(max_length=100, default="Sénégal")
+    country        = models.ForeignKey(
+        CountryModel,
+        on_delete=models.PROTECT,
+        null=True, blank=True,
+        related_name="schools",
+        verbose_name="Pays",
+    )
     currency       = models.CharField(max_length=10, default="XOF")
     tolerance_days = models.PositiveSmallIntegerField(default=30)
     created_at     = models.DateTimeField(auto_now_add=True)
@@ -187,9 +240,9 @@ class PaymentModel(models.Model):
     # parent via le portail de paiement. Distinction affichée partout où les
     # paiements sont listés.
     channel = models.CharField(max_length=20, choices=PAYMENT_CHANNELS, default="GUICHET")
-    # Référence de transaction chez la passerelle de paiement (CinetPay) —
-    # rempli uniquement pour channel=PORTAIL_PARENT, sert à faire le lien
-    # avec le webhook de confirmation.
+    # Référence de transaction chez la passerelle de paiement (Samirpay/CRPay) —
+    # rempli uniquement pour channel=PORTAIL_PARENT, sert à interroger le statut
+    # par polling (poll_status).
     gateway_transaction_ref = models.CharField(max_length=100, blank=True, default="")
     receipt_number = models.CharField(max_length=120, unique=True)
     # Libellé de la tranche visée (ex. "T1", "T2", "T3", "M1"…) — utilisé dans le numéro de reçu

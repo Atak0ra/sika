@@ -41,7 +41,10 @@ def test_unknown_matricule_shows_generic_error(client, active_enrollment):
 @pytest.mark.django_db
 def test_correct_matricule_wrong_school_shows_same_generic_error(client, active_enrollment):
     from economat.infrastructure.models import SchoolModel
-    other_school = SchoolModel.objects.create(name="Autre École", city="Cotonou", country="Bénin")
+    other_school = SchoolModel.objects.create(
+        name="Autre École", city="Cotonou",
+        country=active_enrollment.student.school.country,  # réutilise le pays existant
+    )
     student = active_enrollment.student
     resp = client.post(reverse("economat:parent_portal_search"), {
         "school": str(other_school.id),

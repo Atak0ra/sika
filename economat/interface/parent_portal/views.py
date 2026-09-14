@@ -4,16 +4,16 @@ interface/parent_portal/views.py
 Vues du portail de paiement parent — AUCUNE authentification. La session
 Django (sans compte) porte l'identité de l'élève confirmé entre les écrans
 (recherche → montant → paiement → reçu).
+
+Confirmation : Samirpay (Sénégal) et CRPay (Guinée Conakry) confirment par
+polling. L'endpoint `status` interroge la passerelle à chaque appel JS
+depuis l'écran d'attente et applique la transition idempotente si confirmé.
 """
 from __future__ import annotations
 
-import json
-
-from django.http import HttpResponseForbidden, JsonResponse
+from django.http import JsonResponse
 from django.shortcuts import redirect, render
-from django.urls import reverse
-from django.views.decorators.csrf import csrf_exempt
-from django.views.decorators.http import require_GET, require_POST
+from django.views.decorators.http import require_GET
 
 from .forms import OnlinePaymentForm, SchoolMatriculeForm
 
@@ -56,7 +56,9 @@ def pay(request):
 
     from economat.infrastructure.models import EnrollmentModel, StudentModel
     try:
-        student = StudentModel.objects.get(pk=student_id, school_id=school_id)
+        student = StudentModel.objects.select_related("school").get(
+            pk=student_id, school_id=school_id
+        )
     except StudentModel.DoesNotExist:
         return redirect("economat:parent_portal_search")
 
@@ -83,16 +85,14 @@ def pay(request):
             from economat.application.use_cases.initiate_online_payment import (
                 InitiateOnlinePaymentCommand,
             )
-            notify_url = request.build_absolute_uri(
-                reverse("economat:parent_portal_webhook_cinetpay")
-            )
-            result = get_initiate_online_payment_use_case().execute(InitiateOnlinePaymentCommand(
+            result = get_initiate_online_payment_use_case(
+                country=student.school.country
+            ).execute(InitiateOnlinePaymentCommand(
                 school_id=str(school_id),
                 matricule=student.matricule,
                 amount_fcfa=form.cleaned_data["amount_fcfa"],
                 mobile_operator=form.cleaned_data["mobile_operator"],
                 mobile_number=form.cleaned_data["mobile_number"],
-                notify_url=notify_url,
             ))
             if result.success:
                 request.session["parent_portal_payment_id"] = result.payment_id
@@ -122,43 +122,30 @@ def waiting(request, payment_id: str):
 
 @require_GET
 def status(request, payment_id: str):
-    """Endpoint pollé en JS toutes les 3s par l'écran d'attente."""
-    from economat.infrastructure.models import PaymentModel
+    """
+    Endpoint pollé en JS toutes les 3s par l'écran d'attente.
+    Interroge la passerelle en direct pour les paiements PENDING et applique
+    la transition idempotente si la passerelle confirme ou refuse.
+    """
+    from economat.infrastructure.models import PaymentModel, StudentModel
     payment = PaymentModel.objects.filter(pk=payment_id, channel="PORTAIL_PARENT").first()
     if payment is None:
         return JsonResponse({"state": "UNKNOWN"}, status=404)
-    return JsonResponse({"state": payment.state})
 
+    if payment.state != "PENDING":
+        return JsonResponse({"state": payment.state})
 
-@csrf_exempt
-@require_POST
-def webhook_cinetpay(request):
-    """
-    Callback serveur-à-serveur de la passerelle de paiement. Aucune session
-    ni authentification utilisateur ici — la sécurité tient entièrement à
-    la vérification de signature avant tout traitement.
-    """
-    from economat.composition import get_confirm_online_payment_use_case, get_payment_gateway
-
-    gateway = get_payment_gateway()
-    raw_body = request.body
-
-    if not gateway.verify_webhook_signature(raw_body, dict(request.headers)):
-        return HttpResponseForbidden("Signature invalide.")
-
+    country = None
     try:
-        event = gateway.parse_webhook_status(raw_body)
-    except (json.JSONDecodeError, KeyError, ValueError):
-        return JsonResponse({"error": "Corps de requête invalide."}, status=400)
+        student = StudentModel.objects.select_related("school").get(pk=payment.student_id)
+        country = student.school.country
+    except StudentModel.DoesNotExist:
+        pass
 
-    result = get_confirm_online_payment_use_case().execute(event)
-    if not result.success:
-        # 200 quand même : évite que le fournisseur ne retente indéfiniment
-        # un webhook pour une transaction qu'on ne reconnaît pas (log côté
-        # serveur suffisant pour investiguer).
-        return JsonResponse({"status": "ignored", "detail": result.error_message})
-
-    return JsonResponse({"status": "ok"})
+    from economat.composition import get_poll_online_payment_use_case
+    result = get_poll_online_payment_use_case(country=country).execute(str(payment_id))
+    state = result.new_state if result.success else payment.state
+    return JsonResponse({"state": state})
 
 
 def receipt(request, payment_id: str):

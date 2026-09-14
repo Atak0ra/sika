@@ -165,7 +165,7 @@ class RecordPaymentCommand:
     # Canal d'encaissement : "" (défaut → GUICHET côté modèle) ou
     # "PORTAIL_PARENT" pour un paiement fait par le parent en ligne.
     channel:           str = ""
-    # Référence de transaction chez la passerelle de paiement (CinetPay),
+    # Référence de transaction chez la passerelle de paiement (Samirpay/CRPay),
     # pertinent seulement pour un paiement portail.
     gateway_transaction_ref: str = ""
     # ── Champs offline / déterministes ───────────────────────────────────

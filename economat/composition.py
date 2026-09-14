@@ -3,17 +3,22 @@ composition.py — Composition Root (NOUVEAU SCHEMA).
 """
 from __future__ import annotations
 
+from economat.infrastructure.persistence.django_repositories import (
+    DjangoEnrollmentRepository,
+    DjangoPaymentRepository,
+    DjangoSchoolRepository,
+    DjangoSchoolYearRepository,
+    DjangoStudentRepository,
+)
+from economat.infrastructure.persistence.identity_repositories import (
+    DjangoMembershipRepository,
+    DjangoUserRepository,
+)
 
 # ─ Helpers internes ────────────────────────────────────────────────────────────────────
 
 def _repos():
-    from economat.infrastructure.persistence.django_repositories import (
-        DjangoEnrollmentRepository, DjangoPaymentRepository,
-        DjangoSchoolRepository, DjangoSchoolYearRepository, DjangoStudentRepository,
-    )
-    from economat.infrastructure.persistence.identity_repositories import (
-        DjangoMembershipRepository, DjangoUserRepository,
-    )
+    
     return {
         "school":      DjangoSchoolRepository(),
         "year":        DjangoSchoolYearRepository(),
@@ -156,24 +161,56 @@ def get_user_repository():
 
 # ─ Portail de paiement parent ──────────────────────────────────────────────────
 
-def get_payment_gateway():
-    from django.conf import settings
-    if settings.PAYMENT_GATEWAY == "cinetpay":
-        from economat.infrastructure.payment.cinetpay_gateway import CinetPayGateway
-        return CinetPayGateway(
-            api_key=settings.CINETPAY_API_KEY,
-            site_id=settings.CINETPAY_SITE_ID,
-            secret_key=settings.CINETPAY_SECRET_KEY,
-        )
+def get_payment_gateway(country=None):
+    """
+    Retourne la passerelle de paiement selon le pays.
+
+    Accepte :
+      - un CountryModel ORM (depuis SchoolModel.country)
+      - un code ISO string ("SN", "GN"…)
+      - None → FakePaymentGateway (dev / tests)
+
+    Le routage est piloté par CountryModel.payment_provider stocké en base :
+    ajouter un pays et sa passerelle = créer une entrée dans l'admin Django,
+    sans modifier ce code.
+    """
+    provider = ""
+
+    if country is not None:
+        # CountryModel ORM instance
+        if hasattr(country, "payment_provider"):
+            provider = country.payment_provider or ""
+        # Code ISO string
+        elif isinstance(country, str) and country:
+            from economat.infrastructure.models import CountryModel
+            try:
+                provider = CountryModel.objects.get(code=country).payment_provider or ""
+            except CountryModel.DoesNotExist:
+                provider = ""
+
+    if provider == "samirpay":
+        from economat.infrastructure.payment.samirpay_gateway import SamirPayGateway
+        return SamirPayGateway()
+    if provider == "crpay":
+        from economat.infrastructure.payment.crpay_gateway import CRPayGateway
+        return CRPayGateway()
     from economat.infrastructure.payment.fake_gateway import FakePaymentGateway
     return FakePaymentGateway()
 
 
-def get_initiate_online_payment_use_case():
+def get_initiate_online_payment_use_case(country: str | None = None):
     from economat.application.use_cases.initiate_online_payment import InitiateOnlinePaymentUseCase
     return InitiateOnlinePaymentUseCase(
         record_payment_use_case=get_record_payment_use_case(),
-        gateway=get_payment_gateway(),
+        gateway=get_payment_gateway(country),
+    )
+
+
+def get_poll_online_payment_use_case(country: str | None = None):
+    from economat.application.use_cases.poll_online_payment import PollOnlinePaymentUseCase
+    return PollOnlinePaymentUseCase(
+        payment_repo=get_payment_repo(),
+        gateway=get_payment_gateway(country),
     )
 
 

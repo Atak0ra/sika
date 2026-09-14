@@ -11,14 +11,15 @@ from django.urls import reverse
 
 @pytest.mark.django_db
 def test_receipt_not_accessible_while_pending(client, active_enrollment):
+    from economat.application.use_cases.initiate_online_payment import (
+        InitiateOnlinePaymentCommand,
+    )
     from economat.composition import get_initiate_online_payment_use_case
-    from economat.application.use_cases.initiate_online_payment import InitiateOnlinePaymentCommand
 
     student = active_enrollment.student
     result = get_initiate_online_payment_use_case().execute(InitiateOnlinePaymentCommand(
         school_id=str(active_enrollment.school_year.school_id), matricule=student.matricule,
         amount_fcfa=25000, mobile_operator="Orange Money", mobile_number="0700000000",
-        notify_url="http://testserver/payer/webhook/cinetpay/",
     ))
     resp = client.get(reverse("economat:parent_portal_receipt", args=[result.payment_id]))
     assert resp.status_code == 302  # redirigé vers l'écran d'attente, pas de reçu
@@ -26,7 +27,6 @@ def test_receipt_not_accessible_while_pending(client, active_enrollment):
 
 @pytest.mark.django_db
 def test_receipt_shown_once_valid(client, active_enrollment):
-    from economat.infrastructure.models import PaymentModel
     from economat.composition import get_record_payment_use_case
     from economat.application.dto import RecordPaymentCommand
 

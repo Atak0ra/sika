@@ -21,7 +21,13 @@ def _create_user(username, password="testpass"):
 
 
 def _create_school(name="École Économe"):
-    return SchoolModel.objects.create(name=name, country="SN", city="Dakar")
+    from economat.infrastructure.models import CountryModel
+    sn, _ = CountryModel.objects.get_or_create(
+        code="SN", defaults={"name": "Sénégal", "currency": "XOF",
+                              "payment_provider": "samirpay",
+                              "mobile_operators": ["Orange Money", "Wave"], "is_active": True}
+    )
+    return SchoolModel.objects.create(name=name, country=sn, city="Dakar")
 
 
 def _create_membership(user, school, role):

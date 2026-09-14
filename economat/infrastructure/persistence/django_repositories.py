@@ -41,11 +41,18 @@ class DjangoSchoolRepository(SchoolRepository):
             return None
 
     def save(self, school: School) -> None:
-        orm = school_to_orm(school)
+        from economat.infrastructure.models import CountryModel
+        # Résoudre la FK pays depuis le code ISO du domaine
+        try:
+            country_obj = CountryModel.objects.get(code=school.country)
+        except CountryModel.DoesNotExist:
+            country_obj = CountryModel.objects.filter(is_active=True).first()
         SchoolModel.objects.update_or_create(
-            pk=orm.id,
-            defaults={"name": orm.name, "city": orm.city, "country": orm.country,
-                      "currency": orm.currency, "tolerance_days": orm.tolerance_days},
+            pk=str(school.id.value),
+            defaults={"name": school.name, "city": school.city,
+                      "country": country_obj,
+                      "currency": school.currency.value,
+                      "tolerance_days": school.tolerance_days},
         )
 
     def find_all(self) -> List[School]:

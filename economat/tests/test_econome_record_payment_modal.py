@@ -31,7 +31,13 @@ def _create_membership(user, school, role):
 
 @pytest.fixture
 def econome_setup(db):
-    school = SchoolModel.objects.create(name="École Test", city="Lomé", country="Togo")
+    from economat.infrastructure.models import CountryModel
+    tg, _ = CountryModel.objects.get_or_create(
+        code="TG", defaults={"name": "Togo", "currency": "XOF", "payment_provider": "",
+                              "mobile_operators": ["Flooz (Togocom)", "T-Money (Togocom)", "Wave"],
+                              "is_active": True}
+    )
+    school = SchoolModel.objects.create(name="École Test", city="Lomé", country=tg)
     year = SchoolYearModel.objects.create(
         school=school, label="2026-2027", status="ACTIVE",
         start_date=datetime.date(2026, 9, 1), end_date=datetime.date(2027, 6, 30),

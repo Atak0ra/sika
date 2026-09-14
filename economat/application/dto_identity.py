@@ -29,7 +29,7 @@ class CreateSchoolCommand:
     director_user_id: str   # user_id du directeur connecté
     school_name:      str
     city:             str
-    country:          str = "Sénégal"
+    country:          str = "SN"   # code ISO alpha-2 (ex. "SN", "GN")
     currency:         str = "XOF"
 
 

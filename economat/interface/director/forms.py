@@ -132,13 +132,7 @@ class DirectorChatForm(forms.Form):
     )
 
 
-SCHOOL_COUNTRY_CHOICES = [
-    ("Sénégal",        "Sénégal"),
-    ("Côte d'Ivoire",  "Côte d'Ivoire"),
-    ("Togo",           "Togo"),
-    ("Bénin",          "Bénin"),
-    ("Guinée Conakry", "Guinée Conakry"),
-]
+SCHOOL_COUNTRY_CHOICES = None  # Supprimé — remplacé par ModelChoiceField dynamique
 
 
 class SchoolSettingsForm(forms.Form):
@@ -148,9 +142,15 @@ class SchoolSettingsForm(forms.Form):
         widget=forms.NumberInput(attrs={"class":"form-input","placeholder":"30"}),
         help_text="Nombre de jours de retard au-delà duquel un élève passe en alerte prioritaire.",
     )
-    country = forms.ChoiceField(
+    country = forms.ModelChoiceField(
         label="Pays",
-        choices=SCHOOL_COUNTRY_CHOICES,
-        widget=forms.Select(attrs={"class":"form-select"}),
+        queryset=None,   # initialisé dans __init__
+        widget=forms.Select(attrs={"class": "form-select"}),
         help_text="Détermine les opérateurs Mobile Money proposés à l'encaissement.",
+        empty_label=None,
     )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        from economat.infrastructure.models import CountryModel
+        self.fields["country"].queryset = CountryModel.objects.filter(is_active=True)

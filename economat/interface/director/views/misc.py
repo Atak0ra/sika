@@ -100,7 +100,7 @@ def school_settings(request, school_id: str, membership=None):
     )
     if request.method == "POST" and form.is_valid():
         school.tolerance_days = form.cleaned_data["tolerance_days"]
-        school.country        = form.cleaned_data["country"]
+        school.country        = form.cleaned_data["country"]  # CountryModel instance
         school.save(update_fields=["tolerance_days", "country"])
         messages.success(request, f"Seuil mis à jour : {school.tolerance_days} jours.")
         return redirect("economat:school_settings", school_id=school_id)

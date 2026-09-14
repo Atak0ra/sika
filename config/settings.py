@@ -153,12 +153,3 @@ if not DEBUG:
 LOGIN_URL           = "/eco/login/"
 LOGIN_REDIRECT_URL  = "/eco/ecoles/"
 LOGOUT_REDIRECT_URL = "/eco/"
-
-# ── Passerelle de paiement Mobile Money (portail parent) ─────────────────────
-# "fake" en développement/tests (aucun compte marchand requis),
-# "cinetpay" en production (nécessite les 3 variables CINETPAY_* ci-dessous).
-PAYMENT_GATEWAY = os.environ.get("PAYMENT_GATEWAY", "fake").strip().lower()
-
-CINETPAY_API_KEY    = os.environ.get("CINETPAY_API_KEY", "").strip()
-CINETPAY_SITE_ID    = os.environ.get("CINETPAY_SITE_ID", "").strip()
-CINETPAY_SECRET_KEY = os.environ.get("CINETPAY_SECRET_KEY", "").strip()
