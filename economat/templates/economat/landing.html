@@ -302,9 +302,9 @@
         Une seule plateforme, partagée par l&rsquo;économe, la secrétaire et le directeur.
       </p>
       <div class="hero-cta">
-        <a href="{% url 'economat:login' %}" class="btn btn-primary"
+        <a href="{% url 'economat:register_school' %}" class="btn btn-primary"
            style="background:#fff;color:#1a1d29;border-color:#fff;padding:.8rem 1.75rem;font-size:.9375rem;font-weight:700;box-shadow:0 4px 16px rgba(0,0,0,.2);">
-          Accéder &agrave; la plateforme
+          Inscrire mon école
           <svg style="width:1em;height:1em;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;vertical-align:-.1em;" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
         </a>
         <a href="{% url 'economat:parent_portal_search' %}" class="btn btn-outline"
@@ -315,9 +315,9 @@
         </a>
       </div>
       <p class="hero-note">
-        Accès sur invitation de l&rsquo;administrateur.
+        Demande d&rsquo;inscription en ligne, en quelques minutes.
         &ensp;<span style="color:rgba(255,255,255,.25);">|</span>&ensp;
-        <span style="color:rgba(255,255,255,.45);">Paiement &amp; historique pour votre enfant.</span>
+        <span style="color:rgba(255,255,255,.45);">Déjà inscrit&nbsp;? <a href="{% url 'economat:login' %}" style="color:rgba(255,255,255,.65);text-decoration:underline;">Se connecter</a>.</span>
       </p>
     </div>
 
@@ -450,13 +450,16 @@
     <div style="width:3rem;height:3rem;border-radius:14px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;margin:0 auto 1.5rem;">
       <svg style="width:1.4rem;height:1.4rem;stroke:#fff;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><use href="#il-school"/></svg>
     </div>
-    <h2 class="cta-title">Votre école est sur la plateforme&nbsp;?</h2>
+    <h2 class="cta-title">Votre école n&rsquo;est pas encore sur la plateforme&nbsp;?</h2>
     <p class="cta-sub">
-      Connectez-vous avec les identifiants fournis par votre administrateur.
+      Soumettez votre demande d&rsquo;inscription en ligne, en quelques minutes.
     </p>
-    <a href="{% url 'economat:login' %}" class="btn" style="background:#fff;color:var(--text-1);border:1px solid rgba(255,255,255,.15);padding:.8rem 2rem;font-size:.9375rem;font-weight:700;border-radius:10px;">
-      Se connecter
+    <a href="{% url 'economat:register_school' %}" class="btn" style="background:#fff;color:var(--text-1);border:1px solid rgba(255,255,255,.15);padding:.8rem 2rem;font-size:.9375rem;font-weight:700;border-radius:10px;">
+      Inscrire mon école
     </a>
+    <p style="margin-top:1rem;font-size:.8125rem;">
+      <a href="{% url 'economat:login' %}" style="color:rgba(255,255,255,.55);text-decoration:underline;">Déjà inscrit ? Se connecter</a>
+    </p>
   </div>
 </section>
 
