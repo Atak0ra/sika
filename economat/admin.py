@@ -229,7 +229,7 @@ _activate_registrations.short_description = "Activer les dossiers sélectionnés
 @admin.register(SchoolRegistrationModel)
 class SchoolRegistrationAdmin(admin.ModelAdmin):
     list_display  = (
-        "school_name", "city", "country", "manager_email",
+        "school_name", "city", "country", "manager_email", "id_display",
         "status_badge", "payment_methods_display", "created_at",
     )
     list_filter   = ("status", "country")
@@ -256,10 +256,16 @@ class SchoolRegistrationAdmin(admin.ModelAdmin):
         }),
         ("Identifiants techniques", {
             "fields": ("id", "client_uuid"),
-            "classes": ("collapse",),
         }),
     )
     actions = [_activate_registrations]
+
+    @admin.display(description="UUID")
+    def id_display(self, obj):
+        return format_html(
+            '<span style="font-family:monospace;font-size:11px;color:#52556b;" title="{0}">{0}</span>',
+            obj.id,
+        )
 
     @admin.display(description="Statut")
     def status_badge(self, obj):
