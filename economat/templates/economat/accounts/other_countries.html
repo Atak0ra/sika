@@ -1,0 +1,127 @@
+{% extends "economat/accounts/base_auth.html" %}
+
+{% block title %}Sukulu arrive dans votre pays — Sukulu{% endblock %}
+
+{% block content %}
+
+{% if submitted %}
+{# ── Confirmation après soumission ───────────────────────────────────────── #}
+<div style="text-align:center;">
+  <div style="width:3.5rem;height:3.5rem;background:#ecfdf5;border-radius:50%;
+              display:inline-flex;align-items:center;justify-content:center;margin-bottom:1.25rem;">
+    <svg aria-hidden="true" style="width:1.6rem;height:1.6rem;stroke:#059669;fill:none;
+                stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24">
+      <polyline points="20 6 9 17 4 12"/>
+    </svg>
+  </div>
+
+  <h2 style="font-size:1.1875rem;font-weight:700;color:#1a1d29;margin-bottom:.5rem;
+             letter-spacing:-0.02em;">C'est noté, merci !</h2>
+
+  <p style="font-size:.875rem;color:#4b4e5f;line-height:1.7;margin-bottom:1.5rem;">
+    Nous vous contacterons dès que Sukulu sera disponible dans votre pays.<br>
+    Restez à l'écoute — nous nous déployons rapidement&nbsp;! 🌍
+  </p>
+
+  <a href="{% url 'economat:landing' %}"
+     style="display:inline-flex;align-items:center;gap:.4rem;font-size:.875rem;
+            color:var(--brand);font-weight:600;text-decoration:none;">
+    <svg aria-hidden="true" style="width:.875rem;height:.875rem;stroke:currentColor;fill:none;
+                stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24">
+      <path d="M15 18l-6-6 6-6"/>
+    </svg>
+    Retour à l'accueil
+  </a>
+</div>
+
+{% else %}
+{# ── Formulaire principal ─────────────────────────────────────────────────── #}
+
+{# Icône globe #}
+<div style="text-align:center;margin-bottom:1.5rem;">
+  <div style="display:inline-flex;align-items:center;justify-content:center;
+              width:3rem;height:3rem;background:#eef2ff;border-radius:50%;margin-bottom:.75rem;">
+    <svg aria-hidden="true" style="width:1.4rem;height:1.4rem;stroke:#4f46e5;fill:none;
+                stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="10"/>
+      <line x1="2" y1="12" x2="22" y2="12"/>
+      <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+    </svg>
+  </div>
+
+  <h2 style="font-size:1.125rem;font-weight:700;color:#1a1d29;margin:0 0 .5rem;
+             letter-spacing:-0.02em;">
+    Sukulu arrive bientôt dans votre pays
+  </h2>
+  <p style="font-size:.8375rem;color:#4b4e5f;line-height:1.65;margin:0;">
+    Nous nous déployons partout en Afrique — laissez votre email ci-dessous
+    pour être prévenu(e) dès que nous serons disponibles chez vous.<br>
+    Vous recevrez aussi occasionnellement nos actualités et annonces produit.
+  </p>
+</div>
+
+{# Encart informatif #}
+<div style="background:#f8f9ff;border:1px solid #e0e7ff;border-radius:12px;
+            padding:1rem 1.1rem;margin-bottom:1.5rem;">
+  <div style="display:flex;align-items:flex-start;gap:.55rem;">
+    <svg aria-hidden="true" style="width:.9rem;height:.9rem;stroke:#6366f1;fill:none;stroke-width:2;
+                stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;margin-top:.15rem;" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="10"/>
+      <line x1="12" y1="8" x2="12" y2="12"/>
+      <line x1="12" y1="16" x2="12.01" y2="16"/>
+    </svg>
+    <p style="font-size:.8125rem;color:#4b4e5f;margin:0;line-height:1.6;">
+      Votre email ne sera utilisé que pour vous informer du lancement.<br>
+      Aucun spam — promis.
+    </p>
+  </div>
+</div>
+
+{# Formulaire #}
+<form method="post" novalidate>
+  {% csrf_token %}
+
+  <div style="display:flex;flex-direction:column;gap:1rem;margin-bottom:1.5rem;">
+    <div>
+      <label class="field-label" for="{{ form.email.id_for_label }}">
+        {{ form.email.label }}
+      </label>
+      {{ form.email }}
+      {% if form.email.errors %}
+      <p class="field-error">{{ form.email.errors.0 }}</p>
+      {% endif %}
+    </div>
+
+    <div>
+      <label class="field-label" for="{{ form.country_name.id_for_label }}">
+        {{ form.country_name.label }}
+      </label>
+      {{ form.country_name }}
+      {% if form.country_name.errors %}
+      <p class="field-error">{{ form.country_name.errors.0 }}</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <button type="submit" class="btn-primary" data-loading-text="Envoi en cours…">
+    <svg aria-hidden="true" style="width:.875rem;height:.875rem;stroke:currentColor;fill:none;
+                stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24">
+      <line x1="22" y1="2" x2="11" y2="13"/>
+      <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+    </svg>
+    Me prévenir dès l'ouverture
+  </button>
+</form>
+
+{# Lien retour vers l'inscription #}
+<p style="text-align:center;margin-top:1.25rem;font-size:.8125rem;color:var(--text-3);">
+  Votre pays est déjà disponible ?
+  <a href="{% url 'economat:register_school' %}"
+     style="color:var(--brand);font-weight:600;text-decoration:none;">
+    Inscrire votre école →
+  </a>
+</p>
+
+{% endif %}
+
+{% endblock %}
