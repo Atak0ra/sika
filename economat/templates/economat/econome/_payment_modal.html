@@ -70,7 +70,8 @@
           <div>
             <label class="field-label">Montant</label>
             <div style="position:relative;">
-              <input type="number" name="amount_fcfa" min="1" class="form-input" placeholder="0" style="padding-right:3.25rem;font-size:1.0625rem;font-weight:600;font-variant-numeric:tabular-nums;" {% if form.amount_fcfa.value %}value="{{ form.amount_fcfa.value }}"{% endif %}>
+              <input type="text" inputmode="numeric" data-amount-for="amount_fcfa" class="form-input" placeholder="0" style="padding-right:3.25rem;font-size:1.0625rem;font-weight:600;font-variant-numeric:tabular-nums;" {% if form.amount_fcfa.value %}value="{{ form.amount_fcfa.value }}"{% endif %}>
+              <input type="hidden" name="amount_fcfa" {% if form.amount_fcfa.value %}value="{{ form.amount_fcfa.value }}"{% endif %}>
               <span style="position:absolute;right:.75rem;top:50%;transform:translateY(-50%);font-size:.775rem;font-weight:600;color:#9397a8;pointer-events:none;">FCFA</span>
             </div>
             {% if form.amount_fcfa.errors %}<p class="field-error">{{ form.amount_fcfa.errors.0 }}</p>{% endif %}

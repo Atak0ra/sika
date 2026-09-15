@@ -360,8 +360,9 @@
 
       <div style="margin-bottom:1.25rem;">
         <label class="field-label">Montant (FCFA)</label>
-        <input type="number" name="amount_fcfa" min="1" class="form-input"
-               placeholder="Ex : 25000" value="{{ balance }}" required>
+        <input type="text" inputmode="numeric" data-amount-for="amount_fcfa" class="form-input"
+               placeholder="Ex : 25 000" value="{{ balance }}" required>
+        <input type="hidden" name="amount_fcfa" value="{{ balance }}">
         <p style="font-size:.72rem;color:#9397a8;margin-top:.3rem;">Reste dû&nbsp;: {{ balance|fcfa_long }}</p>
       </div>
 

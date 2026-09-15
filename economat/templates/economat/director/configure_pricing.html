@@ -1,16 +1,16 @@
 {% extends "economat/director/_base_director.html" %}
 {% load economat_tags %}
-{% block title %}Tarifs — {{ year.label }}{% endblock %}
+{% block title %}Tarifs — {{ school_year.label }}{% endblock %}
 {% block director_content %}
 
 <div style="margin-bottom:1.5rem;">
   <h1 style="font-size:1.125rem;font-weight:700;letter-spacing:-0.02em;">Configuration des tarifs</h1>
-  <p style="font-size:.8375rem;color:#9397a8;margin-top:.25rem;">{{ school.name }} {{ year.label }}</p>
+  <p style="font-size:.8375rem;color:#9397a8;margin-top:.25rem;">{{ school.name }} {{ school_year.label }}</p>
 </div>
 
-{% if year.levels.all %}
+{% if school_year.levels.all %}
 <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1rem;">
-  {% for level in year.levels.all %}
+  {% for level in school_year.levels.all %}
   <div class="card" style="padding:1.5rem;">
     <div style="display:flex;align-items:center;gap:.65rem;margin-bottom:1.25rem;">
       <div style="width:2rem;height:2rem;border-radius:8px;background:#eef2ff;color:#4f46e5;
@@ -31,8 +31,9 @@
       <input type="hidden" name="level_id" value="{{ level.id }}">
       <div style="margin-bottom:1rem;">
         <label class="field-label">Frais annuels (FCFA)</label>
-        <input type="number" name="annual_fee_fcfa" min="1" value="{{ level.annual_fee }}"
-               placeholder="Ex : 150000" class="form-input">
+        <input type="text" inputmode="numeric" data-amount-for="annual_fee_fcfa" value="{{ level.annual_fee }}"
+               placeholder="Ex : 150 000" class="form-input">
+        <input type="hidden" name="annual_fee_fcfa" value="{{ level.annual_fee }}">
       </div>
       <div style="margin-bottom:1.25rem;">
         <label class="field-label">Mode de paiement</label>

@@ -1,12 +1,12 @@
 {% extends "economat/director/_base_director.html" %}
 {% load economat_tags %}
-{% block title %}Alertes de paiement — {{ year.label }}{% endblock %}
+{% block title %}Alertes de paiement — {{ school_year.label }}{% endblock %}
 
 {% block director_content %}
 <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:.75rem;margin-bottom:1.5rem;">
   <div>
     <h1 style="font-size:1.125rem;font-weight:700;letter-spacing:-0.02em;">Alertes de paiement</h1>
-    <p style="font-size:.8375rem;color:#9397a8;margin-top:.25rem;">{{ school.name }} {{ year.label }}</p>
+    <p style="font-size:.8375rem;color:#9397a8;margin-top:.25rem;">{{ school.name }} {{ school_year.label }}</p>
   </div>
   {% if school and school_year and bi %}
   <a href="{% url 'economat:export_renvoyables' school.id school_year.id %}"

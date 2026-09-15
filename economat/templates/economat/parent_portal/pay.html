@@ -32,7 +32,9 @@
       {% csrf_token %}
       <div>
         <label class="field-label">{{ form.amount_fcfa.label }}</label>
-        {{ form.amount_fcfa }}
+        <input type="text" inputmode="numeric" data-amount-for="amount_fcfa" class="form-input"
+               placeholder="Ex : 25 000" {% if form.amount_fcfa.value %}value="{{ form.amount_fcfa.value }}"{% endif %}>
+        <input type="hidden" name="amount_fcfa" {% if form.amount_fcfa.value %}value="{{ form.amount_fcfa.value }}"{% endif %}>
         {% if form.amount_fcfa.errors %}<p class="field-error">{{ form.amount_fcfa.errors.0 }}</p>{% endif %}
       </div>
 
