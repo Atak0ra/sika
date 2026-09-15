@@ -113,13 +113,6 @@ def get_cancel_payment_use_case():
     )
 
 
-# ─ Chat IA ────────────────────────────────────────────────────────────────────────
-
-def get_ask_director_chat_query():
-    from economat.application.use_cases.ask_director_chat import AskDirectorChatQuery
-    from economat.infrastructure.ai.groq_llm_adapter import GroqLLMAdapter
-    return AskDirectorChatQuery(llm_port=GroqLLMAdapter())
-
 
 # ─ Identity ────────────────────────────────────────────────────────────────────────
 

@@ -10,7 +10,7 @@ urlpatterns = [
     path("",        include("economat.interface.accounts.urls")),
     # Interface économe (saisie paiements)
     path("econome/",   include("economat.interface.econome.urls")),
-    # Interface directeur (dashboard + tarifs + inscriptions + chat IA)
+    # Interface directeur (dashboard + tarifs + inscriptions)
     path("directeur/", include("economat.interface.director.urls")),
     # Portail de paiement parent — sans authentification
     path("payer/", include("economat.interface.parent_portal.urls")),

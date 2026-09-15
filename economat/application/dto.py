@@ -207,24 +207,3 @@ class CancelPaymentResult:
     payment_id:     Optional[str] = None
     receipt_number: Optional[str] = None
     error_message:  Optional[str] = None
-
-
-# ─ Chat IA ──────────────────────────────────────────────────────────────────────
-
-@dataclass(frozen=True)
-class AskDirectorChatCommand:
-    question:          str
-    school_id:         str
-    year_id:           str
-    school_year_label: str = ""
-    history:           List[dict] = field(default_factory=list)
-
-@dataclass
-class AskDirectorChatResult:
-    success:       bool
-    intent:        str = "analytical"
-    chat_reply:    Optional[str] = None
-    sql:           str = ""
-    columns:       List[str] = field(default_factory=list)
-    rows:          List[tuple] = field(default_factory=list)
-    error_message: Optional[str] = None

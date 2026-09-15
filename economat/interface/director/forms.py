@@ -122,16 +122,6 @@ class RegisterStudentForm(forms.Form):
             self.fields["class_id"].choices = [(str(c.id), f"{c.level.name} — {c.name}") for c in classes]
 
 
-class DirectorChatForm(forms.Form):
-    question = forms.CharField(
-        label="Votre question", max_length=500,
-        widget=forms.TextInput(attrs={
-            "placeholder":"Ex : Combien d'élèves en retard en CM2 ?",
-            "autocomplete":"off", "class":"chat-input", "id":"directorChatInput",
-        }),
-    )
-
-
 SCHOOL_COUNTRY_CHOICES = None  # Supprimé — remplacé par ModelChoiceField dynamique
 
 

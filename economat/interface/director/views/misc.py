@@ -5,7 +5,6 @@ Vues diverses du directeur :
   - alerts              : page alertes de paiement
   - export_renvoyables  : export CSV alertes prioritaires
   - school_settings     : paramètres de l'école
-  - chat                : chat IA directeur (Text-to-SQL)
 """
 from __future__ import annotations
 
@@ -14,19 +13,15 @@ import logging
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse
 from django.shortcuts import redirect, render
 
-from economat.application.dto import AskDirectorChatCommand
-from economat.composition import (
-    get_ask_director_chat_query,
-    get_financial_dashboard_query,
-)
+from economat.composition import get_financial_dashboard_query
 from economat.domain.identity.value_objects import Role
 from economat.infrastructure.models import SchoolModel, SchoolYearModel
 from economat.interface.decorators import require_membership, require_role
 
-from ..forms import DirectorChatForm, SchoolSettingsForm
+from ..forms import SchoolSettingsForm
 from ._shared import _active_year, base_context
 
 logger = logging.getLogger(__name__)
@@ -114,52 +109,4 @@ def school_settings(request, school_id: str, membership=None):
     return render(request, "economat/director/school_settings.html", ctx)
 
 
-@login_required
-@require_membership
-@require_role(Role.DIRECTOR)
-def chat(request, school_id: str, year_id: str, membership=None):
-    """
-    Chat IA directeur — questions en langage naturel sur les données scolaires.
-    L'historique est stocké en session (20 derniers messages).
-    """
-    try:
-        school = SchoolModel.objects.get(pk=school_id)
-        year   = SchoolYearModel.objects.get(pk=year_id)
-    except (SchoolModel.DoesNotExist, SchoolYearModel.DoesNotExist):
-        return redirect("economat:director_dashboard")
-
-    session_key  = f"chat_{school_id}_{year_id}"
-    chat_history = request.session.get(session_key, [])
-    form         = DirectorChatForm(request.POST or None)
-
-    if request.method == "POST" and form.is_valid():
-        result = get_ask_director_chat_query().execute(AskDirectorChatCommand(
-            question=form.cleaned_data["question"],
-            school_id=school_id, year_id=year_id,
-            school_year_label=year.label,
-            history=chat_history,
-        ))
-        chat_history.append({"role": "user", "content": form.cleaned_data["question"]})
-        chat_history.append({
-            "role":    "assistant",
-            "content": (
-                result.chat_reply
-                or ("Voici les données :" if result.success else f"{result.error_message}")
-            ),
-            "columns": result.columns if result.success else [],
-            "rows":    [list(r) for r in result.rows] if result.success else [],
-            "sql":     result.sql if result.success else "",
-        })
-        request.session[session_key] = chat_history[-20:]
-        request.session.modified = True
-
-        if request.headers.get("X-Requested-With") == "XMLHttpRequest":
-            return JsonResponse({"ok": result.success, "message": chat_history[-1]})
-
-    ctx = base_context(
-        request, school, year, "chat", membership=membership,
-        form=form, chat_history=chat_history,
-        page_title=f"Chat IA — {year.label}",
-    )
-    return render(request, "economat/director/chat.html", ctx)
 

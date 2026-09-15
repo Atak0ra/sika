@@ -30,7 +30,7 @@ class TestMembershipPermissions:
         m = make_membership(Role.DIRECTOR)
         assert all([m.can_record_payment(), m.can_register_student(),
                     m.can_configure_pricing(), m.can_manage_team(),
-                    m.can_view_dashboard(), m.can_use_chat()])
+                    m.can_view_dashboard()])
 
     def test_econome_seulement_paiement(self):
         m = make_membership(Role.ECONOME)

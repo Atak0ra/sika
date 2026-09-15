@@ -11,11 +11,11 @@ Organisation interne :
   structure.py  — add_level, add_class, configure_pricing
   students.py   — students_list, register_student, student_detail,
                   class_detail, promote_class
-  misc.py       — alerts, export_renvoyables, school_settings, chat
+  misc.py       — alerts, export_renvoyables, school_settings
 """
 
 from .dashboard import dashboard, dashboard_refresh, secretary_dashboard, switch_year
-from .misc import alerts, chat, export_renvoyables, school_settings
+from .misc import alerts, export_renvoyables, school_settings
 from .structure import add_class, add_level, configure_pricing
 from .students import (
     class_detail,
@@ -32,6 +32,6 @@ __all__ = [
     "add_level", "add_class", "configure_pricing",
     "students_list", "register_student", "student_detail",
     "class_detail", "promote_class",
-    "alerts", "export_renvoyables", "school_settings", "chat",
+    "alerts", "export_renvoyables", "school_settings",
 ]
 

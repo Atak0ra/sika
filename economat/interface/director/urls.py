@@ -41,10 +41,6 @@ urlpatterns = [
     path("<str:school_id>/<str:year_id>/eleves/<str:enrollment_id>/",
          views.student_detail,     name="student_detail"),
 
-    # Chat IA (DIRECTOR)
-    path("<str:school_id>/<str:year_id>/chat/",
-         views.chat,               name="director_chat"),
-
     # Alertes de paiement (DIRECTOR)
     path("<str:school_id>/<str:year_id>/alertes/",
          views.alerts,             name="alerts"),

@@ -23,11 +23,6 @@ def landing(request):
             "desc": "Paiement unique, 3 tranches (40/30/30 %) ou mensualités sur 10 mois. Configurable par niveau.",
         },
         {
-            "icon": "ai", "bg": "#fdf4ff", "color": "#9333ea",
-            "title": "Chat IA",
-            "desc": "Le directeur pose ses questions en français. L’IA interroge les données et répond en chiffres.",
-        },
-        {
             "icon": "users", "bg": "#f0fdf4", "color": "#16a34a",
             "title": "Multi-rôles",
             "desc": "Directeur, secrétaire, économe — chacun accède uniquement à son périmètre.",

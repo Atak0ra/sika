@@ -91,10 +91,6 @@ class Membership:
         """Le dashboard stats est réservé au Directeur."""
         return self.is_active and self.role == Role.DIRECTOR
 
-    def can_use_chat(self) -> bool:
-        """Le chat IA est réservé au Directeur."""
-        return self.is_active and self.role == Role.DIRECTOR
-
     def can_manage_structure(self) -> bool:
         """Directeur et Secrétaire peuvent créer/modifier niveaux et classes."""
         return self.is_active and self.role in (Role.DIRECTOR, Role.SECRETARY)
