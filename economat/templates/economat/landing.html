@@ -11,12 +11,15 @@
   <style>
     :root {
       --bg:#fbfbfd; --surface:#fff; --border:#ecedf1; --border-hover:#d1d5db;
-      --text-1:#1a1d29; --text-2:#52556b; --text-3:#9397a8;
-      --brand:#4f46e5; --brand-hover:#4338ca; --brand-ring:rgba(79,70,229,.14);
+      --text-1:#1a1d29; --text-2:#4b4e5f; --text-3:#6b7280;
+      --brand:#4f46e5; --brand-hover:#4338ca; --brand-ring:rgba(79,70,229,.35);
       --shadow-xs:0 1px 2px rgba(16,24,40,.04);
       --shadow-sm:0 1px 3px rgba(16,24,40,.06),0 1px 2px rgba(16,24,40,.04);
       --shadow-md:0 4px 16px rgba(16,24,40,.08),0 1px 3px rgba(16,24,40,.04);
       --transition:.15s cubic-bezier(.4,0,.2,1);
+      /* Sur fonds indigo : opacités recalculées ≥ 4.5:1 */
+      --on-dark-secondary: rgba(255,255,255,.87);
+      --on-dark-muted    : rgba(255,255,255,.72);
     }
     *,*::before,*::after{box-sizing:border-box;}
     body{
@@ -107,11 +110,11 @@
     }
     .hero-title em{font-style:normal;color:#a5b4fc;}
     .hero-sub{
-      font-size:1.125rem;color:rgba(255,255,255,.65);
+      font-size:1.125rem;color:var(--on-dark-secondary);
       line-height:1.8;margin-bottom:2.25rem;max-width:520px;
     }
     .hero-cta{display:flex;align-items:center;gap:.75rem;flex-wrap:wrap;}
-    .hero-note{font-size:.78rem;color:rgba(255,255,255,.35);margin-top:.85rem;}
+    .hero-note{font-size:.8rem;color:var(--on-dark-muted);margin-top:.85rem;}
 
     /* ── Reçu de paiement (visuel hero) ──────────────────── */
     .receipt-wrap{position:relative;height:380px;display:flex;align-items:center;justify-content:center;}
@@ -136,14 +139,14 @@
     .receipt-head{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1rem;}
     .receipt-brand{display:flex;align-items:center;gap:.4rem;font-size:.75rem;font-weight:700;color:#1a1d29;}
     .receipt-brand svg{width:.9rem;height:.9rem;stroke:#4f46e5;}
-    .receipt-num{font-size:.6875rem;color:#9397a8;font-variant-numeric:tabular-nums;}
+    .receipt-num{font-size:.6875rem;color:#6b7280;font-variant-numeric:tabular-nums;}
     .receipt-divider{border-top:1.5px dashed #ecedf1;margin:0 0 1rem;}
     .receipt-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:.85rem;}
     .receipt-student{font-size:.8125rem;font-weight:600;color:#1a1d29;}
-    .receipt-class{font-size:.75rem;color:#9397a8;}
-    .receipt-amount-lbl{font-size:.7rem;color:#9397a8;margin-bottom:.15rem;}
+    .receipt-class{font-size:.75rem;color:#6b7280;}
+    .receipt-amount-lbl{font-size:.7rem;color:#6b7280;margin-bottom:.15rem;}
     .receipt-amount{font-size:1.75rem;font-weight:800;color:#1a1d29;letter-spacing:-0.02em;line-height:1;}
-    .receipt-amount span{font-size:.9rem;font-weight:600;color:#52556b;}
+    .receipt-amount span{font-size:.9rem;font-weight:600;color:#4b4e5f;}
     .receipt-foot{display:flex;align-items:center;justify-content:space-between;margin-top:1.1rem;}
     .receipt-paid{
       display:inline-flex;align-items:center;gap:.3rem;
@@ -151,17 +154,17 @@
       padding:.25rem .6rem;border-radius:999px;
     }
     .receipt-paid svg{width:.75rem;height:.75rem;}
-    .receipt-date{font-size:.72rem;color:#9397a8;}
+    .receipt-date{font-size:.72rem;color:#6b7280;}
 
     /* Indicateur scroll */
     .scroll-hint{
       position:absolute;bottom:1.75rem;left:50%;transform:translateX(-50%);
       display:flex;flex-direction:column;align-items:center;gap:.4rem;
-      color:rgba(255,255,255,.35);font-size:.72rem;font-weight:500;
+      color:var(--on-dark-muted);font-size:.75rem;font-weight:500;
       cursor:pointer;z-index:2;transition:color .2s;
       text-decoration:none;
     }
-    .scroll-hint:hover{color:rgba(255,255,255,.7);}
+    .scroll-hint:hover{color:#fff;}
     .scroll-arrow{
       width:28px;height:28px;border:1.5px solid rgba(255,255,255,.18);border-radius:50%;
       display:flex;align-items:center;justify-content:center;
@@ -206,7 +209,7 @@
       font-size:.84375rem;
     }
     .role-check{color:#059669;flex-shrink:0;}
-    .role-cross{color:#d1d5db;flex-shrink:0;}
+    .role-cross{color:#6b7280;flex-shrink:0;}
     .role-list .off{color:var(--text-3);}
 
     /* CTA final */
@@ -216,7 +219,7 @@
     }
     .cta-inner{max-width:560px;margin:0 auto;text-align:center;}
     .cta-title{font-size:2rem;font-weight:800;color:#fff;margin-bottom:.75rem;}
-    .cta-sub{font-size:1rem;color:rgba(255,255,255,.55);margin-bottom:2rem;line-height:1.7;}
+    .cta-sub{font-size:1rem;color:var(--on-dark-muted);margin-bottom:2rem;line-height:1.7;}
 
     /* Footer */
     .footer{
@@ -278,7 +281,7 @@
 <nav class="nav">
   <div class="nav-inner">
     <div class="nav-logo">
-      <svg style="width:1.4rem;height:1.4rem;stroke:var(--brand);fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><use href="#il-school"/></svg>
+      <svg aria-hidden="true" style="width:1.4rem;height:1.4rem;stroke:var(--brand);fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><use href="#il-school"/></svg>
       <span class="brand-mark">Sukulu</span>
     </div>
     <a href="{% url 'economat:login' %}" class="btn btn-primary" style="padding:.5rem 1rem;font-size:.8375rem;">
@@ -305,19 +308,19 @@
         <a href="{% url 'economat:register_school' %}" class="btn btn-primary"
            style="background:#fff;color:#1a1d29;border-color:#fff;padding:.8rem 1.75rem;font-size:.9375rem;font-weight:700;box-shadow:0 4px 16px rgba(0,0,0,.2);">
           Inscrire mon école
-          <svg style="width:1em;height:1em;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;vertical-align:-.1em;" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+          <svg aria-hidden="true" style="width:1em;height:1em;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;vertical-align:-.1em;" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
         </a>
         <a href="{% url 'economat:parent_portal_search' %}" class="btn btn-outline"
            style="padding:.8rem 1.75rem;font-size:.9375rem;font-weight:700;
                   background:rgba(255,255,255,.1);color:#fff;border-color:rgba(255,255,255,.25);">
-          <svg style="width:1em;height:1em;stroke:currentColor;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;vertical-align:-.1em;" viewBox="0 0 24 24"><use href="#il-users"/></svg>
+          <svg aria-hidden="true" style="width:1em;height:1em;stroke:currentColor;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;vertical-align:-.1em;" viewBox="0 0 24 24"><use href="#il-users"/></svg>
           Espace parent
         </a>
       </div>
       <p class="hero-note">
         Demande d&rsquo;inscription en ligne, en quelques minutes.
-        &ensp;<span style="color:rgba(255,255,255,.25);">|</span>&ensp;
-        <span style="color:rgba(255,255,255,.45);">Déjà inscrit&nbsp;? <a href="{% url 'economat:login' %}" style="color:rgba(255,255,255,.65);text-decoration:underline;">Se connecter</a>.</span>
+        &ensp;<span style="color:var(--on-dark-muted);">|</span>&ensp;
+        <span style="color:var(--on-dark-muted);">Déjà inscrit&nbsp;? <a href="{% url 'economat:login' %}" style="color:#fff;text-decoration:underline;font-weight:600;">Se connecter</a>.</span>
       </p>
     </div>
 
@@ -328,7 +331,7 @@
         <div class="receipt-top"></div>
         <div class="receipt-head">
           <div class="receipt-brand">
-            <svg viewBox="0 0 24 24"><use href="#il-school"/></svg>
+            <svg aria-hidden="true" viewBox="0 0 24 24"><use href="#il-school"/></svg>
             Sukulu
           </div>
           <div class="receipt-num">N&deg; 2026&ndash;000482</div>
@@ -342,7 +345,7 @@
         <div class="receipt-amount">60&thinsp;000 <span>FCFA</span></div>
         <div class="receipt-foot">
           <span class="receipt-paid">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
             Payé
           </span>
           <span class="receipt-date">12/09/2026</span>
@@ -355,7 +358,7 @@
   <a class="scroll-hint" href="#features">
     Découvrir les fonctionnalités
     <div class="scroll-arrow">
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+      <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
     </div>
   </a>
 
@@ -373,7 +376,7 @@
       {% for f in features %}
       <div class="feature">
         <div class="feature-icon" style="background:{{ f.bg }};color:{{ f.color }};">
-          <svg style="width:1.2rem;height:1.2rem;stroke:currentColor;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><use href="#il-{{ f.icon }}"/></svg>
+          <svg aria-hidden="true" style="width:1.2rem;height:1.2rem;stroke:currentColor;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><use href="#il-{{ f.icon }}"/></svg>
         </div>
         <div class="feature-title">{{ f.title }}</div>
         <div class="feature-desc">{{ f.desc }}</div>
@@ -396,47 +399,47 @@
       <!-- Directeur -->
       <div class="role" style="border-color:#c7d2fe;background:#eef2ff;">
         <div style="width:2rem;height:2rem;border-radius:8px;background:#4f46e5;display:flex;align-items:center;justify-content:center;margin-bottom:.85rem;">
-          <svg style="width:1rem;height:1rem;stroke:#fff;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><use href="#il-chart"/></svg>
+          <svg aria-hidden="true" style="width:1rem;height:1rem;stroke:#fff;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><use href="#il-chart"/></svg>
         </div>
         <div class="role-title" style="color:#312e81;">Directeur</div>
         <div class="role-sub">Accès complet</div>
         <ul class="role-list">
-          <li><svg class="icon role-check" style="width:.9em;height:.9em;"><use href="#il-check"/></svg> Dashboard &amp; KPIs</li>
-          <li><svg class="icon role-check" style="width:.9em;height:.9em;"><use href="#il-check"/></svg> Configuration des tarifs</li>
-          <li><svg class="icon role-check" style="width:.9em;height:.9em;"><use href="#il-check"/></svg> Gestion de l’équipe</li>
-          <li><svg class="icon role-check" style="width:.9em;height:.9em;"><use href="#il-check"/></svg> Chat IA (exploration)</li>
+          <li><svg aria-hidden="true" class="icon role-check" style="width:.9em;height:.9em;"><use href="#il-check"/></svg> Dashboard &amp; KPIs</li>
+          <li><svg aria-hidden="true" class="icon role-check" style="width:.9em;height:.9em;"><use href="#il-check"/></svg> Configuration des tarifs</li>
+          <li><svg aria-hidden="true" class="icon role-check" style="width:.9em;height:.9em;"><use href="#il-check"/></svg> Gestion de l’équipe</li>
+          <li><svg aria-hidden="true" class="icon role-check" style="width:.9em;height:.9em;"><use href="#il-check"/></svg> Chat IA (exploration)</li>
         </ul>
       </div>
 
       <!-- Secrétaire -->
       <div class="role">
         <div style="width:2rem;height:2rem;border-radius:8px;background:#ecfdf5;display:flex;align-items:center;justify-content:center;margin-bottom:.85rem;">
-          <svg style="width:1rem;height:1rem;stroke:#059669;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><use href="#il-users"/></svg>
+          <svg aria-hidden="true" style="width:1rem;height:1rem;stroke:#059669;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><use href="#il-users"/></svg>
         </div>
         <div class="role-title">Secrétaire</div>
         <div class="role-sub">Inscriptions &amp; paiements</div>
         <ul class="role-list">
-          <li><svg class="icon role-check" style="width:.9em;height:.9em;"><use href="#il-check"/></svg> Inscription des élèves</li>
-          <li><svg class="icon role-check" style="width:.9em;height:.9em;"><use href="#il-check"/></svg> Saisie des paiements</li>
-          <li><svg class="icon role-check" style="width:.9em;height:.9em;"><use href="#il-check"/></svg> Niveaux &amp; classes</li>
-          <li class="off"><svg class="icon role-cross" style="width:.9em;height:.9em;"><use href="#il-x"/></svg> Configuration tarifs</li>
-          <li class="off"><svg class="icon role-cross" style="width:.9em;height:.9em;"><use href="#il-x"/></svg> Chat IA</li>
+          <li><svg aria-hidden="true" class="icon role-check" style="width:.9em;height:.9em;"><use href="#il-check"/></svg> Inscription des élèves</li>
+          <li><svg aria-hidden="true" class="icon role-check" style="width:.9em;height:.9em;"><use href="#il-check"/></svg> Saisie des paiements</li>
+          <li><svg aria-hidden="true" class="icon role-check" style="width:.9em;height:.9em;"><use href="#il-check"/></svg> Niveaux &amp; classes</li>
+          <li class="off"><svg aria-hidden="true" class="icon role-cross" style="width:.9em;height:.9em;"><use href="#il-x"/></svg> Configuration tarifs</li>
+          <li class="off"><svg aria-hidden="true" class="icon role-cross" style="width:.9em;height:.9em;"><use href="#il-x"/></svg> Chat IA</li>
         </ul>
       </div>
 
       <!-- Économe -->
       <div class="role">
         <div style="width:2rem;height:2rem;border-radius:8px;background:#fff7ed;display:flex;align-items:center;justify-content:center;margin-bottom:.85rem;">
-          <svg style="width:1rem;height:1rem;stroke:#d97706;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><use href="#il-wallet"/></svg>
+          <svg aria-hidden="true" style="width:1rem;height:1rem;stroke:#d97706;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><use href="#il-wallet"/></svg>
         </div>
-        <div class="role-title">Économe <span style="font-size:.75rem;font-weight:500;color:#9397a8;">(DAF / Comptable)</span></div>
+        <div class="role-title">Économe <span style="font-size:.75rem;font-weight:500;color:#6b7280;">(DAF / Comptable)</span></div>
         <div class="role-sub">Encaissement uniquement</div>
         <ul class="role-list">
-          <li><svg class="icon role-check" style="width:.9em;height:.9em;"><use href="#il-check"/></svg> Saisie des paiements</li>
-          <li><svg class="icon role-check" style="width:.9em;height:.9em;"><use href="#il-check"/></svg> Génération des reçus</li>
-          <li class="off"><svg class="icon role-cross" style="width:.9em;height:.9em;"><use href="#il-x"/></svg> Inscription élèves</li>
-          <li class="off"><svg class="icon role-cross" style="width:.9em;height:.9em;"><use href="#il-x"/></svg> Configuration tarifs</li>
-          <li class="off"><svg class="icon role-cross" style="width:.9em;height:.9em;"><use href="#il-x"/></svg> Chat IA</li>
+          <li><svg aria-hidden="true" class="icon role-check" style="width:.9em;height:.9em;"><use href="#il-check"/></svg> Saisie des paiements</li>
+          <li><svg aria-hidden="true" class="icon role-check" style="width:.9em;height:.9em;"><use href="#il-check"/></svg> Génération des reçus</li>
+          <li class="off"><svg aria-hidden="true" class="icon role-cross" style="width:.9em;height:.9em;"><use href="#il-x"/></svg> Inscription élèves</li>
+          <li class="off"><svg aria-hidden="true" class="icon role-cross" style="width:.9em;height:.9em;"><use href="#il-x"/></svg> Configuration tarifs</li>
+          <li class="off"><svg aria-hidden="true" class="icon role-cross" style="width:.9em;height:.9em;"><use href="#il-x"/></svg> Chat IA</li>
         </ul>
       </div>
 
@@ -448,7 +451,7 @@
 <section class="cta-section">
   <div class="cta-inner">
     <div style="width:3rem;height:3rem;border-radius:14px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;margin:0 auto 1.5rem;">
-      <svg style="width:1.4rem;height:1.4rem;stroke:#fff;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><use href="#il-school"/></svg>
+      <svg aria-hidden="true" style="width:1.4rem;height:1.4rem;stroke:#fff;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><use href="#il-school"/></svg>
     </div>
     <h2 class="cta-title">Votre école n&rsquo;est pas encore sur la plateforme&nbsp;?</h2>
     <p class="cta-sub">
@@ -458,7 +461,7 @@
       Inscrire mon école
     </a>
     <p style="margin-top:1rem;font-size:.8125rem;">
-      <a href="{% url 'economat:login' %}" style="color:rgba(255,255,255,.55);text-decoration:underline;">Déjà inscrit ? Se connecter</a>
+      <a href="{% url 'economat:login' %}" style="color:var(--on-dark-muted);text-decoration:underline;font-weight:500;">Déjà inscrit ? Se connecter</a>
     </p>
   </div>
 </section>

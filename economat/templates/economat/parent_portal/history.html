@@ -19,14 +19,14 @@
 
   {% if payments is not None %}
   <div class="card" style="padding:1.5rem;">
-    <div style="font-size:.8125rem;color:#9397a8;margin-bottom:1rem;">
+    <div style="font-size:.8125rem;color:#6b7280;margin-bottom:1rem;">
       {{ student.first_name }} {{ student.last_name|upper }} &middot; {{ payments|length }} paiement(s)
     </div>
     {% for p in payments %}
     <div style="display:flex;justify-content:space-between;align-items:center;padding:.65rem 0;{% if not forloop.last %}border-bottom:1px solid #f4f5f7;{% endif %}">
       <div>
         <div style="font-size:.84375rem;font-weight:600;">{{ p.amount }} FCFA</div>
-        <div style="font-size:.75rem;color:#9397a8;">
+        <div style="font-size:.75rem;color:#6b7280;">
           {{ p.payment_date|date:"d/m/Y" }} &middot; {{ p.get_method_display }}
           {% if p.channel == 'PORTAIL_PARENT' %}&middot; <span style="color:#7c3aed;font-weight:600;">Portail parent</span>{% endif %}
         </div>
@@ -36,7 +36,7 @@
       {% endif %}
     </div>
     {% empty %}
-    <p style="font-size:.84375rem;color:#9397a8;">Aucun paiement enregistré pour l'instant.</p>
+    <p style="font-size:.84375rem;color:#6b7280;">Aucun paiement enregistré pour l'instant.</p>
     {% endfor %}
   </div>
   {% endif %}

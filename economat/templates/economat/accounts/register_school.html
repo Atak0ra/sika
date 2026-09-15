@@ -10,9 +10,9 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root{
-      --brand:#4f46e5;--brand-hover:#4338ca;--brand-ring:rgba(79,70,229,.14);
+      --brand:#4f46e5;--brand-hover:#4338ca;--brand-ring:rgba(79,70,229,.35);
       --border:#ecedf1;--border-hover:#d1d5db;
-      --text-1:#1a1d29;--text-2:#52556b;--text-3:#9397a8;
+      --text-1:#1a1d29;--text-2:#4b4e5f;--text-3:#6b7280;
       --surface:#fff;--bg:#f4f5f9;
       --radius-btn:9px;--radius-input:9px;
     }
@@ -70,6 +70,11 @@
       transition:background .15s,border-color .15s;cursor:pointer;
     }
     .btn-secondary:hover{background:#f6f7f9;border-color:var(--border-hover);}
+    .btn-primary:focus-visible,.btn-secondary:focus-visible,
+    a:focus-visible,input:focus-visible,select:focus-visible{
+      outline:2px solid var(--brand);outline-offset:2px;border-radius:6px;
+      box-shadow:0 0 0 4px var(--brand-ring);
+    }
     .stepper-nav{display:flex;gap:.5rem;margin-bottom:2rem;}
     .step-dot{flex:1;height:4px;border-radius:4px;background:#ecedf1;transition:background .3s;}
     .step-dot.active{background:var(--brand);}
@@ -131,6 +136,9 @@
     currentStep = n;
     document.getElementById('step-' + n).classList.add('active');
     document.getElementById('dot-' + n).classList.add('active');
+    // Met à jour aria-valuenow pour les lecteurs d'écran
+    var prog = document.getElementById('stepper-progress');
+    if (prog) prog.setAttribute('aria-valuenow', n);
     window.scrollTo({top:0,behavior:'smooth'});
     if (n === 2) updateOperators();
   }
@@ -186,7 +194,7 @@
 <div class="page-wrap">
   <div class="page-header">
     <div class="logo-icon">
-      <svg style="width:1.6rem;height:1.6rem;color:#4f46e5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <svg aria-hidden="true" style="width:1.6rem;height:1.6rem;color:#4f46e5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
         <path d="M22 10L12 5 2 10l10 5 10-5z"/>
         <path d="M6 12v5c0 1 2.7 2.5 6 2.5s6-1.5 6-2.5v-5"/>
         <line x1="22" y1="10" x2="22" y2="16"/>
@@ -199,7 +207,7 @@
   <div class="reg-card">
     {% if error %}
     <div class="alert alert-error">
-      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
       <span>{{ error }}</span>
     </div>
     {% endif %}
@@ -209,7 +217,7 @@
       <p style="font-size:.875rem;color:var(--text-3);margin:0;">Nous vérifierons votre dossier et vous enverrons vos identifiants par email.</p>
     </div>
 
-    <div class="stepper-nav" role="progressbar">
+    <div class="stepper-nav" role="progressbar" aria-label="Étapes d'inscription" aria-valuenow="1" aria-valuemin="1" aria-valuemax="3" id="stepper-progress">
       <div class="step-dot active" id="dot-1"></div>
       <div class="step-dot" id="dot-2"></div>
       <div class="step-dot" id="dot-3"></div>
@@ -222,7 +230,7 @@
       <div class="step-panel active" id="step-1">
         <div class="step-heading">
           <div class="step-title">
-            <svg width="16" height="16" viewBox="0 0 24 24"><path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1 2.7 2.5 6 2.5s6-1.5 6-2.5v-5"/></svg>
+            <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24"><path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1 2.7 2.5 6 2.5s6-1.5 6-2.5v-5"/></svg>
             Votre école
           </div>
           <div class="step-sub">Étape 1 sur 3</div>
@@ -250,7 +258,7 @@
           <span></span>
           <button type="button" class="btn-primary" onclick="goStep(2)">
             Suivant
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg>
+            <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg>
           </button>
         </div>
       </div>
@@ -258,7 +266,7 @@
       <div class="step-panel" id="step-2">
         <div class="step-heading">
           <div class="step-title">
-            <svg width="16" height="16" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h13a1 1 0 0 1 1 1v3M3 7v11a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4M3 7l3-3h9"/><path d="M15 13h4a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1h-4a2 2 0 0 1 0-4Z"/></svg>
+            <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h13a1 1 0 0 1 1 1v3M3 7v11a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4M3 7l3-3h9"/><path d="M15 13h4a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1h-4a2 2 0 0 1 0-4Z"/></svg>
             Encaissement
           </div>
           <div class="step-sub">Étape 2 sur 3 · comment allez-vous recevoir les paiements ?</div>
@@ -298,12 +306,12 @@
         </div>
         <div class="step-nav">
           <button type="button" class="btn-secondary" onclick="goStep(1)">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
+            <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
             Retour
           </button>
           <button type="button" class="btn-primary" onclick="goStep(3)">
             Suivant
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg>
+            <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg>
           </button>
         </div>
       </div>
@@ -311,7 +319,7 @@
       <div class="step-panel" id="step-3">
         <div class="step-heading">
           <div class="step-title">
-            <svg width="16" height="16" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M2.5 20c.7-3.4 3-5.3 6.5-5.3s5.8 1.9 6.5 5.3"/></svg>
+            <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M2.5 20c.7-3.4 3-5.3 6.5-5.3s5.8 1.9 6.5 5.3"/></svg>
             Responsable de l'école
           </div>
           <div class="step-sub">Étape 3 sur 3 · coordonnées pour recevoir vos identifiants</div>
@@ -344,12 +352,12 @@
         </div>
         <div class="step-nav">
           <button type="button" class="btn-secondary" onclick="goStep(2)">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
+            <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
             Retour
           </button>
           <button type="submit" class="btn-primary" id="submit-btn">
             Envoyer la demande
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
           </button>
         </div>
       </div>

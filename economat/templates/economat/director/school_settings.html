@@ -3,12 +3,12 @@
 {% block director_content %}
 <div style="margin-bottom:1.5rem;">
   <h1 style="font-size:1.125rem;font-weight:700;letter-spacing:-0.02em;">Paramètres de l’école</h1>
-  <p style="font-size:.8375rem;color:#9397a8;margin-top:.25rem;">{{ school.name }}</p>
+  <p style="font-size:.8375rem;color:#6b7280;margin-top:.25rem;">{{ school.name }}</p>
 </div>
 <div style="max-width:520px;">
   <div class="card" style="padding:1.75rem;">
     <h2 style="font-size:.9rem;font-weight:700;margin-bottom:1.25rem;display:flex;align-items:center;gap:.5rem;">
-      <svg class="icon" style="color:#4f46e5;"><use href="#icon-alert-circle"/></svg>
+      <svg aria-hidden="true" class="icon" style="color:#4f46e5;"><use href="#icon-alert-circle"/></svg>
       Seuil de tolérance pour les alertes prioritaires
     </h2>
     <div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:9px;padding:.85rem 1rem;margin-bottom:1.25rem;font-size:.84375rem;color:#92400e;">
@@ -40,7 +40,7 @@
         {% endif %}
       </div>
       <button type="submit" class="btn-primary" data-loading-text="Enregistrement…">
-        <svg class="icon" style="width:.9em;height:.9em;"><use href="#icon-save"/></svg>
+        <svg aria-hidden="true" class="icon" style="width:.9em;height:.9em;"><use href="#icon-save"/></svg>
         Enregistrer
       </button>
     </form>

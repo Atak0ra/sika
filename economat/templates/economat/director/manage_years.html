@@ -4,7 +4,7 @@
 <div style="margin-bottom:1.5rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem;">
   <div>
     <h1 style="font-size:1.125rem;font-weight:700;letter-spacing:-0.02em;">Années scolaires</h1>
-    <p style="font-size:.8375rem;color:#9397a8;margin-top:.25rem;">{{ school.name }}</p>
+    <p style="font-size:.8375rem;color:#6b7280;margin-top:.25rem;">{{ school.name }}</p>
   </div>
 </div>
 
@@ -16,9 +16,9 @@
     <div style="display:flex;align-items:center;gap:.75rem;">
       <div style="width:2.25rem;height:2.25rem;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;
                   {% if year.status == 'ACTIVE' %}background:#ecfdf5;color:#059669;
-                  {% elif year.status == 'CLOSED' %}background:#f4f4f5;color:#9397a8;
+                  {% elif year.status == 'CLOSED' %}background:#f4f4f5;color:#6b7280;
                   {% else %}background:#eef2ff;color:#4f46e5;{% endif %}">
-        <svg class="icon" style="width:1.1rem;height:1.1rem;">
+        <svg aria-hidden="true" class="icon" style="width:1.1rem;height:1.1rem;">
           {% if year.status == 'ACTIVE' %}<use href="#icon-check-circle"/>
           {% elif year.status == 'CLOSED' %}<use href="#icon-x-circle"/>
           {% else %}<use href="#icon-alert-circle"/>{% endif %}
@@ -26,7 +26,7 @@
       </div>
       <div>
         <div style="font-size:.9375rem;font-weight:700;color:#1a1d29;">{{ year.label }}</div>
-        <div style="font-size:.775rem;color:#9397a8;">{{ year.start_date }} → {{ year.end_date }}</div>
+        <div style="font-size:.775rem;color:#6b7280;">{{ year.start_date }} → {{ year.end_date }}</div>
       </div>
     </div>
     <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;">
@@ -43,18 +43,18 @@
                 data-confirm="true" data-confirm-title="Activer {{ year.label }} ?"
                 data-confirm-message="Cette année deviendra l'année active. Les paiements et inscriptions seront rattachés à cette année."
                 data-confirm-label="Activer">
-          <svg style="width:.9em;height:.9em;stroke:currentColor;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;vertical-align:-0.12em;" viewBox="0 0 24 24"><use href="#icon-check-circle"/></svg> Activer
+          <svg aria-hidden="true" style="width:.9em;height:.9em;stroke:currentColor;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;vertical-align:-0.12em;" viewBox="0 0 24 24"><use href="#icon-check-circle"/></svg> Activer
         </button>
       </form>
       {% endif %}
       {% if year.status != 'DRAFT' %}
       <a href="{% url 'economat:students_list' school.id year.id %}" class="btn-secondary" style="font-size:.8125rem;padding:.4rem .75rem;">
-        <svg class="icon" style="width:.85em;height:.85em;"><use href="#icon-users"/></svg> Consulter
+        <svg aria-hidden="true" class="icon" style="width:.85em;height:.85em;"><use href="#icon-users"/></svg> Consulter
       </a>
       {% endif %}
       {% if year.status == 'ACTIVE' %}
       <a href="{% url 'economat:add_level' school.id year.id %}" class="btn-secondary" style="font-size:.8125rem;padding:.4rem .75rem;">
-        <svg class="icon" style="width:.85em;height:.85em;"><use href="#icon-book"/></svg> Niveaux
+        <svg aria-hidden="true" class="icon" style="width:.85em;height:.85em;"><use href="#icon-book"/></svg> Niveaux
       </a>
       <form method="post" action="{% url 'economat:close_year' school.id year.id %}">
         {% csrf_token %}
@@ -72,9 +72,9 @@
 </div>
 {% else %}
 <div style="text-align:center;padding:2.5rem;border:1.5px dashed #ecedf1;border-radius:14px;margin-bottom:1.5rem;">
-  <svg class="icon" style="width:2.5rem;height:2.5rem;color:#d1d5db;margin-bottom:.75rem;"><use href="#icon-alert-circle"/></svg>
-  <p style="font-weight:600;color:#52556b;margin-bottom:.375rem;">Aucune année scolaire</p>
-  <p style="font-size:.875rem;color:#9397a8;">Créez la première année pour commencer à configurer niveaux, tarifs et élèves.</p>
+  <svg aria-hidden="true" class="icon" style="width:2.5rem;height:2.5rem;color:#d1d5db;margin-bottom:.75rem;"><use href="#icon-alert-circle"/></svg>
+  <p style="font-weight:600;color:#4b4e5f;margin-bottom:.375rem;">Aucune année scolaire</p>
+  <p style="font-size:.875rem;color:#6b7280;">Créez la première année pour commencer à configurer niveaux, tarifs et élèves.</p>
 </div>
 {% endif %}
 
@@ -118,7 +118,7 @@
     {% endif %}
 
     <button type="submit" class="btn-primary" data-loading-text="Création…">
-      <svg class="icon" style="width:.9em;height:.9em;"><use href="#icon-plus"/></svg>
+      <svg aria-hidden="true" class="icon" style="width:.9em;height:.9em;"><use href="#icon-plus"/></svg>
       Créer l'année
     </button>
   </form>

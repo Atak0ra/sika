@@ -6,12 +6,12 @@
 <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:.75rem;margin-bottom:1.5rem;">
   <div>
     <h1 style="font-size:1.125rem;font-weight:700;letter-spacing:-0.02em;">Alertes de paiement</h1>
-    <p style="font-size:.8375rem;color:#9397a8;margin-top:.25rem;">{{ school.name }} {{ school_year.label }}</p>
+    <p style="font-size:.8375rem;color:#6b7280;margin-top:.25rem;">{{ school.name }} {{ school_year.label }}</p>
   </div>
   {% if school and school_year and bi %}
   <a href="{% url 'economat:export_renvoyables' school.id school_year.id %}"
      class="btn-secondary" style="font-size:.8125rem;padding:.45rem .85rem;">
-    <svg class="icon" style="width:.9em;height:.9em;"><use href="#icon-list"/></svg>
+    <svg aria-hidden="true" class="icon" style="width:.9em;height:.9em;"><use href="#icon-list"/></svg>
     Exporter les alertes
   </a>
   {% endif %}
@@ -23,7 +23,7 @@
 <div class="rg-2" style="margin-bottom:1.25rem;">
   <div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:12px;padding:1rem 1.25rem;display:flex;align-items:center;gap:.85rem;">
     <div style="width:2.25rem;height:2.25rem;border-radius:9px;background:rgba(245,158,11,.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-      <svg style="width:1.1rem;height:1.1rem;stroke:#d97706;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><use href="#icon-alert-circle"/></svg>
+      <svg aria-hidden="true" style="width:1.1rem;height:1.1rem;stroke:#d97706;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><use href="#icon-alert-circle"/></svg>
     </div>
     <div>
       <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#d97706;">En retard</div>
@@ -33,7 +33,7 @@
   </div>
   <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:12px;padding:1rem 1.25rem;display:flex;align-items:center;gap:.85rem;">
     <div style="width:2.25rem;height:2.25rem;border-radius:9px;background:rgba(239,68,68,.1);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-      <svg style="width:1.1rem;height:1.1rem;stroke:#b91c1c;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><use href="#icon-alert-circle"/></svg>
+      <svg aria-hidden="true" style="width:1.1rem;height:1.1rem;stroke:#b91c1c;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><use href="#icon-alert-circle"/></svg>
     </div>
     <div>
       <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#b91c1c;">Alertes prioritaires</div>
@@ -53,12 +53,12 @@
               onclick="filterAlerts('all')" id="fAll">Tous</button>
       <button class="btn-secondary" style="font-size:.75rem;padding:.3rem .6rem;color:#d97706;border-color:#fed7aa;"
               onclick="filterAlerts('late')" id="fLate">
-        <svg style="width:.85em;height:.85em;stroke:#d97706;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;vertical-align:-0.12em;" viewBox="0 0 24 24"><use href="#icon-alert-circle"/></svg>
+        <svg aria-hidden="true" style="width:.85em;height:.85em;stroke:#d97706;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;vertical-align:-0.12em;" viewBox="0 0 24 24"><use href="#icon-alert-circle"/></svg>
         En retard ({{ bi.total_late }})
       </button>
       <button class="btn-secondary" style="font-size:.75rem;padding:.3rem .6rem;color:#b91c1c;border-color:#fecaca;"
               onclick="filterAlerts('critical')" id="fCritical">
-        <svg style="width:.85em;height:.85em;stroke:#b91c1c;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;vertical-align:-0.12em;" viewBox="0 0 24 24"><use href="#icon-alert-circle"/></svg>
+        <svg aria-hidden="true" style="width:.85em;height:.85em;stroke:#b91c1c;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;vertical-align:-0.12em;" viewBox="0 0 24 24"><use href="#icon-alert-circle"/></svg>
         Alertes prioritaires ({{ bi.total_critical }})
       </button>
     </div>
@@ -69,12 +69,12 @@
     <table style="width:100%;border-collapse:collapse;font-size:.8125rem;" id="alertsTable">
       <thead>
         <tr style="border-bottom:1.5px solid #ecedf1;">
-          <th style="text-align:left;padding:.55rem 1rem;font-size:.7375rem;font-weight:700;color:#9397a8;letter-spacing:.04em;white-space:nowrap;">NOM</th>
-          <th style="text-align:left;padding:.55rem .75rem;font-size:.7375rem;font-weight:700;color:#9397a8;letter-spacing:.04em;white-space:nowrap;">NIVEAU / CLASSE</th>
-          <th style="text-align:right;padding:.55rem .75rem;font-size:.7375rem;font-weight:700;color:#9397a8;letter-spacing:.04em;white-space:nowrap;">MONTANT DÛ</th>
-          <th style="text-align:center;padding:.55rem .75rem;font-size:.7375rem;font-weight:700;color:#9397a8;letter-spacing:.04em;white-space:nowrap;">JOURS</th>
-          <th style="text-align:left;padding:.55rem .75rem;font-size:.7375rem;font-weight:700;color:#9397a8;letter-spacing:.04em;white-space:nowrap;">1ÈRE ÉCHÉANCE</th>
-          <th style="text-align:center;padding:.55rem 1rem;font-size:.7375rem;font-weight:700;color:#9397a8;letter-spacing:.04em;white-space:nowrap;">STATUT</th>
+          <th style="text-align:left;padding:.55rem 1rem;font-size:.7375rem;font-weight:700;color:#6b7280;letter-spacing:.04em;white-space:nowrap;">NOM</th>
+          <th style="text-align:left;padding:.55rem .75rem;font-size:.7375rem;font-weight:700;color:#6b7280;letter-spacing:.04em;white-space:nowrap;">NIVEAU / CLASSE</th>
+          <th style="text-align:right;padding:.55rem .75rem;font-size:.7375rem;font-weight:700;color:#6b7280;letter-spacing:.04em;white-space:nowrap;">MONTANT DÛ</th>
+          <th style="text-align:center;padding:.55rem .75rem;font-size:.7375rem;font-weight:700;color:#6b7280;letter-spacing:.04em;white-space:nowrap;">JOURS</th>
+          <th style="text-align:left;padding:.55rem .75rem;font-size:.7375rem;font-weight:700;color:#6b7280;letter-spacing:.04em;white-space:nowrap;">1ÈRE ÉCHÉANCE</th>
+          <th style="text-align:center;padding:.55rem 1rem;font-size:.7375rem;font-weight:700;color:#6b7280;letter-spacing:.04em;white-space:nowrap;">STATUT</th>
         </tr>
       </thead>
       <tbody>
@@ -85,19 +85,19 @@
           <td style="padding:.65rem 1rem;font-weight:600;color:#1a1d29;">{{ a.full_name }}</td>
           <td style="padding:.65rem .75rem;">
             <span style="color:#1a1d29;">{{ a.level }}</span>
-            <span style="color:#9397a8;"> {{ a.class_name }}</span>
+            <span style="color:#6b7280;"> {{ a.class_name }}</span>
           </td>
           <td style="padding:.65rem .75rem;text-align:right;font-variant-numeric:tabular-nums;font-weight:600;color:#b91c1c;">{{ a.overdue_amount|fcfa_long }}</td>
           <td style="padding:.65rem .75rem;text-align:center;font-variant-numeric:tabular-nums;">
             <span style="font-weight:{% if a.days_late >= bi.tolerance_days %}700{% else %}500{% endif %};
               color:{% if a.days_late >= bi.tolerance_days %}#b91c1c{% else %}#d97706{% endif %};">{{ a.days_late }}j</span>
           </td>
-          <td style="padding:.65rem .75rem;font-size:.75rem;color:#9397a8;font-variant-numeric:tabular-nums;">{{ a.oldest_overdue_date|default:"—" }}</td>
+          <td style="padding:.65rem .75rem;font-size:.75rem;color:#6b7280;font-variant-numeric:tabular-nums;">{{ a.oldest_overdue_date|default:"—" }}</td>
           <td style="padding:.65rem 1rem;text-align:center;">
             {% if a.alert_level == 'critical' %}
-            <span class="badge badge-danger"><svg style="width:.8em;height:.8em;stroke:#b91c1c;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;vertical-align:-0.12em;" viewBox="0 0 24 24"><use href="#icon-alert-circle"/></svg> Alerte prioritaire</span>
+            <span class="badge badge-danger"><svg aria-hidden="true" style="width:.8em;height:.8em;stroke:#b91c1c;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;vertical-align:-0.12em;" viewBox="0 0 24 24"><use href="#icon-alert-circle"/></svg> Alerte prioritaire</span>
             {% else %}
-            <span class="badge badge-warning"><svg style="width:.8em;height:.8em;stroke:#d97706;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;vertical-align:-0.12em;" viewBox="0 0 24 24"><use href="#icon-alert-circle"/></svg> En retard</span>
+            <span class="badge badge-warning"><svg aria-hidden="true" style="width:.8em;height:.8em;stroke:#d97706;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;vertical-align:-0.12em;" viewBox="0 0 24 24"><use href="#icon-alert-circle"/></svg> En retard</span>
             {% endif %}
           </td>
         </tr>
@@ -112,16 +112,16 @@
   </div>
   {% else %}
   <div style="text-align:center;padding:4rem 2rem;">
-    <svg class="icon" style="width:2.5rem;height:2.5rem;color:#d1d5db;margin-bottom:.75rem;"><use href="#icon-check-circle"/></svg>
-    <p style="font-weight:600;color:#52556b;margin-bottom:.25rem;">Aucune alerte !</p>
-    <p style="font-size:.8375rem;color:#9397a8;">Tous les élèves sont à jour ou en cours de paiement.</p>
+    <svg aria-hidden="true" class="icon" style="width:2.5rem;height:2.5rem;color:#d1d5db;margin-bottom:.75rem;"><use href="#icon-check-circle"/></svg>
+    <p style="font-weight:600;color:#4b4e5f;margin-bottom:.25rem;">Aucune alerte !</p>
+    <p style="font-size:.8375rem;color:#6b7280;">Tous les élèves sont à jour ou en cours de paiement.</p>
   </div>
   {% endif %}
 </div>
 
 {% else %}
 <div style="text-align:center;padding:4rem 2rem;border:1.5px dashed #ecedf1;border-radius:14px;">
-  <p style="color:#9397a8;">Aucune donnée disponible pour cette année.</p>
+  <p style="color:#6b7280;">Aucune donnée disponible pour cette année.</p>
 </div>
 {% endif %}
 
@@ -158,17 +158,17 @@ function renderAlerts() {
   visible.forEach(function(r,i){r.style.display=(i>=start&&i<end)?'':'none';});
   var footer=document.getElementById('alertsPagination');
   if(!footer) return;
-  if(total===0){footer.innerHTML='<span style="font-size:.8rem;color:#9397a8;">Aucun résultat</span>';return;}
+  if(total===0){footer.innerHTML='<span style="font-size:.8rem;color:#6b7280;">Aucun résultat</span>';return;}
   var from=start+1,to=Math.min(end,total);
-  var html='<span style="font-size:.8rem;color:#9397a8;">'+from+'–'+to+' sur '+total+'</span>';
+  var html='<span style="font-size:.8rem;color:#6b7280;">'+from+'–'+to+' sur '+total+'</span>';
   html+='<div style="display:flex;gap:.25rem;">';
-  html+='<button onclick="alertGoPage('+(alertCurrentPage-1)+')" class="btn-secondary" style="padding:.3rem .6rem;font-size:.78rem;"'+(alertCurrentPage<=1?' disabled':'')+'><svg style="width:.8em;height:.8em;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><path d="M15 19 9 12l6-7"/></svg></button>';
+  html+='<button onclick="alertGoPage('+(alertCurrentPage-1)+')" class="btn-secondary" style="padding:.3rem .6rem;font-size:.78rem;"'+(alertCurrentPage<=1?' disabled':'')+'><svg aria-hidden="true" style="width:.8em;height:.8em;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><path d="M15 19 9 12l6-7"/></svg></button>';
   var ps=Math.max(1,alertCurrentPage-2),pe=Math.min(totalPages,ps+4);ps=Math.max(1,pe-4);
   for(var p=ps;p<=pe;p++){
     var ic=p===alertCurrentPage;
     html+='<button onclick="alertGoPage('+p+')" class="btn-secondary" style="padding:.3rem .55rem;font-size:.78rem;min-width:1.8rem;'+(ic?'background:#eef2ff;border-color:#c7d2fe;color:#4338ca;font-weight:700;':'')+'">'+p+'</button>';
   }
-  html+='<button onclick="alertGoPage('+(alertCurrentPage+1)+')" class="btn-secondary" style="padding:.3rem .6rem;font-size:.78rem;"'+(alertCurrentPage>=totalPages?' disabled':'')+'><svg style="width:.8em;height:.8em;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><path d="M9 5l6 7-6 7"/></svg></button>';
+  html+='<button onclick="alertGoPage('+(alertCurrentPage+1)+')" class="btn-secondary" style="padding:.3rem .6rem;font-size:.78rem;"'+(alertCurrentPage>=totalPages?' disabled':'')+'><svg aria-hidden="true" style="width:.8em;height:.8em;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><path d="M9 5l6 7-6 7"/></svg></button>';
   html+='</div>';
   footer.innerHTML=html;
 }

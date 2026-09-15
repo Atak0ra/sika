@@ -22,11 +22,11 @@
       --border      : #ecedf1;
       --border-hover: #d1d5db;
       --text-1      : #1a1d29;
-      --text-2      : #52556b;
-      --text-3      : #9397a8;
+      --text-2      : #4b4e5f;
+      --text-3      : #6b7280;
       --brand       : #4f46e5;
       --brand-hover : #4338ca;
-      --brand-ring  : rgba(79,70,229,.14);
+      --brand-ring  : rgba(79,70,229,.35);
       --radius-card : 14px;
       --radius-btn  : 9px;
       --radius-input: 9px;
@@ -82,8 +82,9 @@
     }
 
     .btn-primary:focus-visible, .btn-secondary:focus-visible,
-    a:focus-visible, input:focus-visible, select:focus-visible {
+    a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
       outline: 2px solid var(--brand); outline-offset: 2px; border-radius: 6px;
+      box-shadow: 0 0 0 4px var(--brand-ring);
     }
 
     .form-input, .form-select, .form-textarea {
@@ -156,7 +157,7 @@
   <header class="pp-header">
     <div class="pp-header-inner">
       <a href="{% url 'economat:landing' %}" class="pp-logo">
-        <svg style="width:1.25rem;height:1.25rem;color:var(--brand);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1 2.7 2.5 6 2.5s6-1.5 6-2.5v-5"/><line x1="22" y1="10" x2="22" y2="16"/><circle cx="22" cy="17" r="1" fill="currentColor" stroke="none"/></svg>
+        <svg aria-hidden="true" style="width:1.25rem;height:1.25rem;color:var(--brand);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1 2.7 2.5 6 2.5s6-1.5 6-2.5v-5"/><line x1="22" y1="10" x2="22" y2="16"/><circle cx="22" cy="17" r="1" fill="currentColor" stroke="none"/></svg>
         Sukulu
       </a>
       <span class="pp-badge">Espace Parent</span>

@@ -6,7 +6,7 @@
   {% if error %}
   <div style="padding:.65rem .9rem;border-radius:9px;background:#fef2f2;color:#b91c1c;
     border:1px solid #fecaca;font-size:.8375rem;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem;">
-    <svg class="icon" style="flex-shrink:0;width:1em;height:1em;"
+    <svg aria-hidden="true" class="icon" style="flex-shrink:0;width:1em;height:1em;"
          viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
       <circle cx="12" cy="12" r="9.5"/><path d="M12 8v4M12 16h.01"/>
     </svg>
@@ -30,7 +30,7 @@
     </button>
   </form>
 
-  <p style="text-align:center;font-size:.8rem;color:#9397a8;margin-top:1.5rem;line-height:1.5;">
+  <p style="text-align:center;font-size:.8rem;color:#6b7280;margin-top:1.5rem;line-height:1.5;">
     Pas encore de compte&nbsp;?
     <a href="{% url 'economat:register_school' %}" style="color:#4f46e5;font-weight:600;text-decoration:none;">Inscrivez votre école</a>.
   </p>

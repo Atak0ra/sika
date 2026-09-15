@@ -8,7 +8,7 @@
   <!-- En-tête -->
   <div style="margin-bottom:1.75rem;">
     <h1 style="font-size:1.125rem;font-weight:700;letter-spacing:-.02em;">Mon profil</h1>
-    <p style="font-size:.8375rem;color:#9397a8;margin-top:.25rem;">{{ request.user.username }}</p>
+    <p style="font-size:.8375rem;color:#6b7280;margin-top:.25rem;">{{ request.user.username }}</p>
   </div>
 
   {% if messages %}
@@ -16,7 +16,7 @@
   <div style="background:#ecfdf5;border:1px solid #a7f3d0;color:#065f46;
               padding:.7rem 1rem;border-radius:9px;font-size:.8125rem;font-weight:600;
               margin-bottom:1.25rem;display:flex;align-items:center;gap:.5rem;">
-    <svg style="width:1rem;height:1rem;stroke:#059669;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
+    <svg aria-hidden="true" style="width:1rem;height:1rem;stroke:#059669;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
     {{ m }}
   </div>
   {% endfor %}
@@ -25,7 +25,7 @@
   <!-- Rôle et école -->
   {% if memberships %}
   <div class="card" style="padding:1.25rem 1.5rem;margin-bottom:1.25rem;">
-    <div style="font-size:.75rem;font-weight:700;color:#9397a8;text-transform:uppercase;
+    <div style="font-size:.75rem;font-weight:700;color:#6b7280;text-transform:uppercase;
                 letter-spacing:.07em;margin-bottom:.75rem;">Rôle dans l&rsquo;application</div>
     {% for m in memberships %}
     <div style="display:flex;align-items:center;justify-content:space-between;
@@ -44,7 +44,7 @@
   <div class="card" style="padding:1.5rem;margin-bottom:1.25rem;">
     <h2 style="font-size:.9rem;font-weight:700;margin-bottom:1.25rem;
                display:flex;align-items:center;gap:.5rem;">
-      <svg style="width:1rem;height:1rem;stroke:#4f46e5;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+      <svg aria-hidden="true" style="width:1rem;height:1rem;stroke:#4f46e5;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
       Informations personnelles
     </h2>
     <form method="post">
@@ -70,7 +70,7 @@
       </div>
       <div style="margin-top:1.5rem;display:flex;gap:.75rem;align-items:center;">
         <button type="submit" class="btn-primary" data-loading-text="Enregistrement…">
-          <svg class="icon" style="width:.9em;height:.9em;"><use href="#icon-save"/></svg>
+          <svg aria-hidden="true" class="icon" style="width:.9em;height:.9em;"><use href="#icon-save"/></svg>
           Enregistrer
         </button>
         <a href="{% url 'economat:change_password' %}"

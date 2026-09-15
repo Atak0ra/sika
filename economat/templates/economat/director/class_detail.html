@@ -5,35 +5,35 @@
 
 <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:.75rem;margin-bottom:1.5rem;">
   <div>
-    <div style="font-size:.8125rem;color:#9397a8;margin-bottom:.3rem;">
-      <a href="{% url 'economat:students_list' school.id school_year.id %}" style="color:#9397a8;text-decoration:none;"
-         onmouseover="this.style.color='#4f46e5'" onmouseout="this.style.color='#9397a8'">Elèves</a>
+    <div style="font-size:.8125rem;color:#6b7280;margin-bottom:.3rem;">
+      <a href="{% url 'economat:students_list' school.id school_year.id %}" style="color:#6b7280;text-decoration:none;"
+         onmouseover="this.style.color='#4f46e5'" onmouseout="this.style.color='#6b7280'">Elèves</a>
       <span style="margin:0 .35rem;">›</span>
-      <span style="color:#52556b;">{{ level.name }}</span>
+      <span style="color:#4b4e5f;">{{ level.name }}</span>
     </div>
     <h1 style="font-size:1.125rem;font-weight:700;letter-spacing:-0.02em;">{{ klass.name }}</h1>
-    <p style="font-size:.8125rem;color:#9397a8;margin-top:.2rem;">{{ school.name }} {{ school_year.label }}</p>
+    <p style="font-size:.8125rem;color:#6b7280;margin-top:.2rem;">{{ school.name }} {{ school_year.label }}</p>
   </div>
   <a href="{% url 'economat:register_student' school.id school_year.id %}?level_id={{ level.id }}&class_id={{ klass.id }}" class="btn-primary" style="font-size:.875rem;">
-    <svg class="icon" style="width:.95em;height:.95em;"><use href="#icon-user-plus"/></svg>
+    <svg aria-hidden="true" class="icon" style="width:.95em;height:.95em;"><use href="#icon-user-plus"/></svg>
     Nouvel élève
   </a>
 </div>
 
 <div class="rg-hero" style="margin-bottom:1.5rem;">
   <div class="card" style="padding:1.25rem 1.4rem;">
-    <div style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#9397a8;margin-bottom:.5rem;">Effectif</div>
+    <div style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#6b7280;margin-bottom:.5rem;">Effectif</div>
     <div style="font-size:2.25rem;font-weight:800;letter-spacing:-0.04em;color:#1a1d29;line-height:1;">{{ total_students }}</div>
-    <div style="font-size:.78rem;color:#9397a8;margin-top:.3rem;">elève{{ total_students|pluralize }} inscrit{{ total_students|pluralize }}</div>
+    <div style="font-size:.78rem;color:#6b7280;margin-top:.3rem;">elève{{ total_students|pluralize }} inscrit{{ total_students|pluralize }}</div>
   </div>
   <div class="card" style="padding:1.25rem 1.4rem;">
-    <div style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#9397a8;margin-bottom:.5rem;">Encaissé</div>
+    <div style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#6b7280;margin-bottom:.5rem;">Encaissé</div>
     <div style="font-size:1.5rem;font-weight:800;letter-spacing:-0.03em;color:#059669;line-height:1;font-variant-numeric:tabular-nums;">{{ total_collected|spacemil }}</div>
-    <div style="font-size:.78rem;color:#9397a8;margin-top:.3rem;">FCFA collectés</div>
+    <div style="font-size:.78rem;color:#6b7280;margin-top:.3rem;">FCFA collectés</div>
   </div>
   <div class="card" style="padding:1.25rem 1.4rem;">
-    <div style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#9397a8;margin-bottom:.5rem;">Taux · {{ rate }}%</div>
-    <div style="font-size:.8rem;color:#52556b;margin-bottom:.35rem;"><span style="font-variant-numeric:tabular-nums;">Attendu : {{ total_expected|spacemil }} FCFA</span></div>
+    <div style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#6b7280;margin-bottom:.5rem;">Taux · {{ rate }}%</div>
+    <div style="font-size:.8rem;color:#4b4e5f;margin-bottom:.35rem;"><span style="font-variant-numeric:tabular-nums;">Attendu : {{ total_expected|spacemil }} FCFA</span></div>
     <div style="height:6px;background:#ecedf1;border-radius:99px;overflow:hidden;">
       <div style="height:100%;border-radius:99px;width:{{ rate }}%;background:{% if rate >= 80 %}#10b981{% elif rate >= 50 %}#f59e0b{% else %}#ef4444{% endif %};"></div>
     </div>
@@ -51,11 +51,11 @@
     <table style="width:100%;border-collapse:collapse;font-size:.84375rem;">
       <thead>
         <tr style="border-bottom:1.5px solid #ecedf1;background:#fbfbfd;">
-          <th style="text-align:left;padding:.65rem 1rem;font-size:.7375rem;font-weight:700;color:#9397a8;letter-spacing:.04em;">NOM</th>
-          <th style="text-align:left;padding:.65rem .75rem;font-size:.7375rem;font-weight:700;color:#9397a8;letter-spacing:.04em;">INSCRIPTION</th>
-          <th style="text-align:right;padding:.65rem .75rem;font-size:.7375rem;font-weight:700;color:#9397a8;letter-spacing:.04em;">ENCAISSÉ</th>
-          <th style="text-align:right;padding:.65rem .75rem;font-size:.7375rem;font-weight:700;color:#9397a8;letter-spacing:.04em;">ATTENDU</th>
-          <th style="text-align:center;padding:.65rem .75rem;font-size:.7375rem;font-weight:700;color:#9397a8;letter-spacing:.04em;">STATUT</th>
+          <th style="text-align:left;padding:.65rem 1rem;font-size:.7375rem;font-weight:700;color:#6b7280;letter-spacing:.04em;">NOM</th>
+          <th style="text-align:left;padding:.65rem .75rem;font-size:.7375rem;font-weight:700;color:#6b7280;letter-spacing:.04em;">INSCRIPTION</th>
+          <th style="text-align:right;padding:.65rem .75rem;font-size:.7375rem;font-weight:700;color:#6b7280;letter-spacing:.04em;">ENCAISSÉ</th>
+          <th style="text-align:right;padding:.65rem .75rem;font-size:.7375rem;font-weight:700;color:#6b7280;letter-spacing:.04em;">ATTENDU</th>
+          <th style="text-align:center;padding:.65rem .75rem;font-size:.7375rem;font-weight:700;color:#6b7280;letter-spacing:.04em;">STATUT</th>
         </tr>
       </thead>
       <tbody>
@@ -64,11 +64,11 @@
             onclick="window.location='{% url 'economat:student_detail' school.id school_year.id e.id %}'"
             onmouseenter="this.style.background='#f9fafb'" onmouseleave="this.style.background=''">
           <td style="padding:.7rem 1rem;"><div style="font-weight:600;color:#1a1d29;">{{ e.student.last_name|upper }} {{ e.student.first_name }}</div></td>
-          <td style="padding:.7rem .75rem;color:#9397a8;font-size:.8rem;font-variant-numeric:tabular-nums;">{{ e.enrollment_date|date:"d/m/Y" }}</td>
+          <td style="padding:.7rem .75rem;color:#6b7280;font-size:.8rem;font-variant-numeric:tabular-nums;">{{ e.enrollment_date|date:"d/m/Y" }}</td>
           <td style="padding:.7rem .75rem;text-align:right;font-variant-numeric:tabular-nums;font-weight:600;{% if e.paid_total >= level.annual_fee %}color:#059669;{% elif e.paid_total > 0 %}color:#4f46e5;{% else %}color:#dc2626;{% endif %}">
             {{ e.paid_total|spacemil }}
           </td>
-          <td style="padding:.7rem .75rem;text-align:right;font-variant-numeric:tabular-nums;color:#52556b;">{{ level.annual_fee|spacemil }}</td>
+          <td style="padding:.7rem .75rem;text-align:right;font-variant-numeric:tabular-nums;color:#4b4e5f;">{{ level.annual_fee|spacemil }}</td>
           <td style="padding:.7rem .75rem;text-align:center;">
             {% if e.paid_total >= level.annual_fee %}<span class="badge badge-success">Soldé</span>
             {% elif e.paid_total > 0 %}<span class="badge badge-info">En cours</span>
@@ -82,10 +82,10 @@
 </div>
 {% else %}
 <div style="text-align:center;padding:4rem 2rem;border:1.5px dashed #ecedf1;border-radius:16px;">
-  <svg class="icon" style="width:2.5rem;height:2.5rem;color:#d1d5db;margin-bottom:.75rem;"><use href="#icon-users"/></svg>
-  <p style="font-weight:600;color:#52556b;margin-bottom:.375rem;">Aucun élève dans cette classe</p>
+  <svg aria-hidden="true" class="icon" style="width:2.5rem;height:2.5rem;color:#d1d5db;margin-bottom:.75rem;"><use href="#icon-users"/></svg>
+  <p style="font-weight:600;color:#4b4e5f;margin-bottom:.375rem;">Aucun élève dans cette classe</p>
   <a href="{% url 'economat:register_student' school.id school_year.id %}?level_id={{ level.id }}&class_id={{ klass.id }}" class="btn-primary" style="display:inline-flex;margin-top:.5rem;">
-    <svg class="icon" style="width:.9em;height:.9em;"><use href="#icon-user-plus"/></svg>
+    <svg aria-hidden="true" class="icon" style="width:.9em;height:.9em;"><use href="#icon-user-plus"/></svg>
     Inscrire un élève
   </a>
 </div>

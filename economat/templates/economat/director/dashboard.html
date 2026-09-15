@@ -14,14 +14,14 @@
 <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:.75rem;margin-bottom:1.5rem;">
   <div>
     <h1 style="font-size:1.25rem;font-weight:700;letter-spacing:-0.02em;margin-bottom:.2rem;">Tableau de bord</h1>
-    <p style="font-size:.8125rem;color:#9397a8;">
+    <p style="font-size:.8125rem;color:#6b7280;">
       {% if school %}{{ school.name }} {% endif %}
       {% if school_year %}
         Année <strong style="color:#1a1d29;">{{ school_year.label }}</strong>
         {% if school_year.status == 'DRAFT' %}<span style="font-size:.7rem;color:#d97706;margin-left:.35rem;">En préparation</span>{% endif %}
-        {% if school_year.status == 'CLOSED' %}<span style="font-size:.7rem;color:#9397a8;margin-left:.35rem;">Clôturée</span>{% endif %}
+        {% if school_year.status == 'CLOSED' %}<span style="font-size:.7rem;color:#6b7280;margin-left:.35rem;">Clôturée</span>{% endif %}
       {% else %}
-        <span style="color:#d97706;"><svg style="width:1em;height:1em;stroke:#d97706;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;vertical-align:-0.12em;" viewBox="0 0 24 24"><use href="#icon-alert-circle"/></svg> Aucune année scolaire active</span>
+        <span style="color:#d97706;"><svg aria-hidden="true" style="width:1em;height:1em;stroke:#d97706;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;vertical-align:-0.12em;" viewBox="0 0 24 24"><use href="#icon-alert-circle"/></svg> Aucune année scolaire active</span>
       {% endif %}
     </p>
   </div>
@@ -40,7 +40,7 @@
     <a href="{% url 'economat:export_renvoyables' school.id school_year.id %}"
        class="btn-secondary" style="font-size:.8125rem;padding:.4rem .75rem;border-color:#fecaca;color:#b91c1c;"
        title="Exporter la liste des alertes prioritaires en CSV">
-      <svg class="icon" style="width:.9em;height:.9em;"><use href="#icon-list"/></svg>
+      <svg aria-hidden="true" class="icon" style="width:.9em;height:.9em;"><use href="#icon-list"/></svg>
       Exporter les alertes
     </a>
     {% endif %}
@@ -55,13 +55,13 @@
   <!-- TAUX DE RECOUVREMENT — hero metric -->
   <div class="card" style="padding:1.75rem;display:flex;flex-direction:column;justify-content:space-between;gap:1.25rem;">
     <div>
-      <div style="font-size:.7375rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#9397a8;margin-bottom:.5rem;">Taux de recouvrement</div>
+      <div style="font-size:.7375rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#6b7280;margin-bottom:.5rem;">Taux de recouvrement</div>
       <div style="display:flex;align-items:flex-end;gap:.4rem;line-height:1;">
         <span style="font-size:3rem;font-weight:800;letter-spacing:-0.04em;font-variant-numeric:tabular-nums;
           {% if bi.kpi.perf_level == 'good' %}color:#059669;{% elif bi.kpi.perf_level == 'warning' %}color:#d97706;{% else %}color:#dc2626;{% endif %}">{{ bi.kpi.recovery_rate }}</span>
-        <span style="font-size:1.5rem;font-weight:700;color:#9397a8;margin-bottom:.4rem;">%</span>
+        <span style="font-size:1.5rem;font-weight:700;color:#6b7280;margin-bottom:.4rem;">%</span>
       </div>
-      <div style="font-size:.8125rem;color:#9397a8;margin-top:.35rem;">
+      <div style="font-size:.8125rem;color:#6b7280;margin-top:.35rem;">
         {% if bi.kpi.perf_level == 'good' %}Objectif atteint{% elif bi.kpi.perf_level == 'warning' %}À surveiller{% else %}Action requise{% endif %}
         {{ bi.kpi.total_students }} élève{{ bi.kpi.total_students|pluralize }}
       </div>
@@ -78,28 +78,28 @@
   <!-- ENCAISSÉ -->
   <div class="card" style="padding:1.5rem;display:flex;flex-direction:column;justify-content:space-between;">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;">
-      <span style="font-size:.7375rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#9397a8;">Encaissé</span>
+      <span style="font-size:.7375rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#6b7280;">Encaissé</span>
       <div style="width:2rem;height:2rem;border-radius:8px;background:#ecfdf5;display:flex;align-items:center;justify-content:center;">
-        <svg style="width:1rem;height:1rem;stroke:#059669;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><use href="#icon-trending-up"/></svg>
+        <svg aria-hidden="true" style="width:1rem;height:1rem;stroke:#059669;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><use href="#icon-trending-up"/></svg>
       </div>
     </div>
     <div>
       <div style="font-size:1.75rem;font-weight:800;letter-spacing:-0.03em;font-variant-numeric:tabular-nums;color:#059669;line-height:1.1;">{{ bi.kpi.collected_year|spacemil }}</div>
-      <div style="font-size:.75rem;color:#9397a8;margin-top:.3rem;">FCFA encaissés cette année</div>
+      <div style="font-size:.75rem;color:#6b7280;margin-top:.3rem;">FCFA encaissés cette année</div>
     </div>
   </div>
 
   <!-- PRÉVISIONNEL -->
   <div class="card" style="padding:1.5rem;display:flex;flex-direction:column;justify-content:space-between;">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;">
-      <span style="font-size:.7375rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#9397a8;">Prévisionnel</span>
+      <span style="font-size:.7375rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#6b7280;">Prévisionnel</span>
       <div style="width:2rem;height:2rem;border-radius:8px;background:#eef2ff;display:flex;align-items:center;justify-content:center;">
-        <svg style="width:1rem;height:1rem;stroke:#4f46e5;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><use href="#icon-bar-chart"/></svg>
+        <svg aria-hidden="true" style="width:1rem;height:1rem;stroke:#4f46e5;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><use href="#icon-bar-chart"/></svg>
       </div>
     </div>
     <div>
       <div style="font-size:1.75rem;font-weight:800;letter-spacing:-0.03em;font-variant-numeric:tabular-nums;color:#1a1d29;line-height:1.1;">{{ bi.kpi.total_expected|spacemil }}</div>
-      <div style="font-size:.75rem;color:#9397a8;margin-top:.3rem;">FCFA attendus sur l'année</div>
+      <div style="font-size:.75rem;color:#6b7280;margin-top:.3rem;">FCFA attendus sur l'année</div>
     </div>
   </div>
 
@@ -111,10 +111,10 @@
   <!-- AUJOURD'HUI -->
   <div style="background:#fff;border:1px solid #ecedf1;border-radius:12px;padding:1rem 1.25rem;display:flex;align-items:center;gap:.9rem;">
     <div style="width:2.25rem;height:2.25rem;border-radius:9px;background:#f0f9ff;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-      <svg style="width:1.1rem;height:1.1rem;stroke:#0284c7;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><use href="#icon-wallet"/></svg>
+      <svg aria-hidden="true" style="width:1.1rem;height:1.1rem;stroke:#0284c7;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><use href="#icon-wallet"/></svg>
     </div>
     <div>
-      <div style="font-size:.7375rem;font-weight:600;color:#9397a8;text-transform:uppercase;letter-spacing:.05em;">Aujourd'hui</div>
+      <div style="font-size:.7375rem;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;">Aujourd'hui</div>
       <div style="font-size:1.25rem;font-weight:700;font-variant-numeric:tabular-nums;color:#1a1d29;letter-spacing:-0.02em;margin-top:.1rem;">{{ bi.kpi.collected_today|fcfa_long }}</div>
     </div>
   </div>
@@ -122,7 +122,7 @@
   <!-- RESTE -->
   <div style="background:{% if bi.kpi.remaining > 0 %}#fef2f2{% else %}#f0fdf4{% endif %};border:1px solid {% if bi.kpi.remaining > 0 %}#fecaca{% else %}#bbf7d0{% endif %};border-radius:12px;padding:1rem 1.25rem;display:flex;align-items:center;gap:.9rem;">
     <div style="width:2.25rem;height:2.25rem;border-radius:9px;background:{% if bi.kpi.remaining > 0 %}rgba(239,68,68,.1){% else %}rgba(16,185,129,.1){% endif %};display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-      <svg style="width:1.1rem;height:1.1rem;stroke:{% if bi.kpi.remaining > 0 %}#b91c1c{% else %}#059669{% endif %};fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24">
+      <svg aria-hidden="true" style="width:1.1rem;height:1.1rem;stroke:{% if bi.kpi.remaining > 0 %}#b91c1c{% else %}#059669{% endif %};fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24">
         {% if bi.kpi.remaining > 0 %}<use href="#icon-alert-circle"/>{% else %}<use href="#icon-check-circle"/>{% endif %}
       </svg>
     </div>
@@ -143,7 +143,7 @@
   <div class="card" style="padding:1.25rem 1.5rem;">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
       <h2 style="font-size:.875rem;font-weight:700;">Prévisionnel vs Réel</h2>
-      <div style="display:flex;gap:.85rem;font-size:.72rem;color:#9397a8;align-items:center;">
+      <div style="display:flex;gap:.85rem;font-size:.72rem;color:#6b7280;align-items:center;">
         <span style="display:flex;align-items:center;gap:.35rem;">
           <span style="width:.75rem;height:.75rem;border-radius:50%;background:#4f46e5;display:inline-block;"></span>Attendu
         </span>
@@ -162,9 +162,9 @@
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
       <div>
         <h2 style="font-size:.875rem;font-weight:700;">Recouvrement par classe</h2>
-        <p style="font-size:.72rem;color:#9397a8;margin-top:.15rem;">Les 12 classes les moins performantes en premier</p>
+        <p style="font-size:.72rem;color:#6b7280;margin-top:.15rem;">Les 12 classes les moins performantes en premier</p>
       </div>
-      <div style="display:flex;gap:.85rem;font-size:.72rem;color:#9397a8;align-items:center;">
+      <div style="display:flex;gap:.85rem;font-size:.72rem;color:#6b7280;align-items:center;">
         <span style="display:flex;align-items:center;gap:.35rem;">
           <span style="width:1.2rem;height:2px;border-top:2px dashed rgba(99,102,241,.6);display:inline-block;"></span>Objectif
         </span>
@@ -198,7 +198,7 @@
   <div style="display:flex;align-items:center;gap:.75rem;">
     <div style="width:2.25rem;height:2.25rem;border-radius:9px;display:flex;align-items:center;justify-content:center;
                 background:{% if bi.total_critical > 0 %}#fef2f2{% elif bi.total_late > 0 %}#fff7ed{% else %}#ecfdf5{% endif %};">
-      <svg style="width:1.1rem;height:1.1rem;stroke:{% if bi.total_critical > 0 %}#b91c1c{% elif bi.total_late > 0 %}#d97706{% else %}#059669{% endif %};fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24">
+      <svg aria-hidden="true" style="width:1.1rem;height:1.1rem;stroke:{% if bi.total_critical > 0 %}#b91c1c{% elif bi.total_late > 0 %}#d97706{% else %}#059669{% endif %};fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24">
         {% if bi.total_critical > 0 or bi.total_late > 0 %}<use href="#icon-alert-circle"/>{% else %}<use href="#icon-check-circle"/>{% endif %}
       </svg>
     </div>
@@ -210,7 +210,7 @@
           Tous les paiements sont à jour
         {% endif %}
       </div>
-      <div style="font-size:.775rem;color:#9397a8;margin-top:.15rem;">Voir le détail des alertes de paiement →</div>
+      <div style="font-size:.775rem;color:#6b7280;margin-top:.15rem;">Voir le détail des alertes de paiement →</div>
     </div>
   </div>
   <div style="display:flex;gap:1.25rem;">
@@ -238,9 +238,9 @@
 {% else %}
 <!-- Pas de données -->
 <div style="text-align:center;padding:5rem 2rem;border:1.5px dashed #ecedf1;border-radius:16px;">
-  <svg class="icon" style="width:3rem;height:3rem;color:#d1d5db;margin-bottom:1rem;"><use href="#icon-building"/></svg>
-  <p style="font-weight:600;color:#52556b;margin-bottom:.375rem;">Aucune donnée disponible</p>
-  <p style="font-size:.875rem;color:#9397a8;">Configurez votre école, ses niveaux et inscrivez des élèves pour voir le dashboard.</p>
+  <svg aria-hidden="true" class="icon" style="width:3rem;height:3rem;color:#d1d5db;margin-bottom:1rem;"><use href="#icon-building"/></svg>
+  <p style="font-weight:600;color:#4b4e5f;margin-bottom:.375rem;">Aucune donnée disponible</p>
+  <p style="font-size:.875rem;color:#6b7280;">Configurez votre école, ses niveaux et inscrivez des élèves pour voir le dashboard.</p>
 </div>
 {% endif %}
 

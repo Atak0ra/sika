@@ -4,7 +4,7 @@
 <div style="max-width:480px;margin:3rem auto;padding:0 1rem;">
   <div class="card" style="padding:1.75rem;">
     <h1 style="font-size:1.125rem;font-weight:700;margin-bottom:.35rem;">Espace parent</h1>
-    <p style="font-size:.8375rem;color:#9397a8;margin-bottom:1.5rem;">
+    <p style="font-size:.8375rem;color:#6b7280;margin-bottom:1.5rem;">
       Saisissez le nom de l'école et le matricule de votre enfant.
     </p>
     {% if form.non_field_errors %}
@@ -53,21 +53,21 @@
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;">
         <div style="display:flex;align-items:center;gap:.5rem;padding:.6rem .75rem;background:#f4f5f7;border-radius:10px;">
           <div style="width:1.75rem;height:1.75rem;border-radius:7px;background:#eef2ff;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-            <svg viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:.875rem;height:.875rem;">
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:.875rem;height:.875rem;">
               <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/>
             </svg>
           </div>
-          <span style="font-size:.78125rem;font-weight:600;color:#52556b;">Payer les frais</span>
+          <span style="font-size:.78125rem;font-weight:600;color:#4b4e5f;">Payer les frais</span>
         </div>
         <div style="display:flex;align-items:center;gap:.5rem;padding:.6rem .75rem;background:#f4f5f7;border-radius:10px;">
           <div style="width:1.75rem;height:1.75rem;border-radius:7px;background:#eef2ff;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-            <svg viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:.875rem;height:.875rem;">
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:.875rem;height:.875rem;">
               <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
               <polyline points="14 2 14 8 20 8"/>
               <line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
             </svg>
           </div>
-          <span style="font-size:.78125rem;font-weight:600;color:#52556b;">Historique & PDF</span>
+          <span style="font-size:.78125rem;font-weight:600;color:#4b4e5f;">Historique & PDF</span>
         </div>
       </div>
     </form>
@@ -109,7 +109,7 @@
       function renderResults(list) {
         results.innerHTML = '';
         if (!list.length) {
-          results.innerHTML = '<li style="padding:.6rem 1rem;font-size:.84375rem;color:#9397a8;">Aucune école trouvée dans ce pays</li>';
+          results.innerHTML = '<li style="padding:.6rem 1rem;font-size:.84375rem;color:#6b7280;">Aucune école trouvée dans ce pays</li>';
           results.classList.remove('hidden');
           return;
         }
@@ -160,7 +160,7 @@
     })();
     </script>
   </div>
-  <p style="text-align:center;font-size:.78125rem;color:#9397a8;margin-top:1rem;">
+  <p style="text-align:center;font-size:.78125rem;color:#6b7280;margin-top:1rem;">
     Le matricule vous a été communiqué par l'école lors de l'inscription.
   </p>
 </div>

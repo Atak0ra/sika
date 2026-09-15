@@ -17,10 +17,10 @@
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;">
       <div>
         <h2 style="font-size:1.0625rem;font-weight:700;color:#1a1d29;letter-spacing:-.02em;margin-bottom:.2rem;">Nouvel encaissement</h2>
-        <p style="font-size:.8rem;color:#9397a8;margin:0;">{% if school_year %}{{ school_year.label }}{% endif %}{% if school %} · {{ school.name }}{% endif %}</p>
+        <p style="font-size:.8rem;color:#6b7280;margin:0;">{% if school_year %}{{ school_year.label }}{% endif %}{% if school %} · {{ school.name }}{% endif %}</p>
       </div>
-      <button type="button" onclick="closePaymentModal()" style="background:none;border:none;cursor:pointer;padding:.25rem;color:#9397a8;flex-shrink:0;">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="width:1.1rem;height:1.1rem;display:block;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      <button type="button" onclick="closePaymentModal()" style="background:none;border:none;cursor:pointer;padding:.25rem;color:#6b7280;flex-shrink:0;">
+        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="width:1.1rem;height:1.1rem;display:block;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
     </div>
 
@@ -31,7 +31,7 @@
       <div style="margin-bottom:1.75rem;">
         <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.9rem;">
           <span style="width:1.4rem;height:1.4rem;border-radius:50%;background:#4f46e5;color:#fff;font-size:.65rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">1</span>
-          <span style="font-size:.8125rem;font-weight:600;color:#52556b;text-transform:uppercase;letter-spacing:.04em;">Élève</span>
+          <span style="font-size:.8125rem;font-weight:600;color:#4b4e5f;text-transform:uppercase;letter-spacing:.04em;">Élève</span>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-bottom:.6rem;">
           <div>
@@ -44,17 +44,17 @@
           <div style="position:relative;">
             <label class="field-label">Nom / Prénom</label>
             <div style="position:relative;">
-              <svg style="position:absolute;left:.7rem;top:50%;transform:translateY(-50%);width:.875rem;height:.875rem;stroke:#9397a8;fill:none;stroke-width:2;stroke-linecap:round;pointer-events:none;" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <svg aria-hidden="true" style="position:absolute;left:.7rem;top:50%;transform:translateY(-50%);width:.875rem;height:.875rem;stroke:#6b7280;fill:none;stroke-width:2;stroke-linecap:round;pointer-events:none;" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
               <input type="text" id="studentSearchInput" placeholder="Taper un nom…" class="form-input" style="padding-left:2.1rem;" autocomplete="off">
             </div>
             <ul id="searchResults" style="position:absolute;top:calc(100% + .2rem);left:0;right:0;z-index:50;background:#fff;border:1px solid #ecedf1;border-radius:10px;box-shadow:0 8px 28px rgba(0,0,0,.1);list-style:none;padding:.2rem 0;margin:0;max-height:200px;overflow-y:auto;" class="hidden"></ul>
           </div>
         </div>
         <div id="selectedStudentBadge" style="display:none;align-items:center;gap:.55rem;padding:.65rem 1rem;border-radius:9px;background:#f0fdf4;border:1.5px solid #bbf7d0;">
-          <svg style="width:1rem;height:1rem;stroke:#16a34a;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
+          <svg aria-hidden="true" style="width:1rem;height:1rem;stroke:#16a34a;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
           <span id="selectedStudent" style="font-size:.875rem;font-weight:600;color:#15803d;flex:1;"></span>
           <button type="button" id="clearStudent" aria-label="Changer" style="background:none;border:none;cursor:pointer;padding:.2rem;color:#86efac;display:flex;border-radius:4px;">
-            <svg style="width:.8rem;height:.8rem;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            <svg aria-hidden="true" style="width:.8rem;height:.8rem;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
           </button>
         </div>
       </div>
@@ -64,7 +64,7 @@
       <div style="margin-bottom:1.75rem;">
         <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.9rem;">
           <span style="width:1.4rem;height:1.4rem;border-radius:50%;background:#4f46e5;color:#fff;font-size:.65rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">2</span>
-          <span style="font-size:.8125rem;font-weight:600;color:#52556b;text-transform:uppercase;letter-spacing:.04em;">Montant et date</span>
+          <span style="font-size:.8125rem;font-weight:600;color:#4b4e5f;text-transform:uppercase;letter-spacing:.04em;">Montant et date</span>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:.6rem;">
           <div>
@@ -72,7 +72,7 @@
             <div style="position:relative;">
               <input type="text" inputmode="numeric" data-amount-for="amount_fcfa" class="form-input" placeholder="0" style="padding-right:3.25rem;font-size:1.0625rem;font-weight:600;font-variant-numeric:tabular-nums;" {% if form.amount_fcfa.value %}value="{{ form.amount_fcfa.value }}"{% endif %}>
               <input type="hidden" name="amount_fcfa" {% if form.amount_fcfa.value %}value="{{ form.amount_fcfa.value }}"{% endif %}>
-              <span style="position:absolute;right:.75rem;top:50%;transform:translateY(-50%);font-size:.775rem;font-weight:600;color:#9397a8;pointer-events:none;">FCFA</span>
+              <span style="position:absolute;right:.75rem;top:50%;transform:translateY(-50%);font-size:.775rem;font-weight:600;color:#6b7280;pointer-events:none;">FCFA</span>
             </div>
             {% if form.amount_fcfa.errors %}<p class="field-error">{{ form.amount_fcfa.errors.0 }}</p>{% endif %}
           </div>
@@ -85,27 +85,27 @@
       <div style="margin-bottom:1.75rem;">
         <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.9rem;">
           <span style="width:1.4rem;height:1.4rem;border-radius:50%;background:#4f46e5;color:#fff;font-size:.65rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">3</span>
-          <span style="font-size:.8125rem;font-weight:600;color:#52556b;text-transform:uppercase;letter-spacing:.04em;">Moyen de paiement</span>
+          <span style="font-size:.8125rem;font-weight:600;color:#4b4e5f;text-transform:uppercase;letter-spacing:.04em;">Moyen de paiement</span>
         </div>
         <div id="methodGroup" style="display:grid;grid-template-columns:repeat(4,1fr);gap:.5rem;">
           <label id="lbl-ESPECES" class="method-card">
             <input type="radio" name="method" value="ESPECES" checked class="method-radio" style="display:none;">
-            <span class="method-icon" style="background:#f0fdf4;"><svg viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="width:1rem;height:1rem;"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M6 12h.01M18 12h.01"/></svg></span>
+            <span class="method-icon" style="background:#f0fdf4;"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="width:1rem;height:1rem;"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M6 12h.01M18 12h.01"/></svg></span>
             <span class="method-label">Espèces</span>
           </label>
           <label id="lbl-MOBILE_MONEY" class="method-card">
             <input type="radio" name="method" value="MOBILE_MONEY" class="method-radio" style="display:none;">
-            <span class="method-icon" style="background:#fff7ed;"><svg viewBox="0 0 24 24" fill="none" stroke="#ea580c" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="width:1rem;height:1rem;"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12" y2="18.01"/></svg></span>
+            <span class="method-icon" style="background:#fff7ed;"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="#ea580c" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="width:1rem;height:1rem;"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12" y2="18.01"/></svg></span>
             <span class="method-label">Mobile</span>
           </label>
           <label id="lbl-VIREMENT" class="method-card">
             <input type="radio" name="method" value="VIREMENT" class="method-radio" style="display:none;">
-            <span class="method-icon" style="background:#eff6ff;"><svg viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="width:1rem;height:1rem;"><path d="M7 16V4m0 0L3 8m4-4l4 4"/><path d="M17 8v12m0 0l4-4m-4 4l-4-4"/></svg></span>
+            <span class="method-icon" style="background:#eff6ff;"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="width:1rem;height:1rem;"><path d="M7 16V4m0 0L3 8m4-4l4 4"/><path d="M17 8v12m0 0l4-4m-4 4l-4-4"/></svg></span>
             <span class="method-label">Virement</span>
           </label>
           <label id="lbl-CHEQUE" class="method-card">
             <input type="radio" name="method" value="CHEQUE" class="method-radio" style="display:none;">
-            <span class="method-icon" style="background:#faf5ff;"><svg viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="width:1rem;height:1rem;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="13" y2="17"/></svg></span>
+            <span class="method-icon" style="background:#faf5ff;"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="width:1rem;height:1rem;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="13" y2="17"/></svg></span>
             <span class="method-label">Chèque</span>
           </label>
         </div>
@@ -147,7 +147,7 @@
 
       <div style="margin-bottom:1.75rem;">
         <label class="field-label" style="display:flex;align-items:center;gap:.4rem;">
-          <svg style="width:.85rem;height:.85rem;stroke:#9397a8;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+          <svg aria-hidden="true" style="width:.85rem;height:.85rem;stroke:#6b7280;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
           Payé par
           <span style="font-weight:400;color:#b0b4c4;font-size:.75rem;">(optionnel)</span>
         </label>
@@ -158,7 +158,7 @@
       <div style="display:flex;gap:.6rem;">
         <button type="button" onclick="closePaymentModal()" class="btn-secondary" style="flex:1;justify-content:center;">Annuler</button>
         <button type="submit" class="btn-primary" style="flex:2;justify-content:center;" data-loading-text="Enregistrement…">
-          <svg style="width:1rem;height:1rem;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+          <svg aria-hidden="true" style="width:1rem;height:1rem;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
           Valider l'encaissement
         </button>
       </div>
@@ -199,7 +199,7 @@ function refreshMethodUI() {
     } else {
       lbl.style.borderColor = '#ecedf1';
       lbl.style.background  = '';
-      lbl.querySelector('.method-label').style.color      = '#52556b';
+      lbl.querySelector('.method-label').style.color      = '#4b4e5f';
       lbl.querySelector('.method-label').style.fontWeight = '500';
     }
   });
@@ -233,7 +233,7 @@ function refreshOperatorUI() {
     } else {
       lbl.style.borderColor = '#ecedf1';
       lbl.style.background  = '';
-      label.style.color      = '#52556b';
+      label.style.color      = '#4b4e5f';
       label.style.fontWeight = '500';
     }
   });
@@ -285,7 +285,7 @@ searchInput.addEventListener('input', () => {
   clearTimeout(debounceTimer);
   const q = searchInput.value.trim();
   if (q.length < 1) { searchList.classList.add('hidden'); return; }
-  searchList.innerHTML = '<li style="padding:.6rem 1rem;font-size:.8125rem;color:#9397a8;">Recherche…</li>';
+  searchList.innerHTML = '<li style="padding:.6rem 1rem;font-size:.8125rem;color:#6b7280;">Recherche…</li>';
   searchList.classList.remove('hidden');
   debounceTimer = setTimeout(() => {
     const params = new URLSearchParams({ q });
@@ -295,7 +295,7 @@ searchInput.addEventListener('input', () => {
       .then(data => {
         searchList.innerHTML = '';
         if (!data.results.length) {
-          searchList.innerHTML = '<li style="padding:.6rem 1rem;font-size:.8125rem;color:#9397a8;">Aucun élève trouvé</li>';
+          searchList.innerHTML = '<li style="padding:.6rem 1rem;font-size:.8125rem;color:#6b7280;">Aucun élève trouvé</li>';
           return;
         }
         data.results.forEach((s, i) => {
@@ -305,7 +305,7 @@ searchInput.addEventListener('input', () => {
             + 'transition:background .1s;display:flex;align-items:baseline;gap:.4rem;'
             + (last ? '' : 'border-bottom:1px solid #f4f5f7;');
           li.innerHTML = '<span style="font-weight:600;color:#1a1d29;">' + s.name + '</span>'
-            + (s.class ? '<span style="color:#9397a8;font-size:.78rem;margin-left:auto;">' + s.class + '</span>' : '');
+            + (s.class ? '<span style="color:#6b7280;font-size:.78rem;margin-left:auto;">' + s.class + '</span>' : '');
           li.onmouseenter = () => li.style.background = '#f4f5f9';
           li.onmouseleave = () => li.style.background = '';
           li.addEventListener('mousedown', e => {
@@ -371,5 +371,5 @@ document.getElementById('paymentForm').addEventListener('submit', function(e) {
     width:2rem;height:2rem;border-radius:8px;
     display:flex;align-items:center;justify-content:center;flex-shrink:0;
   }
-  #paymentModal .method-label { font-size:.75rem;font-weight:500;color:#52556b;white-space:nowrap; }
+  #paymentModal .method-label { font-size:.75rem;font-weight:500;color:#4b4e5f;white-space:nowrap; }
 </style>

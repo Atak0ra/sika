@@ -11,8 +11,8 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     :root {
-      --brand:#4f46e5; --brand-hover:#4338ca; --brand-ring:rgba(79,70,229,.14);
-      --border:#ecedf1; --text-1:#1a1d29; --text-2:#52556b; --text-3:#9397a8;
+      --brand:#4f46e5; --brand-hover:#4338ca; --brand-ring:rgba(79,70,229,.35);
+      --border:#ecedf1; --text-1:#1a1d29; --text-2:#4b4e5f; --text-3:#6b7280;
       --surface:#ffffff; --radius-btn:9px; --radius-input:9px;
     }
     *, *::before, *::after { box-sizing:border-box; }
@@ -59,8 +59,10 @@
       transition:background .15s, border-color .15s; cursor:pointer; text-decoration:none;
     }
     .btn-secondary:hover { background:#f6f7f9; border-color:#d1d5db; }
-    .btn-primary:focus-visible,.btn-secondary:focus-visible,a:focus-visible {
+    .btn-primary:focus-visible,.btn-secondary:focus-visible,
+    a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible {
       outline:2px solid var(--brand); outline-offset:2px; border-radius:6px;
+      box-shadow:0 0 0 4px var(--brand-ring);
     }
     .icon { width:1.1em;height:1.1em;stroke:currentColor;fill:none;stroke-width:1.75;
             stroke-linecap:round;stroke-linejoin:round;vertical-align:-0.15em;flex-shrink:0; }
@@ -119,7 +121,7 @@
     <div style="text-align:center;margin-bottom:2rem;">
       <div style="display:inline-flex;align-items:center;justify-content:center;
                   width:3rem;height:3rem;background:#eef2ff;border-radius:14px;margin-bottom:.85rem;">
-        <svg style="width:1.6rem;height:1.6rem;color:#4f46e5" viewBox="0 0 24 24" fill="none"
+        <svg aria-hidden="true" style="width:1.6rem;height:1.6rem;color:#4f46e5" viewBox="0 0 24 24" fill="none"
              stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
           <path d="M22 10L12 5 2 10l10 5 10-5z"/>
           <path d="M6 12v5c0 1 2.7 2.5 6 2.5s6-1.5 6-2.5v-5"/>
@@ -128,7 +130,7 @@
         </svg>
       </div>
       <h1 style="font-size:1.1875rem;font-weight:700;color:#1a1d29;letter-spacing:-0.02em;">Sukulu</h1>
-      <p style="font-size:.8125rem;color:#9397a8;margin-top:.25rem;">Gestion des frais de scolarité</p>
+      <p style="font-size:.8125rem;color:#6b7280;margin-top:.25rem;">Gestion des frais de scolarité</p>
     </div>
 
     <div class="auth-card">
@@ -138,9 +140,9 @@
         {% for msg in messages %}
         <div class="alert {% if msg.tags == 'success' %}alert-success{% else %}alert-error{% endif %}">
           {% if msg.tags == 'success' %}
-          <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+          <svg aria-hidden="true" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
           {% else %}
-          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
           {% endif %}
           <span>{{ msg }}</span>
         </div>

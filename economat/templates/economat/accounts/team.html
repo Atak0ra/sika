@@ -3,7 +3,7 @@
 {% block director_content %}
 <div style="margin-bottom:1.5rem;">
   <h1 style="font-size:1.125rem;font-weight:700;letter-spacing:-0.02em;">Équipe</h1>
-  <p style="font-size:.8375rem;color:#9397a8;margin-top:.25rem;">{{ school.name }}</p>
+  <p style="font-size:.8375rem;color:#6b7280;margin-top:.25rem;">{{ school.name }}</p>
 </div>
 <div class="rg-2" style="gap:1.25rem;">
 
@@ -24,7 +24,7 @@
           </div>
           <div>
             <div style="font-size:.875rem;font-weight:600;color:#1a1d29;">{{ m.display_name|default:m.user.get_full_name }}</div>
-            <div style="font-size:.75rem;color:#9397a8;">@{{ m.login|default:m.user.username }}</div>
+            <div style="font-size:.75rem;color:#6b7280;">@{{ m.login|default:m.user.username }}</div>
           </div>
         </div>
         <div style="display:flex;align-items:center;gap:.5rem;">
@@ -53,7 +53,7 @@
         </div>
       </div>
       {% empty %}
-      <p style="font-size:.875rem;color:#9397a8;text-align:center;padding:1.5rem 0;">Aucun membre pour l’instant.</p>
+      <p style="font-size:.875rem;color:#6b7280;text-align:center;padding:1.5rem 0;">Aucun membre pour l’instant.</p>
       {% endfor %}
     </div>
   </div>
@@ -84,7 +84,7 @@
       </div>
       {% endfor %}
       <button type="submit" class="btn-primary" data-loading-text="Création du compte…">
-        <svg class="icon" style="width:.9em;height:.9em;"><use href="#icon-user-plus"/></svg>
+        <svg aria-hidden="true" class="icon" style="width:.9em;height:.9em;"><use href="#icon-user-plus"/></svg>
         Créer le compte
       </button>
     </form>

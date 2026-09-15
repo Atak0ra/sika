@@ -4,10 +4,10 @@
 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;flex-wrap:wrap;gap:.75rem;">
   <div>
     <h1 style="font-size:1.125rem;font-weight:700;letter-spacing:-0.02em;display:flex;align-items:center;gap:.5rem;">
-      <svg class="icon" style="color:#4f46e5;"><use href="#icon-sparkles"/></svg>
+      <svg aria-hidden="true" class="icon" style="color:#4f46e5;"><use href="#icon-sparkles"/></svg>
       Chat IA
     </h1>
-    <p style="font-size:.8375rem;color:#9397a8;margin-top:.2rem;">{{ school.name }}
+    <p style="font-size:.8375rem;color:#6b7280;margin-top:.2rem;">{{ school.name }}
       <span style="color:#059669;font-weight:500;">· Lecture seule</span>
     </p>
   </div>
@@ -21,8 +21,8 @@
     {% if not chat_history %}
     <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;
                 height:100%;color:#c4c7d0;">
-      <svg class="icon" style="width:2.5rem;height:2.5rem;margin-bottom:.75rem;"><use href="#icon-sparkles"/></svg>
-      <p style="font-size:.9rem;font-weight:500;color:#9397a8;">Posez une question sur vos données</p>
+      <svg aria-hidden="true" class="icon" style="width:2.5rem;height:2.5rem;margin-bottom:.75rem;"><use href="#icon-sparkles"/></svg>
+      <p style="font-size:.9rem;font-weight:500;color:#6b7280;">Posez une question sur vos données</p>
       <p style="font-size:.8125rem;color:#c4c7d0;margin-top:.25rem;">Ex : Combien d’élèves en retard en CM2 ?</p>
     </div>
     {% endif %}
@@ -56,8 +56,8 @@
         </div>
         {% if msg.sql %}
         <details style="margin-top:.5rem;">
-          <summary style="font-size:.72rem;color:rgba(255,255,255,.55);cursor:pointer;
-                          {% if msg.role == 'user' %}{% else %}color:#9397a8;{% endif %}">
+          <summary style="font-size:.75rem;color:rgba(255,255,255,.87);cursor:pointer;
+                          {% if msg.role == 'user' %}{% else %}color:var(--text-3);{% endif %}">
             SQL généré
           </summary>
           <pre style="margin-top:.35rem;background:#1e1f2e;color:#a5b4fc;padding:.65rem .8rem;

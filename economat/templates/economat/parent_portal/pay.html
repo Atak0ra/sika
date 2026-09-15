@@ -7,11 +7,11 @@
     <div style="font-size:.75rem;font-weight:600;color:#4338ca;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.35rem;">Vous payez pour</div>
     <div style="font-size:1.0625rem;font-weight:700;color:#1a1d29;">{{ student.first_name }} {{ student.last_name|upper }}</div>
     {% if enrollment %}
-    <div style="font-size:.8125rem;color:#52556b;margin-top:.2rem;">
+    <div style="font-size:.8125rem;color:#4b4e5f;margin-top:.2rem;">
       {{ enrollment.level.name }} &middot; {{ enrollment.klass.name }} &middot; {{ enrollment.school_year.label }}
     </div>
     {% if balance is not None %}
-    <div style="font-size:.8125rem;color:#52556b;margin-top:.5rem;">
+    <div style="font-size:.8125rem;color:#4b4e5f;margin-top:.5rem;">
       Solde restant : <strong>{{ balance }} FCFA</strong>
     </div>
     {% endif %}
@@ -79,7 +79,7 @@
     width:2rem;height:2rem;border-radius:8px;
     display:flex;align-items:center;justify-content:center;flex-shrink:0;
   }
-  .method-label { font-size:.75rem;font-weight:500;color:#52556b;white-space:normal;line-height:1.15; }
+  .method-label { font-size:.75rem;font-weight:500;color:#4b4e5f;white-space:normal;line-height:1.15; }
 </style>
 <script>
   document.querySelectorAll('.operator-radio').forEach(radio => {
@@ -93,7 +93,7 @@
           label.style.color = r.dataset.fg; label.style.fontWeight = '600';
         } else {
           lbl.style.borderColor = '#ecedf1'; lbl.style.background = '';
-          label.style.color = '#52556b'; label.style.fontWeight = '500';
+          label.style.color = '#4b4e5f'; label.style.fontWeight = '500';
         }
       });
     });

@@ -6,7 +6,7 @@
 
   {# En-tête école #}
   <div style="text-align:center;margin-bottom:2rem;">
-    <div style="font-size:.75rem;font-weight:600;color:#9397a8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.3rem;">
+    <div style="font-size:.75rem;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.3rem;">
       {{ student.school.name }}{% if student.school.city %} · {{ student.school.city }}{% endif %}
     </div>
     <h1 style="font-size:1.75rem;font-weight:800;color:#1a1d29;letter-spacing:-.02em;">Espace parent</h1>
@@ -23,7 +23,7 @@
         <div>
           <div style="font-size:1.25rem;font-weight:700;color:#1a1d29;">{{ student.first_name }} {{ student.last_name|upper }}</div>
           {% if enrollment %}
-          <div style="font-size:.875rem;color:#52556b;margin-top:.15rem;">{{ enrollment.level.name }} · {{ enrollment.klass.name }} · {{ enrollment.school_year.label }}</div>
+          <div style="font-size:.875rem;color:#4b4e5f;margin-top:.15rem;">{{ enrollment.level.name }} · {{ enrollment.klass.name }} · {{ enrollment.school_year.label }}</div>
           {% else %}
           <div style="font-size:.875rem;color:#b91c1c;margin-top:.15rem;">Aucune inscription active.</div>
           {% endif %}
@@ -34,7 +34,7 @@
       {# Barre de progression #}
       <div style="margin-bottom:1.5rem;">
         <div style="display:flex;justify-content:space-between;font-size:.8125rem;font-weight:600;margin-bottom:.5rem;">
-          <span style="color:#52556b;">Frais payés</span>
+          <span style="color:#4b4e5f;">Frais payés</span>
           <span style="color:#1a1d29;">{{ pct_paid }}%</span>
         </div>
         <div style="height:.6rem;background:#f4f5f7;border-radius:999px;overflow:hidden;">
@@ -44,7 +44,7 @@
       {# Chiffres clés #}
       <div class="pp-stats">
         <div style="background:#f9fafb;border-radius:12px;padding:1.1rem 1rem;">
-          <div style="font-size:.7rem;font-weight:600;color:#9397a8;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.3rem;">Frais annuels</div>
+          <div style="font-size:.7rem;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.3rem;">Frais annuels</div>
           <div style="font-size:1.125rem;font-weight:700;color:#1a1d29;">{{ annual_fee|fcfa_long }}</div>
         </div>
         <div style="background:#f0fdf4;border-radius:12px;padding:1.1rem 1rem;">
@@ -65,7 +65,7 @@
       {% if enrollment and balance and balance > 0 %}
       <a href="{% url 'economat:parent_portal_pay_student' student.id %}" class="pp-action-card" style="background:#4f46e5;color:#fff;box-shadow:0 4px 14px rgba(79,70,229,.3);">
         <div style="width:2.75rem;height:2.75rem;border-radius:12px;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:1.4rem;height:1.4rem;">
+          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:1.4rem;height:1.4rem;">
             <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/>
           </svg>
         </div>
@@ -75,9 +75,9 @@
         </div>
       </a>
       {% else %}
-      <div class="pp-action-card" style="background:#f4f5f7;color:#9397a8;">
+      <div class="pp-action-card" style="background:#f4f5f7;color:#6b7280;">
         <div style="width:2.75rem;height:2.75rem;border-radius:12px;background:#ecedf1;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:1.4rem;height:1.4rem;"><polyline points="20 6 9 17 4 12"/></svg>
+          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:1.4rem;height:1.4rem;"><polyline points="20 6 9 17 4 12"/></svg>
         </div>
         <div>
           <div style="font-size:1rem;font-weight:700;">Frais soldés</div>
@@ -88,7 +88,7 @@
 
       <a href="{% url 'economat:parent_portal_history' student.id %}" class="pp-action-card" style="background:#fff;color:#1a1d29;border:1.5px solid #ecedf1;">
         <div style="width:2.75rem;height:2.75rem;border-radius:12px;background:#eef2ff;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:1.4rem;height:1.4rem;">
+          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:1.4rem;height:1.4rem;">
             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
             <polyline points="14 2 14 8 20 8"/>
             <line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
@@ -96,7 +96,7 @@
         </div>
         <div>
           <div style="font-size:1rem;font-weight:700;">Historique</div>
-          <div style="font-size:.8125rem;color:#9397a8;font-weight:400;margin-top:.1rem;">Paiements & reçus PDF</div>
+          <div style="font-size:.8125rem;color:#6b7280;font-weight:400;margin-top:.1rem;">Paiements & reçus PDF</div>
         </div>
       </a>
 

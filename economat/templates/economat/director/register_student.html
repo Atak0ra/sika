@@ -3,11 +3,11 @@
 {% block director_content %}
 
 <!-- Fil d'Ariane -->
-<div style="display:flex;align-items:center;gap:.5rem;margin-bottom:1.75rem;font-size:.8125rem;color:#9397a8;">
+<div style="display:flex;align-items:center;gap:.5rem;margin-bottom:1.75rem;font-size:.8125rem;color:#6b7280;">
   <a href="{% url 'economat:students_list' school.id school_year.id %}"
-     style="color:#9397a8;text-decoration:none;display:flex;align-items:center;gap:.3rem;transition:color .12s;"
-     onmouseover="this.style.color='#4f46e5'" onmouseout="this.style.color='#9397a8'">
-    <svg style="width:.9em;height:.9em;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><path d="M15 19 9 12l6-7"/></svg>
+     style="color:#6b7280;text-decoration:none;display:flex;align-items:center;gap:.3rem;transition:color .12s;"
+     onmouseover="this.style.color='#4f46e5'" onmouseout="this.style.color='#6b7280'">
+    <svg aria-hidden="true" style="width:.9em;height:.9em;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><path d="M15 19 9 12l6-7"/></svg>
     Liste des élèves
   </a>
   <span style="color:#ecedf1;">/</span>
@@ -30,7 +30,7 @@
     <div style="display:flex;align-items:center;flex:1;">
       <div id="dot2" style="width:1.75rem;height:1.75rem;border-radius:50%;display:flex;align-items:center;
                              justify-content:center;font-size:.72rem;font-weight:700;flex-shrink:0;
-                             background:#fff;color:#9397a8;border:2px solid #ecedf1;transition:.2s;">2</div>
+                             background:#fff;color:#6b7280;border:2px solid #ecedf1;transition:.2s;">2</div>
       <span id="lbl2" style="font-size:.75rem;font-weight:600;margin-left:.4rem;white-space:nowrap;color:#c4c7d4;">Affectation</span>
       <div id="line2" style="flex:1;height:2px;margin:0 .5rem;border-radius:99px;background:#ecedf1;transition:.3s;"></div>
     </div>
@@ -38,7 +38,7 @@
     <div style="display:flex;align-items:center;">
       <div id="dot3" style="width:1.75rem;height:1.75rem;border-radius:50%;display:flex;align-items:center;
                              justify-content:center;font-size:.72rem;font-weight:700;flex-shrink:0;
-                             background:#fff;color:#9397a8;border:2px solid #ecedf1;transition:.2s;">3</div>
+                             background:#fff;color:#6b7280;border:2px solid #ecedf1;transition:.2s;">3</div>
       <span id="lbl3" style="font-size:.75rem;font-weight:600;margin-left:.4rem;white-space:nowrap;color:#c4c7d4;">Parent</span>
     </div>
 
@@ -53,7 +53,7 @@
     <div id="step1">
       <div class="card" style="padding:1.75rem;margin-bottom:1rem;">
         <h2 style="font-size:1rem;font-weight:700;letter-spacing:-.01em;margin-bottom:.3rem;">Qui est l’élève ?</h2>
-        <p style="font-size:.8125rem;color:#9397a8;margin-bottom:1.4rem;">Prénom, nom et dates</p>
+        <p style="font-size:.8125rem;color:#6b7280;margin-bottom:1.4rem;">Prénom, nom et dates</p>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:.875rem;">
           <div>
             <label class="field-label">Prénom <span style="color:#dc2626;">*</span></label>
@@ -80,7 +80,7 @@
       <div style="display:flex;justify-content:flex-end;">
         <button type="button" onclick="goStep(2)" class="btn-primary">
           Suivant
-          <svg style="width:.9em;height:.9em;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+          <svg aria-hidden="true" style="width:.9em;height:.9em;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
         </button>
       </div>
     </div>
@@ -89,7 +89,7 @@
     <div id="step2" style="display:none;">
       <div class="card" style="padding:1.75rem;margin-bottom:1rem;">
         <h2 style="font-size:1rem;font-weight:700;letter-spacing:-.01em;margin-bottom:.3rem;">Dans quelle classe ?</h2>
-        <p style="font-size:.8125rem;color:#9397a8;margin-bottom:1.4rem;">{{ school_year.label }} — {{ school.name }}</p>
+        <p style="font-size:.8125rem;color:#6b7280;margin-bottom:1.4rem;">{{ school_year.label }} — {{ school.name }}</p>
         <div style="margin-bottom:.875rem;">
           <label class="field-label">Niveau <span style="color:#dc2626;">*</span></label>
           {{ form.level_id }}
@@ -103,12 +103,12 @@
       </div>
       <div style="display:flex;gap:.75rem;justify-content:space-between;">
         <button type="button" onclick="goStep(1)" class="btn-secondary">
-          <svg style="width:.9em;height:.9em;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
+          <svg aria-hidden="true" style="width:.9em;height:.9em;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
           Retour
         </button>
         <button type="button" onclick="goStep(3)" class="btn-primary">
           Suivant
-          <svg style="width:.9em;height:.9em;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+          <svg aria-hidden="true" style="width:.9em;height:.9em;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
         </button>
       </div>
     </div>
@@ -117,7 +117,7 @@
     <div id="step3" style="display:none;">
       <div class="card" style="padding:1.75rem;margin-bottom:1rem;">
         <h2 style="font-size:1rem;font-weight:700;letter-spacing:-.01em;margin-bottom:.3rem;">Contact parent / tuteur</h2>
-        <p style="font-size:.8125rem;color:#9397a8;margin-bottom:1.4rem;">Ces informations sont optionnelles</p>
+        <p style="font-size:.8125rem;color:#6b7280;margin-bottom:1.4rem;">Ces informations sont optionnelles</p>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:.875rem;">
           <div>
             <label class="field-label">Nom du parent / tuteur</label>
@@ -135,7 +135,7 @@
             <label class="rel-pill" data-val="{{ val }}"
                    style="display:flex;align-items:center;gap:.35rem;padding:.4rem .85rem;
                           border:1.5px solid #ecedf1;border-radius:999px;cursor:pointer;
-                          font-size:.8125rem;font-weight:500;color:#52556b;
+                          font-size:.8125rem;font-weight:500;color:#4b4e5f;
                           transition:border-color .12s,background .12s,color .12s;user-select:none;">
               <input type="radio" name="parent_relation" value="{{ val }}"
                      {% if form.parent_relation.value == val %}checked{% endif %}
@@ -146,7 +146,7 @@
           </div>
         </div>
         <div style="border-top:1px solid #f4f5f7;padding-top:1rem;">
-          <label class="field-label">Observations <span style="font-weight:400;color:#9397a8;">(optionnel)</span></label>
+          <label class="field-label">Observations <span style="font-weight:400;color:#6b7280;">(optionnel)</span></label>
           {{ form.notes }}
         </div>
       </div>
@@ -157,11 +157,11 @@
 
       <div style="display:flex;gap:.75rem;justify-content:space-between;">
         <button type="button" onclick="goStep(2)" class="btn-secondary">
-          <svg style="width:.9em;height:.9em;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
+          <svg aria-hidden="true" style="width:.9em;height:.9em;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
           Retour
         </button>
         <button type="submit" class="btn-primary" data-loading-text="Inscription…">
-          <svg style="width:.95em;height:.95em;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
+          <svg aria-hidden="true" style="width:.95em;height:.95em;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
           Inscrire l’élève
         </button>
       </div>
@@ -171,7 +171,7 @@
 </div>
 
 <script>
-var CHECKSVG = '<svg style="width:.75rem;height:.75rem;stroke:#4f46e5;fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>';
+var CHECKSVG = '<svg aria-hidden="true" style="width:.75rem;height:.75rem;stroke:#4f46e5;fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>';
 
 function goStep(n) {
   if (n === 2 && !validateStep1()) return;
@@ -211,7 +211,7 @@ function updateIndicator(active) {
       lbl.style.color    = '#4f46e5';
       if (line) line.style.background = '#ecedf1';
     } else {
-      dot.style.cssText  = 'width:1.75rem;height:1.75rem;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;flex-shrink:0;background:#fff;color:#9397a8;border:2px solid #ecedf1;transition:.2s;';
+      dot.style.cssText  = 'width:1.75rem;height:1.75rem;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;flex-shrink:0;background:#fff;color:#6b7280;border:2px solid #ecedf1;transition:.2s;';
       dot.innerHTML      = i;
       lbl.style.color    = '#c4c7d4';
       if (line) line.style.background = '#ecedf1';
@@ -228,7 +228,7 @@ function buildRecap() {
   var lvl  = lvlS ? lvlS.options[lvlS.selectedIndex].text : '—';
   var cls  = clsS ? clsS.options[clsS.selectedIndex].text : '—';
   document.getElementById('recap').innerHTML =
-    '<div style="font-size:.7rem;font-weight:700;color:#9397a8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.6rem;">Récapitulatif</div>'
+    '<div style="font-size:.7rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.6rem;">Récapitulatif</div>'
     + '<div style="display:flex;flex-direction:column;gap:.4rem;">'
     + row('Élève',    '<strong>' + fn + ' ' + ln.toUpperCase() + '</strong>')
     + (dob ? row('Naissance', dob) : '')
@@ -236,7 +236,7 @@ function buildRecap() {
     + row('Classe',   cls)
     + '</div>';
 }
-function row(l,v){ return '<div style="display:flex;justify-content:space-between;font-size:.8125rem;"><span style="color:#9397a8;">'+l+'</span><span style="color:#1a1d29;">'+v+'</span></div>'; }
+function row(l,v){ return '<div style="display:flex;justify-content:space-between;font-size:.8125rem;"><span style="color:#6b7280;">'+l+'</span><span style="color:#1a1d29;">'+v+'</span></div>'; }
 
 /* Pills parenté */
 function syncPills() {
@@ -244,7 +244,7 @@ function syncPills() {
     var c = pill.querySelector('input').checked;
     pill.style.borderColor = c ? '#4f46e5' : '#ecedf1';
     pill.style.background  = c ? '#eef2ff' : '';
-    pill.style.color       = c ? '#4f46e5' : '#52556b';
+    pill.style.color       = c ? '#4f46e5' : '#4b4e5f';
   });
 }
 document.querySelectorAll('.rel-pill').forEach(function(pill){

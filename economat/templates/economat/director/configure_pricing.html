@@ -5,7 +5,7 @@
 
 <div style="margin-bottom:1.5rem;">
   <h1 style="font-size:1.125rem;font-weight:700;letter-spacing:-0.02em;">Configuration des tarifs</h1>
-  <p style="font-size:.8375rem;color:#9397a8;margin-top:.25rem;">{{ school.name }} {{ school_year.label }}</p>
+  <p style="font-size:.8375rem;color:#6b7280;margin-top:.25rem;">{{ school.name }} {{ school_year.label }}</p>
 </div>
 
 {% if school_year.levels.all %}
@@ -15,11 +15,11 @@
     <div style="display:flex;align-items:center;gap:.65rem;margin-bottom:1.25rem;">
       <div style="width:2rem;height:2rem;border-radius:8px;background:#eef2ff;color:#4f46e5;
                   display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-        <svg class="icon" style="width:1rem;height:1rem;"><use href="#icon-book"/></svg>
+        <svg aria-hidden="true" class="icon" style="width:1rem;height:1rem;"><use href="#icon-book"/></svg>
       </div>
       <div>
         <div style="font-size:.9rem;font-weight:700;color:#1a1d29;">{{ level.name }}</div>
-        <div style="font-size:.7375rem;color:#9397a8;margin-top:.1rem;">
+        <div style="font-size:.7375rem;color:#6b7280;margin-top:.1rem;">
           <strong style="color:#4f46e5;font-variant-numeric:tabular-nums;">{{ level.annual_fee|fcfa_long }}</strong>
           &middot; {{ level.get_payment_mode_display }}
         </div>
@@ -53,7 +53,7 @@
         </div>
       </div>
       <button type="submit" class="btn-primary" style="width:100%;" data-loading-text="Enregistrement…">
-        <svg class="icon" style="width:.9em;height:.9em;"><use href="#icon-save"/></svg> Enregistrer
+        <svg aria-hidden="true" class="icon" style="width:.9em;height:.9em;"><use href="#icon-save"/></svg> Enregistrer
       </button>
     </form>
   </div>
@@ -61,9 +61,9 @@
 </div>
 {% else %}
 <div style="text-align:center;padding:3rem 1.5rem;border:1.5px dashed #ecedf1;border-radius:14px;">
-  <p style="color:#9397a8;font-size:.875rem;margin-bottom:.75rem;">Créez d’abord des niveaux avant de configurer les tarifs.</p>
+  <p style="color:#6b7280;font-size:.875rem;margin-bottom:.75rem;">Créez d’abord des niveaux avant de configurer les tarifs.</p>
   <a href="{% url 'economat:add_level' school.id school_year.id %}" class="btn-primary" style="display:inline-flex;">
-    <svg class="icon" style="width:.9em;height:.9em;"><use href="#icon-plus"/></svg> Créer un niveau
+    <svg aria-hidden="true" class="icon" style="width:.9em;height:.9em;"><use href="#icon-plus"/></svg> Créer un niveau
   </a>
 </div>
 {% endif %}

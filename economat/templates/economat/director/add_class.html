@@ -3,16 +3,16 @@
 {% block director_content %}
 <div style="margin-bottom:1.5rem;">
   <a href="{% url 'economat:add_level' school.id school_year.id %}"
-     style="display:inline-flex;align-items:center;gap:.35rem;font-size:.8125rem;color:#9397a8;
+     style="display:inline-flex;align-items:center;gap:.35rem;font-size:.8125rem;color:#6b7280;
             text-decoration:none;margin-bottom:.6rem;transition:color .15s;"
-     onmouseover="this.style.color='#4f46e5'" onmouseout="this.style.color='#9397a8'">
-    <svg class="icon" style="width:.9em;height:.9em;"><use href="#icon-chevron-left"/></svg>
+     onmouseover="this.style.color='#4f46e5'" onmouseout="this.style.color='#6b7280'">
+    <svg aria-hidden="true" class="icon" style="width:.9em;height:.9em;"><use href="#icon-chevron-left"/></svg>
     Niveaux
   </a>
   <h1 style="font-size:1.125rem;font-weight:700;letter-spacing:-0.02em;">
     Classes · {{ level.name }}
   </h1>
-  <p style="font-size:.8375rem;color:#9397a8;margin-top:.2rem;">{{ school.name }}</p>
+  <p style="font-size:.8375rem;color:#6b7280;margin-top:.2rem;">{{ school.name }}</p>
 </div>
 <div class="rg-2" style="gap:1.25rem;">
 
@@ -25,13 +25,13 @@
                   padding:.65rem .9rem;border:1px solid #ecedf1;border-radius:9px;background:#fbfbfd;">
         <div>
           <span style="font-size:.875rem;font-weight:600;color:#1a1d29;">{{ klass.name }}</span>
-          <span style="font-size:.75rem;color:#9397a8;margin-left:.5rem;">{{ klass.capacity }} places</span>
+          <span style="font-size:.75rem;color:#6b7280;margin-left:.5rem;">{{ klass.capacity }} places</span>
         </div>
       </div>
       {% endfor %}
     </div>
     {% else %}
-    <p style="font-size:.875rem;color:#9397a8;text-align:center;padding:1.5rem 0;">Aucune classe dans ce niveau.</p>
+    <p style="font-size:.875rem;color:#6b7280;text-align:center;padding:1.5rem 0;">Aucune classe dans ce niveau.</p>
     {% endif %}
   </div>
 
@@ -47,7 +47,7 @@
       </div>
       {% endfor %}
       <button type="submit" class="btn-primary" data-loading-text="Création…">
-        <svg class="icon" style="width:.9em;height:.9em;"><use href="#icon-check"/></svg> Créer la classe
+        <svg aria-hidden="true" class="icon" style="width:.9em;height:.9em;"><use href="#icon-check"/></svg> Créer la classe
       </button>
     </form>
   </div>
