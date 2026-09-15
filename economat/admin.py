@@ -223,7 +223,7 @@ def _activate_registrations(modeladmin, request, queryset):
     if ok:
         modeladmin.message_user(request, f"✅ {ok} école(s) activée(s) avec succès.")
 
-_activate_registrations.short_description = "✅ Activer les dossiers sélectionnés"
+_activate_registrations.short_description = "Activer les dossiers sélectionnés"
 
 
 @admin.register(SchoolRegistrationModel)
@@ -240,21 +240,21 @@ class SchoolRegistrationAdmin(admin.ModelAdmin):
         "created_school", "activated_user",
     )
     fieldsets = (
-        ("🏫 École", {
+        ("École", {
             "fields": ("school_name", "city", "country"),
         }),
-        ("👤 Gérant", {
+        ("Gérant", {
             "fields": ("manager_first_name", "manager_last_name",
                        "manager_email", "manager_phone"),
         }),
-        ("💳 Encaissement", {
+        ("Encaissement", {
             "fields": ("payment_methods", "mobile_operator", "mobile_number"),
         }),
-        ("📋 Statut & Traçabilité", {
+        ("Statut & Traçabilité", {
             "fields": ("status", "notes", "created_at", "activated_at",
                        "created_school", "activated_user"),
         }),
-        ("🔑 Identifiants techniques", {
+        ("Identifiants techniques", {
             "fields": ("id", "client_uuid"),
             "classes": ("collapse",),
         }),
@@ -268,7 +268,7 @@ class SchoolRegistrationAdmin(admin.ModelAdmin):
             "ACTIVATED": "background:#ecfdf5;color:#047857;border:1px solid #a7f3d0",
             "REJECTED":  "background:#fef2f2;color:#b91c1c;border:1px solid #fecaca",
         }
-        labels = {"PENDING": "⏳ En attente", "ACTIVATED": "✅ Activée", "REJECTED": "❌ Rejetée"}
+        labels = {"PENDING": "En attente", "ACTIVATED": "Activée", "REJECTED": "Rejetée"}
         style = styles.get(obj.status, "")
         label = labels.get(obj.status, obj.status)
         return format_html(

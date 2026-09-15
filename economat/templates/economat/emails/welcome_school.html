@@ -11,7 +11,7 @@
 <tr><td align="center" style="padding:48px 16px;">
 <table width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:540px;">
 
-<!-- ▌ Tête indigo ▐ -->
+<!-- Tête indigo -->
 <tr><td style="background:#4f46e5;border-radius:16px 16px 0 0;padding:26px 40px;text-align:center;">
   <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto 5px;">
     <tr>
@@ -31,10 +31,10 @@
   <p style="margin:0;font-size:11.5px;color:rgba(255,255,255,.6);letter-spacing:.3px;">Gestion des frais de scolarité</p>
 </td></tr>
 
-<!-- ▌ Corps blanc ▐ -->
+<!-- Corps blanc -->
 <tr><td style="background:#fff;padding:36px 40px 32px;border-left:1px solid #e5e7eb;border-right:1px solid #e5e7eb;">
   <h1 style="margin:0 0 6px;font-size:21px;font-weight:700;color:#111827;letter-spacing:-.4px;line-height:1.3;">
-    Votre école est activée&nbsp;🎉
+    Votre école est activée
   </h1>
   <p style="margin:0 0 26px;font-size:15px;color:#6b7280;line-height:1.75;">
     Bonjour <strong style="color:#111827;">{{ first_name }}</strong>,<br>
@@ -76,8 +76,16 @@
   <!-- Note mot de passe -->
   <table cellpadding="0" cellspacing="0" border="0">
     <tr>
-      <td style="font-size:14px;vertical-align:top;padding-top:1px;">⚠️</td>
-      <td style="padding-left:8px;">
+      <td style="vertical-align:top;padding-top:2px;">
+        <!-- Icône shield-alert -->
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+             stroke="#d97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2.5 4 6v6c0 5 3.5 9 8 10.5C17.5 21 21 17 21 12V6Z"/>
+          <line x1="12" y1="9" x2="12" y2="13"/>
+          <circle cx="12" cy="16" r=".6" fill="#d97706" stroke="none"/>
+        </svg>
+      </td>
+      <td style="padding-left:7px;">
         <p style="margin:0;font-size:13px;color:#6b7280;line-height:1.65;">
           Ce mot de passe est <strong style="color:#374151;">temporaire</strong>. Modifiez-le dès votre première connexion
           via <strong style="color:#374151;">Mon compte &rarr; Changer le mot de passe</strong>.
@@ -87,7 +95,7 @@
   </table>
 </td></tr>
 
-<!-- ▌ Footer ▐ -->
+<!-- Footer -->
 <tr><td style="background:#f9fafb;border:1px solid #e5e7eb;border-top:none;
                 border-radius:0 0 16px 16px;padding:18px 40px;text-align:center;">
   <p style="margin:0 0 3px;font-size:12px;color:#9ca3af;">&copy; {{ year }} Sukulu &mdash; Gestion des frais de scolarité</p>
