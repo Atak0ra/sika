@@ -193,14 +193,16 @@
 </script>
 <div class="page-wrap">
   <div class="page-header">
-    <div class="logo-icon">
-      <svg aria-hidden="true" style="width:1.6rem;height:1.6rem;color:#4f46e5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M22 10L12 5 2 10l10 5 10-5z"/>
-        <path d="M6 12v5c0 1 2.7 2.5 6 2.5s6-1.5 6-2.5v-5"/>
-        <line x1="22" y1="10" x2="22" y2="16"/>
-      </svg>
-    </div>
-    <div class="logo-name">Sukulu</div>
+    <a href="{% url 'economat:landing' %}" style="display:inline-block;text-decoration:none;color:inherit;">
+      <div class="logo-icon">
+        <svg aria-hidden="true" style="width:1.6rem;height:1.6rem;color:#4f46e5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 10L12 5 2 10l10 5 10-5z"/>
+          <path d="M6 12v5c0 1 2.7 2.5 6 2.5s6-1.5 6-2.5v-5"/>
+          <line x1="22" y1="10" x2="22" y2="16"/>
+        </svg>
+      </div>
+      <div class="logo-name">Sukulu</div>
+    </a>
     <div class="logo-sub">Gestion des frais de scolarité</div>
   </div>
 
@@ -375,6 +377,12 @@
   <div class="page-footer">
     Déjà un compte ?
     <a href="{% url 'economat:login' %}">Se connecter</a>
+  </div>
+  <div class="page-footer" style="margin-top:.5rem;">
+    <a href="{% url 'economat:landing' %}" style="color:#6b7280;font-weight:500;display:inline-flex;align-items:center;gap:.3rem;">
+      <svg aria-hidden="true" style="width:.8em;height:.8em;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      Retour à l’accueil
+    </a>
   </div>
 </div>
 
