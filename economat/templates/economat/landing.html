@@ -94,21 +94,21 @@
       background:rgba(109,40,217,.25);pointer-events:none;
     }
     .hero-inner{
-      max-width:1200px;width:100%;margin:0 auto;
-      padding:4rem 2rem 6rem;
-      display:grid;grid-template-columns:1fr 1fr;
-      gap:3rem;align-items:center;
+      max-width:1280px;width:100%;margin:0 auto;
+      padding:5rem 4rem 7rem;
+      display:grid;grid-template-columns:1.1fr .9fr;
+      gap:5rem;align-items:center;
       position:relative;z-index:1;
     }
     .hero-title{
-      font-size:3.25rem;font-weight:900;
-      margin-bottom:1.25rem;color:#fff;
+      font-size:3.75rem;font-weight:900;
+      margin-bottom:1.5rem;color:#fff;
       letter-spacing:-0.04em;line-height:1.05;
     }
     .hero-title em{font-style:normal;color:#a5b4fc;}
     .hero-sub{
-      font-size:1.0625rem;color:rgba(255,255,255,.65);
-      line-height:1.75;margin-bottom:2rem;max-width:480px;
+      font-size:1.125rem;color:rgba(255,255,255,.65);
+      line-height:1.8;margin-bottom:2.25rem;max-width:520px;
     }
     .hero-cta{display:flex;align-items:center;gap:.75rem;flex-wrap:wrap;}
     .hero-note{font-size:.78rem;color:rgba(255,255,255,.35);margin-top:.85rem;}
@@ -240,7 +240,7 @@
     .section-sub{font-size:1rem;color:var(--text-2);max-width:560px;line-height:1.7;}
 
     @media(max-width:900px){
-      .hero-inner{grid-template-columns:1fr;padding:3rem 1.5rem 5rem;}
+      .hero-inner{grid-template-columns:1fr;padding:3.5rem 2rem 5.5rem;gap:3rem;}
       .receipt-wrap{height:300px;}
       .receipt{width:250px;}
       .receipt-back{width:230px;height:250px;}
@@ -310,10 +310,15 @@
         <a href="{% url 'economat:parent_portal_search' %}" class="btn btn-outline"
            style="padding:.8rem 1.75rem;font-size:.9375rem;font-weight:700;
                   background:rgba(255,255,255,.1);color:#fff;border-color:rgba(255,255,255,.25);">
-          Payer les frais de mon enfant
+          <svg style="width:1em;height:1em;stroke:currentColor;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;vertical-align:-.1em;" viewBox="0 0 24 24"><use href="#il-users"/></svg>
+          Espace parent
         </a>
       </div>
-      <p class="hero-note">Accès sur invitation de l&rsquo;administrateur.</p>
+      <p class="hero-note">
+        Accès sur invitation de l&rsquo;administrateur.
+        &ensp;<span style="color:rgba(255,255,255,.25);">|</span>&ensp;
+        <span style="color:rgba(255,255,255,.45);">Paiement &amp; historique pour votre enfant.</span>
+      </p>
     </div>
 
     <!-- Reçu de paiement -->
