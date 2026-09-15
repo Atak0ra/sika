@@ -69,8 +69,8 @@ class CreateSchoolUseCase:
             user_id=command.director_user_id,
             school_id=school.id,
             role=Role.DIRECTOR,
-            display_name="",    # sera rempli depuis le User dans la vue
-            login="",           # idem
+            display_name=command.director_display_name or "Directeur",
+            login=command.director_login or command.director_user_id,
             is_active=True,
             created_by=command.director_user_id,
         )

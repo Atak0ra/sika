@@ -18,10 +18,11 @@ from django.http import HttpResponseForbidden, JsonResponse
 from django.shortcuts import redirect, render
 from django.utils import timezone
 
-from economat.application.dto_identity import CreateCollaboratorCommand
+from economat.application.dto_identity import CreateCollaboratorCommand, RegisterSchoolCommand
 from economat.composition import (
     get_create_collaborator_use_case,
     get_list_memberships_query,
+    get_register_school_use_case,
     get_user_repository,
 )
 from economat.domain.shared.errors import DomainError
@@ -32,7 +33,7 @@ from economat.infrastructure.models import (
 )
 from economat.interface.decorators import require_membership
 
-from .forms import ChangePasswordForm, CreateCollaboratorForm, LoginForm, ProfileForm
+from .forms import ChangePasswordForm, CreateCollaboratorForm, LoginForm, ProfileForm, SchoolRegistrationForm
 
 # ── Connexion / Déconnexion ───────────────────────────────────────────────────
 
@@ -343,4 +344,70 @@ def offline_credential(request):
         })
     except OfflineCredentialModel.DoesNotExist:
         return JsonResponse({"error": "no_credential"}, status=404)
+
+
+# ── Inscription publique d'une école ──────────────────────────────────────────
+
+def register_school(request):
+    """
+    Formulaire public d'inscription d'une école.
+
+    GET  → Affiche le stepper (données pays injectées en JSON inline).
+    POST → Soumet la demande via RegisterSchoolUseCase (statut PENDING).
+    """
+    if request.method == "POST":
+        form = SchoolRegistrationForm(request.POST)
+        if form.is_valid():
+            cd = form.cleaned_data
+            command = RegisterSchoolCommand(
+                school_name        = cd["school_name"],
+                city               = cd["city"],
+                country_code       = cd["country_code"],
+                manager_first_name = cd["manager_first_name"],
+                manager_last_name  = cd["manager_last_name"],
+                manager_email      = cd["manager_email"],
+                manager_phone      = cd.get("manager_phone", ""),
+                payment_methods    = tuple(cd["payment_methods"]),
+                mobile_operator    = cd.get("mobile_operator", ""),
+                mobile_number      = cd.get("mobile_number", ""),
+                client_uuid        = str(cd["client_uuid"]) if cd.get("client_uuid") else "",
+            )
+            result = get_register_school_use_case().execute(command)
+            if result.success:
+                return render(request, "economat/accounts/register_school_done.html", {
+                    "page_title": "Demande envoyée",
+                    "manager_email": cd["manager_email"],
+                    "school_name": cd["school_name"],
+                })
+            # Erreur métier → réafficher le formulaire avec le message
+            return render(request, "economat/accounts/register_school.html", {
+                "page_title": "Inscrire votre école",
+                "form": form,
+                "error": result.error_message,
+                "countries_json": _get_countries_json(),
+            })
+    else:
+        form = SchoolRegistrationForm()
+
+    return render(request, "economat/accounts/register_school.html", {
+        "page_title":    "Inscrire votre école",
+        "form":          form,
+        "countries_json": _get_countries_json(),
+    })
+
+
+def _get_countries_json():
+    """Retourne les données pays (opérateurs + provider) sérialisées en JSON pour le stepper JS."""
+    import json
+    from economat.infrastructure.models import CountryModel
+    data = {}
+    for c in CountryModel.objects.filter(is_active=True):
+        data[c.code] = {
+            "name":             c.name,
+            "currency":         c.currency,
+            "payment_provider": c.payment_provider or "",
+            "mobile_operators": c.mobile_operators or [],
+        }
+    return json.dumps(data)
+
 

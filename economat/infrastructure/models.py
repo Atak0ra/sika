@@ -299,6 +299,109 @@ class MembershipModel(models.Model):
     def __str__(self): return f"{self.user.username} — {self.role} @ {self.school.name}"
 
 
+class SchoolRegistrationModel(models.Model):
+    """
+    Demande d'inscription d'une école sur la plateforme.
+
+    Cycle de vie :
+      PENDING    → La demande est soumise, en attente de validation interne.
+      ACTIVATED  → Validée : école + compte directeur créés, email envoyé.
+      REJECTED   → Rejetée manuellement (notes internes).
+
+    À l'activation, les champs created_school / activated_user sont remplis
+    pour conserver le lien entre la demande et les entités créées.
+    """
+    STATUS_PENDING   = "PENDING"
+    STATUS_ACTIVATED = "ACTIVATED"
+    STATUS_REJECTED  = "REJECTED"
+    STATUS_CHOICES = [
+        (STATUS_PENDING,   "En attente"),
+        (STATUS_ACTIVATED, "Activée"),
+        (STATUS_REJECTED,  "Rejetée"),
+    ]
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+
+    # Clé d'idempotence générée côté navigateur avant soumission.
+    # Garantit qu'une re-soumission (coupure réseau) ne crée pas de doublon.
+    client_uuid = models.UUIDField(
+        null=True, blank=True, unique=True, db_index=True,
+        help_text="UUID généré côté client (idempotence anti-doublon).",
+    )
+
+    # ── Informations sur l'école ──────────────────────────────────────────────
+    school_name = models.CharField(max_length=200, verbose_name="Nom de l'école")
+    city        = models.CharField(max_length=100, verbose_name="Ville")
+    country     = models.ForeignKey(
+        CountryModel,
+        on_delete=models.PROTECT,
+        null=True, blank=True,
+        related_name="registrations",
+        verbose_name="Pays",
+    )
+
+    # ── Informations sur le gérant ────────────────────────────────────────────
+    manager_first_name = models.CharField(max_length=100, verbose_name="Prénom du gérant")
+    manager_last_name  = models.CharField(max_length=100, verbose_name="Nom du gérant")
+    manager_email      = models.EmailField(verbose_name="Email du gérant")
+    manager_phone      = models.CharField(max_length=30, blank=True, default="",
+                                          verbose_name="Téléphone du gérant")
+
+    # ── Moyens d'encaissement souhaités ──────────────────────────────────────
+    # Liste JSON des méthodes choisies, ex. ["ESPECES", "MOBILE_MONEY"]
+    payment_methods = models.JSONField(
+        default=list, blank=True,
+        verbose_name="Moyens d'encaissement",
+        help_text='Liste JSON, ex. ["ESPECES", "MOBILE_MONEY"]',
+    )
+    # Rempli seulement si MOBILE_MONEY est sélectionné
+    mobile_operator = models.CharField(max_length=60, blank=True, default="",
+                                       verbose_name="Opérateur Mobile Money")
+    mobile_number   = models.CharField(max_length=30, blank=True, default="",
+                                       verbose_name="Numéro Mobile Money")
+
+    # ── Statut & traçabilité ──────────────────────────────────────────────────
+    status = models.CharField(
+        max_length=12, choices=STATUS_CHOICES,
+        default=STATUS_PENDING, db_index=True,
+        verbose_name="Statut",
+    )
+    notes = models.TextField(
+        blank=True, default="",
+        verbose_name="Notes internes",
+        help_text="Commentaires de validation (visibles seulement en admin).",
+    )
+
+    # ── Liens vers les entités créées à l'activation ─────────────────────────
+    created_school  = models.ForeignKey(
+        "SchoolModel", on_delete=models.SET_NULL,
+        null=True, blank=True, related_name="registration",
+        verbose_name="École créée",
+    )
+    activated_user  = models.ForeignKey(
+        "auth.User", on_delete=models.SET_NULL,
+        null=True, blank=True, related_name="school_registration",
+        verbose_name="Compte créé",
+    )
+
+    created_at   = models.DateTimeField(auto_now_add=True, verbose_name="Soumise le")
+    activated_at = models.DateTimeField(null=True, blank=True, verbose_name="Activée le")
+
+    class Meta:
+        app_label           = "economat"
+        db_table            = "economat_school_registration"
+        ordering            = ["-created_at"]
+        verbose_name        = "Demande d'inscription"
+        verbose_name_plural = "Demandes d'inscription"
+        indexes = [
+            models.Index(fields=["status", "created_at"], name="idx_registration_status_date"),
+            models.Index(fields=["manager_email"],         name="idx_registration_email"),
+        ]
+
+    def __str__(self):
+        return f"{self.school_name} ({self.city}) — {self.get_status_display()}"
+
+
 class OfflineCredentialModel(models.Model):
     """
     Verifier PBKDF2 dédié pour l'authentification offline.

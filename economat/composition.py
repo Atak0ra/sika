@@ -3,6 +3,9 @@ composition.py — Composition Root (NOUVEAU SCHEMA).
 """
 from __future__ import annotations
 
+from economat.infrastructure.persistence.registration_repository import (
+    DjangoSchoolRegistrationRepository,
+)
 from economat.infrastructure.persistence.django_repositories import (
     DjangoEnrollmentRepository,
     DjangoPaymentRepository,
@@ -217,3 +220,41 @@ def get_poll_online_payment_use_case(country: str | None = None):
 def get_confirm_online_payment_use_case():
     from economat.application.use_cases.confirm_online_payment import ConfirmOnlinePaymentUseCase
     return ConfirmOnlinePaymentUseCase(payment_repo=get_payment_repo())
+
+
+# ─ Inscription & activation des écoles ────────────────────────────────────────
+
+def get_registration_repo():
+    return DjangoSchoolRegistrationRepository()
+
+
+def get_email_sender():
+    """
+    Retourne ResendEmailSender si RESEND_API_KEY est défini,
+    sinon ConsoleEmailSender (dev / tests — aucun appel réseau).
+    """
+    from django.conf import settings
+    if getattr(settings, "RESEND_API_KEY", "").strip():
+        from economat.infrastructure.email.resend_email_sender import ResendEmailSender
+        return ResendEmailSender()
+    from economat.infrastructure.email.console_email_sender import ConsoleEmailSender
+    return ConsoleEmailSender()
+
+
+def get_register_school_use_case():
+    from economat.application.use_cases.register_school import RegisterSchoolUseCase
+    return RegisterSchoolUseCase(registration_repo=get_registration_repo())
+
+
+def get_activate_school_registration_use_case():
+    from economat.application.use_cases.activate_school_registration import (
+        ActivateSchoolRegistrationUseCase,
+    )
+    r = _repos()
+    return ActivateSchoolRegistrationUseCase(
+        registration_repo = get_registration_repo(),
+        user_repo         = r["user"],
+        create_school_uc  = get_create_school_use_case(),
+        email_sender      = get_email_sender(),
+    )
+

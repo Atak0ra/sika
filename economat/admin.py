@@ -8,7 +8,7 @@ from django.utils.html import format_html
 
 from economat.infrastructure.models import (
     ClassModel, CountryModel, EnrollmentModel, LevelModel, MembershipModel,
-    PaymentModel, SchoolModel, SchoolYearModel, StudentModel,
+    PaymentModel, SchoolModel, SchoolRegistrationModel, SchoolYearModel, StudentModel,
 )
 
 
@@ -198,3 +198,88 @@ class PaymentAdmin(admin.ModelAdmin):
 admin.site.site_header = "🏫 Sukulu — Administration"
 admin.site.site_title  = "Sukulu Admin"
 admin.site.index_title = "Panneau de gestion"
+
+
+# ─ Demandes d'inscription (SchoolRegistration) ───────────────────────────────
+
+def _activate_registrations(modeladmin, request, queryset):
+    """Action admin : active les dossiers PENDING sélectionnés."""
+    from economat.application.dto_identity import ActivateSchoolCommand
+    from economat.composition import get_activate_school_registration_use_case
+
+    uc = get_activate_school_registration_use_case()
+    ok, ko = 0, 0
+    for reg in queryset.filter(status="PENDING"):
+        result = uc.execute(ActivateSchoolCommand(registration_id=str(reg.id)))
+        if result.success:
+            ok += 1
+        else:
+            ko += 1
+            modeladmin.message_user(
+                request,
+                f"❌ {reg.school_name} : {result.error_message}",
+                level="error",
+            )
+    if ok:
+        modeladmin.message_user(request, f"✅ {ok} école(s) activée(s) avec succès.")
+
+_activate_registrations.short_description = "✅ Activer les dossiers sélectionnés"
+
+
+@admin.register(SchoolRegistrationModel)
+class SchoolRegistrationAdmin(admin.ModelAdmin):
+    list_display  = (
+        "school_name", "city", "country", "manager_email",
+        "status_badge", "payment_methods_display", "created_at",
+    )
+    list_filter   = ("status", "country")
+    search_fields = ("school_name", "city", "manager_email",
+                     "manager_first_name", "manager_last_name")
+    readonly_fields = (
+        "id", "client_uuid", "created_at", "activated_at",
+        "created_school", "activated_user",
+    )
+    fieldsets = (
+        ("🏫 École", {
+            "fields": ("school_name", "city", "country"),
+        }),
+        ("👤 Gérant", {
+            "fields": ("manager_first_name", "manager_last_name",
+                       "manager_email", "manager_phone"),
+        }),
+        ("💳 Encaissement", {
+            "fields": ("payment_methods", "mobile_operator", "mobile_number"),
+        }),
+        ("📋 Statut & Traçabilité", {
+            "fields": ("status", "notes", "created_at", "activated_at",
+                       "created_school", "activated_user"),
+        }),
+        ("🔑 Identifiants techniques", {
+            "fields": ("id", "client_uuid"),
+            "classes": ("collapse",),
+        }),
+    )
+    actions = [_activate_registrations]
+
+    @admin.display(description="Statut")
+    def status_badge(self, obj):
+        styles = {
+            "PENDING":   "background:#fff7ed;color:#c2410c;border:1px solid #fed7aa",
+            "ACTIVATED": "background:#ecfdf5;color:#047857;border:1px solid #a7f3d0",
+            "REJECTED":  "background:#fef2f2;color:#b91c1c;border:1px solid #fecaca",
+        }
+        labels = {"PENDING": "⏳ En attente", "ACTIVATED": "✅ Activée", "REJECTED": "❌ Rejetée"}
+        style = styles.get(obj.status, "")
+        label = labels.get(obj.status, obj.status)
+        return format_html(
+            '<span style="{};padding:2px 8px;border-radius:999px;font-size:11px;font-weight:600">{}</span>',
+            style, label,
+        )
+
+    @admin.display(description="Encaissements")
+    def payment_methods_display(self, obj):
+        methods = obj.payment_methods or []
+        labels = {"ESPECES": "Espèces", "MOBILE_MONEY": "Mobile Money",
+                  "VIREMENT": "Virement", "CHEQUE": "Chèque"}
+        return ", ".join(labels.get(m, m) for m in methods) or "—"
+

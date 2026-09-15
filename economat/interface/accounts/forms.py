@@ -117,6 +117,75 @@ class CreateCollaboratorForm(forms.Form):
     )
 
 
+class SchoolRegistrationForm(forms.Form):
+    """
+    Formulaire public d'inscription d'une école.
+    Soumis en une seule fois (stepper JS côté client) — validation serveur complète.
+    """
+    # Étape 1 — École
+    school_name = forms.CharField(
+        label="Nom de l'école", max_length=200,
+        widget=forms.TextInput(attrs={"class": "form-input", "placeholder": "Ex : École Primaire Sainte-Marie"}),
+    )
+    city = forms.CharField(
+        label="Ville", max_length=100,
+        widget=forms.TextInput(attrs={"class": "form-input", "placeholder": "Ex : Dakar"}),
+    )
+    country_code = forms.ChoiceField(
+        label="Pays", choices=[],
+        widget=forms.Select(attrs={"class": "form-select", "id": "id_country_code"}),
+    )
+
+    # Étape 2 — Encaissement
+    payment_methods = forms.MultipleChoiceField(
+        label="Moyens d'encaissement acceptés",
+        choices=[
+            ("ESPECES",      "Espèces"),
+            ("MOBILE_MONEY", "Mobile Money"),
+            ("VIREMENT",     "Virement bancaire"),
+            ("CHEQUE",       "Chèque"),
+        ],
+        widget=forms.CheckboxSelectMultiple(),
+        required=True,
+    )
+    mobile_operator = forms.CharField(
+        label="Opérateur Mobile Money", max_length=60, required=False,
+        widget=forms.Select(attrs={"class": "form-select", "id": "id_mobile_operator"}),
+    )
+    mobile_number = forms.CharField(
+        label="Numéro Mobile Money", max_length=30, required=False,
+        widget=forms.TextInput(attrs={"class": "form-input", "placeholder": "Ex : 771234567"}),
+    )
+
+    # Étape 3 — Gérant
+    manager_first_name = forms.CharField(
+        label="Prénom", max_length=100,
+        widget=forms.TextInput(attrs={"class": "form-input", "placeholder": "Kofi"}),
+    )
+    manager_last_name = forms.CharField(
+        label="Nom", max_length=100,
+        widget=forms.TextInput(attrs={"class": "form-input", "placeholder": "MENSAH"}),
+    )
+    manager_email = forms.EmailField(
+        label="Adresse email",
+        widget=forms.EmailInput(attrs={"class": "form-input", "placeholder": "kofi.mensah@ecole.sn"}),
+    )
+    manager_phone = forms.CharField(
+        label="Téléphone (optionnel)", max_length=30, required=False,
+        widget=forms.TextInput(attrs={"class": "form-input", "placeholder": "Ex : +221 77 123 45 67"}),
+    )
+
+    # Champ caché — UUID idempotence généré côté JS
+    client_uuid = forms.UUIDField(required=False, widget=forms.HiddenInput())
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        from economat.infrastructure.models import CountryModel
+        countries = CountryModel.objects.filter(is_active=True).values_list("code", "name")
+        self.fields["country_code"].choices = [("", "Sélectionnez un pays…")] + list(countries)
+
+
+
 class ProfileForm(forms.Form):
     """Formulaire de modification du profil utilisateur."""
     first_name = forms.CharField(

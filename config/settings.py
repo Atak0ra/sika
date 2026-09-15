@@ -153,3 +153,11 @@ if not DEBUG:
 LOGIN_URL           = "/eco/login/"
 LOGIN_REDIRECT_URL  = "/eco/ecoles/"
 LOGOUT_REDIRECT_URL = "/eco/"
+
+# ── Resend (email transactionnel) ─────────────────────────────────────────────
+# Obtenez votre clé sur https://resend.com → API Keys
+RESEND_API_KEY    = os.environ.get("RESEND_API_KEY", "").strip()
+# Adresse expéditrice vérifiée sur votre domaine Resend
+RESEND_FROM_EMAIL = os.environ.get("RESEND_FROM_EMAIL", "Sukulu <no-reply@sukulu.app>")
+# URL de connexion inclus dans l'email d'activation envoyé aux écoles
+PLATFORM_LOGIN_URL = os.environ.get("PLATFORM_LOGIN_URL", "https://sukulu.app/eco/login/")

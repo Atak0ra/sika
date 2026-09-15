@@ -4,6 +4,7 @@ domain/payment/value_objects.py
 Value Objects du sous-domaine Paiement.
 """
 from __future__ import annotations
+
 import uuid
 from dataclasses import dataclass
 from enum import Enum
