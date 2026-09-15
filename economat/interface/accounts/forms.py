@@ -7,6 +7,18 @@ Formulaires du module Accounts (authentification + onboarding + équipe).
 from django import forms
 
 
+def country_flag(code: str) -> str:
+    """
+    Drapeau emoji à partir d'un code ISO 3166-1 alpha-2 (ex. "SN" → 🇸🇳).
+    Calculé à la volée à partir des indicateurs régionaux Unicode — pas de
+    champ à maintenir en base, marche pour n'importe quel pays du monde.
+    """
+    code = code.strip().upper()
+    if len(code) != 2 or not code.isalpha():
+        return ""
+    return "".join(chr(0x1F1E6 + ord(letter) - ord("A")) for letter in code)
+
+
 class SignUpForm(forms.Form):
     """Formulaire d'inscription directeur (étape 1)."""
     first_name = forms.CharField(
@@ -182,7 +194,9 @@ class SchoolRegistrationForm(forms.Form):
         super().__init__(*args, **kwargs)
         from economat.infrastructure.models import CountryModel
         countries = CountryModel.objects.filter(is_active=True).values_list("code", "name")
-        self.fields["country_code"].choices = [("", "Sélectionnez un pays…")] + list(countries)
+        self.fields["country_code"].choices = [("", "Sélectionnez un pays…")] + [
+            (code, f"{country_flag(code)} {name}") for code, name in countries
+        ]
 
 
 

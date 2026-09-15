@@ -15,20 +15,21 @@ def make_country(db):
     from economat.infrastructure.models import CountryModel
     _DEFAULTS = {
         "SN": {"name": "Sénégal",        "currency": "XOF", "payment_provider": "samirpay",
-               "mobile_operators": ["Orange Money", "Wave", "Free Money"]},
+               "mobile_operators": ["Orange Money", "Wave", "Free Money"], "dial_code": "+221"},
         "TG": {"name": "Togo",           "currency": "XOF", "payment_provider": "",
-               "mobile_operators": ["Flooz (Togocom)", "T-Money (Togocom)", "Wave"]},
+               "mobile_operators": ["Flooz (Togocom)", "T-Money (Togocom)", "Wave"], "dial_code": "+228"},
         "BJ": {"name": "Bénin",          "currency": "XOF", "payment_provider": "",
-               "mobile_operators": ["MTN Mobile Money", "Moov Money"]},
+               "mobile_operators": ["MTN Mobile Money", "Moov Money"], "dial_code": "+229"},
         "GN": {"name": "Guinée Conakry", "currency": "XOF", "payment_provider": "crpay",
-               "mobile_operators": ["Orange Money", "MTN Mobile Money"]},
+               "mobile_operators": ["Orange Money", "MTN Mobile Money"], "dial_code": "+224"},
         "CI": {"name": "Côte d'Ivoire",  "currency": "XOF", "payment_provider": "",
-               "mobile_operators": ["Orange Money", "MTN Mobile Money", "Moov Money", "Wave"]},
+               "mobile_operators": ["Orange Money", "MTN Mobile Money", "Moov Money", "Wave"], "dial_code": "+225"},
     }
 
     def _make(code: str):
         defaults = _DEFAULTS.get(code.upper(), {"name": code, "currency": "XOF",
-                                                 "payment_provider": "", "mobile_operators": []})
+                                                 "payment_provider": "", "mobile_operators": [],
+                                                 "dial_code": ""})
         country, _ = CountryModel.objects.get_or_create(
             code=code.upper(), defaults={**defaults, "is_active": True}
         )

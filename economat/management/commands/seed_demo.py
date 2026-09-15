@@ -100,7 +100,7 @@ class Command(BaseCommand):
             code="TG",
             defaults={"name": "Togo", "currency": "XOF", "payment_provider": "",
                       "mobile_operators": ["Flooz (Togocom)", "T-Money (Togocom)", "Wave"],
-                      "is_active": True},
+                      "dial_code": "+228", "is_active": True},
         )
 
         # ─ École + année scolaire ──────────────────────────────────────

@@ -89,6 +89,14 @@
     .checkbox-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.5rem;}
     .checkbox-list li{display:flex;align-items:center;gap:.6rem;font-size:.9rem;cursor:pointer;}
     .checkbox-list input[type=checkbox]{width:1rem;height:1rem;accent-color:var(--brand);flex-shrink:0;}
+    .phone-group{display:flex;align-items:stretch;}
+    .phone-prefix{
+      display:flex;align-items:center;flex-shrink:0;padding:0 .7rem;
+      background:#eef0f5;border:1.5px solid var(--border);border-right:none;
+      border-radius:var(--radius-input) 0 0 var(--radius-input);
+      color:var(--text-2);font-weight:600;font-size:.9rem;white-space:nowrap;
+    }
+    .phone-group .form-input{border-radius:0 var(--radius-input) var(--radius-input) 0;}
     .mobile-fields{
       display:none;flex-direction:column;gap:.9rem;margin-top:.9rem;
       padding:1rem;background:#f8f9ff;border:1px solid #e0e7ff;border-radius:10px;
@@ -109,7 +117,7 @@
   </style>
 </head>
 <body>
-<script id="countries-data" type="application/json">{{ countries_json }}</script>
+{{ countries|json_script:"countries-data" }}
 <script>
   window.__clientUUID = ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g,c=>
     (c^crypto.getRandomValues(new Uint8Array(1))[0]&15>>c/4).toString(16));
@@ -150,10 +158,12 @@
   function updateOperators() {
     var code = document.querySelector('[name=country_code]').value;
     var COUNTRIES = JSON.parse(document.getElementById('countries-data').textContent);
-    var ops = (COUNTRIES[code] || {}).mobile_operators || [];
+    var country = COUNTRIES[code] || {};
+    var ops = country.mobile_operators || [];
     var sel = document.getElementById('id_mobile_operator');
     sel.innerHTML = '<option value="">Sélectionnez un opérateur…</option>';
     ops.forEach(function(op){ var o=document.createElement('option');o.value=op;o.textContent=op;sel.appendChild(o); });
+    document.getElementById('mobile-dial-code').textContent = country.dial_code || '+…';
     onPaymentMethodChange();
   }
 
@@ -266,7 +276,10 @@
               </div>
               <div>
                 <label class="field-label">{{ form.mobile_number.label }}</label>
-                {{ form.mobile_number }}
+                <div class="phone-group">
+                  <span class="phone-prefix" id="mobile-dial-code">+…</span>
+                  {{ form.mobile_number }}
+                </div>
                 {% if form.mobile_number.errors %}<p class="field-error">{{ form.mobile_number.errors.0 }}</p>{% endif %}
               </div>
             </div>

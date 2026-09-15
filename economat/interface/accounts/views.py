@@ -384,7 +384,7 @@ def register_school(request):
                 "page_title": "Inscrire votre école",
                 "form": form,
                 "error": result.error_message,
-                "countries_json": _get_countries_json(),
+                "countries": _get_countries_data(),
             })
     else:
         form = SchoolRegistrationForm()
@@ -392,13 +392,19 @@ def register_school(request):
     return render(request, "economat/accounts/register_school.html", {
         "page_title":    "Inscrire votre école",
         "form":          form,
-        "countries_json": _get_countries_json(),
+        "countries": _get_countries_data(),
     })
 
 
-def _get_countries_json():
-    """Retourne les données pays (opérateurs + provider) sérialisées en JSON pour le stepper JS."""
-    import json
+def _get_countries_data():
+    """
+    Retourne les données pays (opérateurs + provider + indicatif) pour le
+    stepper JS, sous forme de dict — jamais de JSON pré-sérialisé passé au
+    template : `{{ x }}` échapperait ses guillemets en `&quot;`, illisibles
+    par JSON.parse dans un <script> (raw text, pas de décodage d'entités).
+    Le template embarque ce dict via le filtre `json_script`, qui gère cet
+    échappement correctement.
+    """
     from economat.infrastructure.models import CountryModel
     data = {}
     for c in CountryModel.objects.filter(is_active=True):
@@ -407,7 +413,8 @@ def _get_countries_json():
             "currency":         c.currency,
             "payment_provider": c.payment_provider or "",
             "mobile_operators": c.mobile_operators or [],
+            "dial_code":        c.dial_code or "",
         }
-    return json.dumps(data)
+    return data
 
 

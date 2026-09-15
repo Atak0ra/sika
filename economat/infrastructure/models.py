@@ -33,6 +33,7 @@ class CountryModel(models.Model):
                          ("samirpay", "crpay", ou "" = aucune / Fake)
       mobile_operators — liste JSON des opérateurs Mobile Money
                          ex. ["Orange Money", "Wave"]
+      dial_code        — indicatif téléphonique international (ex. "+221")
       is_active        — faux = pays masqué dans les formulaires (pas supprimé)
     """
     PROVIDER_CHOICES = [
@@ -52,6 +53,9 @@ class CountryModel(models.Model):
     mobile_operators = models.JSONField(default=list, blank=True,
                                         verbose_name="Opérateurs Mobile Money",
                                         help_text='Liste JSON, ex. ["Orange Money", "Wave"]')
+    dial_code        = models.CharField(max_length=6, blank=True, default="",
+                                        verbose_name="Indicatif téléphonique",
+                                        help_text='Ex. "+221"')
     is_active        = models.BooleanField(default=True, verbose_name="Actif",
                                            help_text="Masqué dans les formulaires si décoché")
 
