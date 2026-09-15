@@ -1,0 +1,216 @@
+{% extends "economat/accounts/base_auth.html" %}
+{% load static %}
+
+{% block title %}Inscrire votre école — Sukulu{% endblock %}
+
+{% block content %}
+<script id="countries-data" type="application/json">{{ countries_json }}</script>
+<script>
+  window.__clientUUID = ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g,c=>
+    (c^crypto.getRandomValues(new Uint8Array(1))[0]&15>>c/4).toString(16));
+</script>
+<style>
+  .stepper-nav{display:flex;gap:.5rem;margin-bottom:2rem;}
+  .step-dot{flex:1;height:4px;border-radius:4px;background:#ecedf1;transition:background .3s;}
+  .step-dot.active{background:var(--brand);} .step-dot.done{background:#a5b4fc;}
+  .step-panel{display:none;} .step-panel.active{display:block;}
+  .step-title{font-size:.9375rem;font-weight:700;color:#1a1d29;margin-bottom:.2rem;}
+  .step-sub{font-size:.8125rem;color:#9397a8;margin-bottom:1.25rem;}
+  .field-group{display:flex;flex-direction:column;gap:.9rem;margin-bottom:1rem;}
+  .checkbox-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.45rem;}
+  .checkbox-list li{display:flex;align-items:center;gap:.5rem;font-size:.875rem;cursor:pointer;}
+  .checkbox-list input[type=checkbox]{width:1rem;height:1rem;accent-color:var(--brand);}
+  .mobile-fields{display:none;margin-top:.75rem;flex-direction:column;gap:.75rem;}
+  .mobile-fields.visible{display:flex;}
+  .step-nav{display:flex;justify-content:space-between;margin-top:1.5rem;}
+</style>
+
+{% if error %}
+<div class="alert alert-error" style="margin-bottom:1rem;">
+  <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+  <span>{{ error }}</span>
+</div>
+{% endif %}
+
+<h2 class="step-title" style="font-size:1.0625rem;margin-bottom:.15rem;">Inscrire votre école</h2>
+<p style="font-size:.8125rem;color:#9397a8;margin-bottom:1.25rem;">
+  Nous vérifierons votre dossier et vous enverrons vos identifiants par email.
+</p>
+
+<div class="stepper-nav" role="progressbar">
+  <div class="step-dot active" id="dot-1"></div>
+  <div class="step-dot" id="dot-2"></div>
+  <div class="step-dot" id="dot-3"></div>
+</div>
+
+<form method="post" id="registration-form">
+  {% csrf_token %}
+  <input type="hidden" name="client_uuid" id="id_client_uuid">
+
+  {# Étape 1 : École #}
+  <div class="step-panel active" id="step-1">
+    <div class="step-title">🏫 Votre école</div>
+    <div class="step-sub">Étape 1 sur 3</div>
+    <div class="field-group">
+      <div>
+        <label class="field-label">{{ form.school_name.label }}</label>
+        {{ form.school_name }}
+        {% if form.school_name.errors %}<p class="field-error">{{ form.school_name.errors.0 }}</p>{% endif %}
+      </div>
+      <div>
+        <label class="field-label">{{ form.city.label }}</label>
+        {{ form.city }}
+        {% if form.city.errors %}<p class="field-error">{{ form.city.errors.0 }}</p>{% endif %}
+      </div>
+      <div>
+        <label class="field-label">{{ form.country_code.label }}</label>
+        {{ form.country_code }}
+        {% if form.country_code.errors %}<p class="field-error">{{ form.country_code.errors.0 }}</p>{% endif %}
+      </div>
+    </div>
+    <div class="step-nav">
+      <span></span>
+      <button type="button" class="btn-primary" onclick="goStep(2)" style="width:auto;padding:.65rem 1.5rem;">
+        Suivant →
+      </button>
+    </div>
+  </div>
+
+  {# Étape 2 : Encaissement #}
+  <div class="step-panel" id="step-2">
+    <div class="step-title">💳 Encaissement</div>
+    <div class="step-sub">Étape 2 sur 3 — comment allez-vous recevoir les paiements ?</div>
+    <div style="margin-bottom:.75rem;">
+      <label class="field-label">{{ form.payment_methods.label }}</label>
+      <ul class="checkbox-list">
+        {% for value, label in form.payment_methods.field.choices %}
+        <li>
+          <input type="checkbox" name="payment_methods" value="{{ value }}" id="pm_{{ value }}"
+                 onchange="onPaymentMethodChange()">
+          <label for="pm_{{ value }}" style="cursor:pointer;">{{ label }}</label>
+        </li>
+        {% endfor %}
+      </ul>
+      {% if form.payment_methods.errors %}<p class="field-error">{{ form.payment_methods.errors.0 }}</p>{% endif %}
+    </div>
+    <div class="mobile-fields" id="mobile-fields">
+      <div>
+        <label class="field-label">{{ form.mobile_operator.label }}</label>
+        <select name="mobile_operator" id="id_mobile_operator" class="form-select">
+          <option value="">Sélectionnez un opérateur…</option>
+        </select>
+        {% if form.mobile_operator.errors %}<p class="field-error">{{ form.mobile_operator.errors.0 }}</p>{% endif %}
+      </div>
+      <div>
+        <label class="field-label">{{ form.mobile_number.label }}</label>
+        {{ form.mobile_number }}
+        {% if form.mobile_number.errors %}<p class="field-error">{{ form.mobile_number.errors.0 }}</p>{% endif %}
+      </div>
+    </div>
+    <div class="step-nav">
+      <button type="button" class="btn-secondary" onclick="goStep(1)">← Retour</button>
+      <button type="button" class="btn-primary" onclick="goStep(3)" style="width:auto;padding:.65rem 1.5rem;">
+        Suivant →
+      </button>
+    </div>
+  </div>
+
+  {# Étape 3 : Gérant #}
+  <div class="step-panel" id="step-3">
+    <div class="step-title">👤 Responsable de l'école</div>
+    <div class="step-sub">Étape 3 sur 3 — coordonnées pour recevoir vos identifiants</div>
+    <div class="field-group">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;">
+        <div>
+          <label class="field-label">{{ form.manager_first_name.label }}</label>
+          {{ form.manager_first_name }}
+          {% if form.manager_first_name.errors %}<p class="field-error">{{ form.manager_first_name.errors.0 }}</p>{% endif %}
+        </div>
+        <div>
+          <label class="field-label">{{ form.manager_last_name.label }}</label>
+          {{ form.manager_last_name }}
+          {% if form.manager_last_name.errors %}<p class="field-error">{{ form.manager_last_name.errors.0 }}</p>{% endif %}
+        </div>
+      </div>
+      <div>
+        <label class="field-label">{{ form.manager_email.label }}</label>
+        {{ form.manager_email }}
+        {% if form.manager_email.errors %}<p class="field-error">{{ form.manager_email.errors.0 }}</p>{% endif %}
+      </div>
+      <div>
+        <label class="field-label">{{ form.manager_phone.label }}</label>
+        {{ form.manager_phone }}
+      </div>
+    </div>
+    <div class="step-nav">
+      <button type="button" class="btn-secondary" onclick="goStep(2)">← Retour</button>
+      <button type="submit" class="btn-primary" data-loading-text="Envoi en cours…"
+              style="width:auto;padding:.65rem 1.5rem;">
+        Envoyer la demande ✓
+      </button>
+    </div>
+  </div>
+</form>
+
+<p style="font-size:.75rem;color:#9397a8;text-align:center;margin-top:1.5rem;">
+  Déjà un compte ?
+  <a href="{% url 'economat:login' %}" style="color:var(--brand);font-weight:600;">Se connecter</a>
+</p>
+
+
+<script>
+const COUNTRIES = JSON.parse(document.getElementById('countries-data').textContent);
+document.getElementById('id_client_uuid').value = window.__clientUUID;
+let currentStep = 1;
+
+function goStep(n) {
+  if (n > currentStep && !validateStep(currentStep)) return;
+  document.getElementById('step-' + currentStep).classList.remove('active');
+  document.getElementById('dot-' + currentStep).classList.add('done');
+  document.getElementById('dot-' + currentStep).classList.remove('active');
+  currentStep = n;
+  document.getElementById('step-' + n).classList.add('active');
+  document.getElementById('dot-' + n).classList.add('active');
+  if (n === 2) updateOperators();
+}
+
+function validateStep(step) {
+  if (step === 1) {
+    const n = document.querySelector('[name=school_name]').value.trim();
+    const c = document.querySelector('[name=city]').value.trim();
+    const p = document.querySelector('[name=country_code]').value;
+    if (!n || !c || !p) { alert('Veuillez remplir tous les champs.'); return false; }
+  }
+  if (step === 2) {
+    const checked = [...document.querySelectorAll('[name=payment_methods]:checked')];
+    if (!checked.length) { alert("Sélectionnez au moins un moyen d'encaissement."); return false; }
+    if (checked.some(c => c.value === 'MOBILE_MONEY')) {
+      if (!document.getElementById('id_mobile_operator').value ||
+          !document.querySelector('[name=mobile_number]').value.trim()) {
+        alert('Sélectionnez un opérateur et saisissez un numéro Mobile Money.'); return false;
+      }
+    }
+  }
+  return true;
+}
+
+function updateOperators() {
+  const code = document.querySelector('[name=country_code]').value;
+  const ops = (COUNTRIES[code] || {}).mobile_operators || [];
+  const sel = document.getElementById('id_mobile_operator');
+  sel.innerHTML = '<option value="">Sélectionnez un opérateur…</option>';
+  ops.forEach(op => { const o = document.createElement('option'); o.value = op; o.textContent = op; sel.appendChild(o); });
+  onPaymentMethodChange();
+}
+
+function onPaymentMethodChange() {
+  const hasMM = !!document.querySelector('[name=payment_methods][value=MOBILE_MONEY]:checked');
+  document.getElementById('mobile-fields').classList.toggle('visible', hasMM);
+}
+
+document.querySelector('[name=country_code]').addEventListener('change', () => {
+  if (currentStep === 2) updateOperators();
+});
+</script>
+{% endblock %}
+

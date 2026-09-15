@@ -1,0 +1,40 @@
+{% extends "economat/accounts/base_auth.html" %}
+
+{% block title %}Demande envoyée — Sukulu{% endblock %}
+
+{% block content %}
+<div style="text-align:center;">
+  <div style="width:3.5rem;height:3.5rem;background:#ecfdf5;border-radius:50%;
+              display:inline-flex;align-items:center;justify-content:center;margin-bottom:1.25rem;">
+    <svg style="width:1.6rem;height:1.6rem;stroke:#059669;fill:none;stroke-width:2.5;
+                stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24">
+      <polyline points="20 6 9 17 4 12"/>
+    </svg>
+  </div>
+
+  <h2 style="font-size:1.1875rem;font-weight:700;color:#1a1d29;margin-bottom:.5rem;
+             letter-spacing:-0.02em;">Demande bien reçue !</h2>
+
+  <p style="font-size:.875rem;color:#52556b;line-height:1.7;margin-bottom:1.5rem;">
+    Votre demande d'inscription pour <strong>{{ school_name }}</strong>
+    est en cours de traitement.<br>
+    Nous vous enverrons vos identifiants de connexion à l'adresse<br>
+    <strong style="color:#1a1d29;">{{ manager_email }}</strong>
+    dès que votre dossier sera validé.
+  </p>
+
+  <div style="background:#f8f9ff;border:1px solid #e0e7ff;border-radius:12px;
+              padding:1rem 1.25rem;margin-bottom:1.5rem;text-align:left;">
+    <p style="font-size:.8125rem;color:#52556b;margin:0;line-height:1.6;">
+      ⏱ Délai habituel : <strong>24 à 48h ouvrées</strong>.<br>
+      Pensez à vérifier vos courriers indésirables (spam).
+    </p>
+  </div>
+
+  <a href="{% url 'economat:landing' %}"
+     style="display:inline-flex;align-items:center;gap:.4rem;font-size:.875rem;
+            color:var(--brand);font-weight:600;text-decoration:none;">
+    ← Retour à l'accueil
+  </a>
+</div>
+{% endblock %}
