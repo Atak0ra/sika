@@ -1,4 +1,4 @@
-{% extends "economat/base.html" %}
+{% extends "economat/parent_portal/_base_parent.html" %}
 {% load economat_tags %}
 {% block title %}{{ page_title }}{% endblock %}
 {% block content %}
@@ -103,11 +103,6 @@
     </div>
   </div>
 
-  <p style="text-align:center;font-size:.8125rem;color:#9397a8;margin-top:1.75rem;">
-    <a href="{% url 'economat:parent_portal_search' %}" style="color:#9397a8;text-decoration:none;">
-      ← Rechercher un autre élève
-    </a>
-  </p>
 </div>
 
 <style>

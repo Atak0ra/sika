@@ -1,0 +1,184 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Sukulu{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* ================================================================
+       Shell léger du portail parent — reprend les jetons de design et
+       les quelques composants partagés (card/bouton/champ) du produit
+       principal (economat/base.html), sans son chrome staff (PWA,
+       service worker, sidebar, menu profil) : le parent n'a pas de
+       compte, cette page n'a rien à voir avec l'appli interne.
+    ================================================================ */
+    :root {
+      --bg          : #fbfbfd;
+      --surface     : #ffffff;
+      --border      : #ecedf1;
+      --border-hover: #d1d5db;
+      --text-1      : #1a1d29;
+      --text-2      : #52556b;
+      --text-3      : #9397a8;
+      --brand       : #4f46e5;
+      --brand-hover : #4338ca;
+      --brand-ring  : rgba(79,70,229,.14);
+      --radius-card : 14px;
+      --radius-btn  : 9px;
+      --radius-input: 9px;
+      --shadow-xs   : 0 1px 2px rgba(16,24,40,.04);
+      --transition  : .15s cubic-bezier(.4,0,.2,1);
+    }
+    *,*::before,*::after{box-sizing:border-box;}
+    body {
+      margin:0;
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg); color: var(--text-1);
+      -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
+      font-size: 14px; line-height: 1.6;
+    }
+    a{color:inherit;}
+    .hidden{display:none!important;}
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-xs);
+    }
+
+    .btn-primary {
+      display: inline-flex; align-items: center; justify-content: center; gap: .45rem;
+      background: var(--brand); color: #fff; font-weight: 600; font-size: .875rem;
+      border-radius: var(--radius-btn); padding: .6rem 1.1rem;
+      border: 1px solid var(--brand);
+      box-shadow: 0 1px 2px rgba(79,70,229,.18), inset 0 1px 0 rgba(255,255,255,.12);
+      transition: background var(--transition), box-shadow var(--transition), transform var(--transition);
+      white-space: nowrap; cursor: pointer; text-decoration: none;
+    }
+    .btn-primary:hover {
+      background: var(--brand-hover); border-color: var(--brand-hover);
+      box-shadow: 0 2px 6px rgba(79,70,229,.24), inset 0 1px 0 rgba(255,255,255,.12);
+    }
+    .btn-primary:active { transform: translateY(.5px); }
+    .btn-primary[disabled] { opacity: .6; cursor: not-allowed; transform: none; }
+
+    .btn-secondary {
+      display: inline-flex; align-items: center; justify-content: center; gap: .4rem;
+      background: var(--surface); color: var(--text-1); font-weight: 500; font-size: .875rem;
+      border-radius: var(--radius-btn); padding: .55rem .9rem;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-xs);
+      transition: background var(--transition), border-color var(--transition), box-shadow var(--transition);
+      white-space: nowrap; cursor: pointer; text-decoration: none;
+    }
+    .btn-secondary:hover {
+      background: #f6f7f9; border-color: var(--border-hover);
+      box-shadow: 0 1px 4px rgba(16,24,40,.06);
+    }
+
+    .btn-primary:focus-visible, .btn-secondary:focus-visible,
+    a:focus-visible, input:focus-visible, select:focus-visible {
+      outline: 2px solid var(--brand); outline-offset: 2px; border-radius: 6px;
+    }
+
+    .form-input, .form-select, .form-textarea {
+      width: 100%;
+      min-height: 42px;
+      padding: .55rem .75rem;
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-input);
+      color: var(--text-1);
+      font-size: .9375rem;
+      font-family: inherit;
+      transition: border-color var(--transition), box-shadow var(--transition);
+      outline: none;
+    }
+    .form-textarea { min-height: unset; resize: vertical; }
+    .form-input::placeholder, .form-textarea::placeholder { color: var(--text-3); }
+    .form-input:hover, .form-select:hover, .form-textarea:hover { border-color: var(--border-hover); }
+    .form-input:focus, .form-select:focus, .form-textarea:focus {
+      border-color: var(--brand);
+      box-shadow: 0 0 0 3px var(--brand-ring);
+    }
+
+    label.field-label, .field-label {
+      display: block; font-size: .8125rem; font-weight: 600;
+      color: var(--text-2); margin-bottom: .35rem; letter-spacing: .01em;
+    }
+    .field-error { font-size: .75rem; color: #b91c1c; margin-top: .25rem; }
+
+    /* ==== Header portail parent ==== */
+    .pp-header {
+      background: var(--surface); border-bottom: 1px solid var(--border);
+      position: sticky; top: 0; z-index: 40;
+    }
+    .pp-header-inner {
+      max-width: 1040px; margin: 0 auto; padding: 0 1.5rem;
+      height: 56px; display: flex; align-items: center; gap: .65rem;
+    }
+    .pp-logo {
+      display: flex; align-items: center; gap: .5rem;
+      text-decoration: none; color: var(--text-1);
+      font-weight: 700; font-size: .9375rem; letter-spacing: -0.02em;
+    }
+    .pp-badge {
+      font-size: .6875rem; font-weight: 700; color: var(--brand);
+      background: #eef2ff; border: 1px solid #c7d2fe;
+      padding: .2rem .55rem; border-radius: 999px;
+      text-transform: uppercase; letter-spacing: .04em;
+    }
+
+    /* ==== Barre de contexte (élève actif) ==== */
+    .pp-context-bar {
+      background: #eef2ff; border-bottom: 1px solid #c7d2fe;
+    }
+    .pp-context-inner {
+      max-width: 1040px; margin: 0 auto; padding: .5rem 1.5rem;
+      display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+      font-size: .8125rem; color: #3730a3; flex-wrap: wrap;
+    }
+    .pp-context-inner a { color: #4338ca; font-weight: 600; text-decoration: none; }
+    .pp-context-inner a:hover { text-decoration: underline; }
+
+    .pp-footer {
+      text-align: center; padding: 2rem 1.5rem; font-size: .78125rem; color: var(--text-3);
+    }
+  </style>
+</head>
+<body>
+
+  <header class="pp-header">
+    <div class="pp-header-inner">
+      <a href="{% url 'economat:landing' %}" class="pp-logo">
+        <svg style="width:1.25rem;height:1.25rem;color:var(--brand);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1 2.7 2.5 6 2.5s6-1.5 6-2.5v-5"/><line x1="22" y1="10" x2="22" y2="16"/><circle cx="22" cy="17" r="1" fill="currentColor" stroke="none"/></svg>
+        Sukulu
+      </a>
+      <span class="pp-badge">Espace Parent</span>
+    </div>
+  </header>
+
+  {% if parent_portal_active_student %}
+  <div class="pp-context-bar">
+    <div class="pp-context-inner">
+      <span>Vous consultez&nbsp;: <strong>{{ parent_portal_active_student.first_name }} {{ parent_portal_active_student.last_name|upper }}</strong></span>
+      <a href="{% url 'economat:parent_portal_search' %}">Changer d&rsquo;élève</a>
+    </div>
+  </div>
+  {% endif %}
+
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="pp-footer">
+    &copy; 2026 Sukulu &middot; Portail de paiement des frais de scolarité
+  </footer>
+
+</body>
+</html>

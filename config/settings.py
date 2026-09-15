@@ -71,6 +71,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "economat.interface.parent_portal.context_processors.parent_portal_active_student",
             ],
         },
     },

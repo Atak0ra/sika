@@ -1,17 +1,7 @@
-{% extends "economat/base.html" %}
+{% extends "economat/parent_portal/_base_parent.html" %}
 {% block title %}Payer les frais de scolarité{% endblock %}
 {% block content %}
 <div style="max-width:520px;margin:3rem auto;padding:0 1rem;">
-  {# Lien retour vers l'espace parent #}
-  {% if student_id %}
-  <div style="margin-bottom:1.25rem;">
-    <a href="{% url 'economat:parent_portal_dashboard' student_id %}"
-       style="display:inline-flex;align-items:center;gap:.4rem;font-size:.84375rem;color:#52556b;text-decoration:none;font-weight:500;">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:.875rem;height:.875rem;"><polyline points="15 18 9 12 15 6"/></svg>
-      Espace parent
-    </a>
-  </div>
-  {% endif %}
   {% include "economat/parent_portal/_stepper.html" with current_step=2 %}
   <div class="card" style="padding:1.75rem;margin-bottom:1rem;background:#eef2ff;border-color:#c7d2fe;">
     <div style="font-size:.75rem;font-weight:600;color:#4338ca;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.35rem;">Vous payez pour</div>
