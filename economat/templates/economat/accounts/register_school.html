@@ -1,231 +1,352 @@
-{% extends "economat/accounts/base_auth.html" %}
 {% load static %}
-
-{% block title %}Inscrire votre école — Sukulu{% endblock %}
-
-{% block content %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inscrire votre école — Sukulu</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --brand:#4f46e5;--brand-hover:#4338ca;--brand-ring:rgba(79,70,229,.14);
+      --border:#ecedf1;--border-hover:#d1d5db;
+      --text-1:#1a1d29;--text-2:#52556b;--text-3:#9397a8;
+      --surface:#fff;--bg:#f4f5f9;
+      --radius-btn:9px;--radius-input:9px;
+    }
+    *,*::before,*::after{box-sizing:border-box;}
+    body{
+      font-family:'Inter',system-ui,sans-serif;background:var(--bg);
+      color:var(--text-1);-webkit-font-smoothing:antialiased;
+      min-height:100vh;margin:0;padding:2.5rem 1.5rem;
+      display:flex;flex-direction:column;align-items:center;
+    }
+    a{text-decoration:none;color:inherit;}
+    .page-wrap{width:100%;max-width:640px;}
+    .page-header{text-align:center;margin-bottom:2rem;}
+    .logo-icon{
+      display:inline-flex;align-items:center;justify-content:center;
+      width:3rem;height:3rem;background:#eef2ff;border-radius:14px;margin-bottom:.75rem;
+    }
+    .logo-name{font-size:1.125rem;font-weight:700;color:var(--text-1);letter-spacing:-.02em;}
+    .logo-sub{font-size:.8rem;color:var(--text-3);margin-top:.2rem;}
+    .reg-card{
+      background:var(--surface);border:1px solid var(--border);border-radius:18px;
+      padding:2.25rem 2.5rem;
+      box-shadow:0 4px 24px rgba(10,10,20,.07),0 1px 3px rgba(10,10,20,.04);
+    }
+    @media(max-width:520px){.reg-card{padding:1.5rem 1.25rem;}}
+    .form-input,.form-select{
+      width:100%;min-height:44px;padding:.6rem .75rem;
+      background:var(--surface);border:1.5px solid var(--border);
+      border-radius:var(--radius-input);color:var(--text-1);
+      font-size:.9375rem;font-family:inherit;outline:none;
+      transition:border-color .15s,box-shadow .15s;
+    }
+    .form-input::placeholder{color:var(--text-3);}
+    .form-input:hover,.form-select:hover{border-color:var(--border-hover);}
+    .form-input:focus,.form-select:focus{border-color:var(--brand);box-shadow:0 0 0 3px var(--brand-ring);}
+    label.field-label{display:block;font-size:.8125rem;font-weight:600;color:var(--text-2);margin-bottom:.3rem;}
+    .field-error{font-size:.75rem;color:#b91c1c;margin-top:.3rem;}
+    .btn-primary{
+      display:inline-flex;align-items:center;justify-content:center;gap:.45rem;
+      background:var(--brand);color:#fff;font-weight:600;font-size:.9375rem;
+      border-radius:var(--radius-btn);padding:.75rem 1.5rem;
+      border:1px solid var(--brand);
+      box-shadow:0 1px 2px rgba(79,70,229,.2),inset 0 1px 0 rgba(255,255,255,.1);
+      transition:background .15s,transform .1s;cursor:pointer;
+    }
+    .btn-primary:hover{background:var(--brand-hover);border-color:var(--brand-hover);}
+    .btn-primary:active{transform:translateY(.5px);}
+    .btn-primary[disabled]{opacity:.6;cursor:not-allowed;transform:none;}
+    .btn-secondary{
+      display:inline-flex;align-items:center;justify-content:center;gap:.4rem;
+      background:var(--surface);color:var(--text-1);font-weight:500;font-size:.9rem;
+      border-radius:var(--radius-btn);padding:.65rem 1.25rem;
+      border:1px solid var(--border);
+      box-shadow:0 1px 2px rgba(16,24,40,.04);
+      transition:background .15s,border-color .15s;cursor:pointer;
+    }
+    .btn-secondary:hover{background:#f6f7f9;border-color:var(--border-hover);}
+    .stepper-nav{display:flex;gap:.5rem;margin-bottom:2rem;}
+    .step-dot{flex:1;height:4px;border-radius:4px;background:#ecedf1;transition:background .3s;}
+    .step-dot.active{background:var(--brand);}
+    .step-dot.done{background:#a5b4fc;}
+    .step-panel{display:none;}
+    .step-panel.active{display:block;}
+    .step-heading{margin-bottom:1.5rem;}
+    .step-title{
+      display:flex;align-items:center;gap:.5rem;
+      font-size:1rem;font-weight:700;color:var(--text-1);margin-bottom:.25rem;
+    }
+    .step-title svg{stroke:var(--brand);fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;}
+    .step-sub{font-size:.8125rem;color:var(--text-3);}
+    .field-group{display:flex;flex-direction:column;gap:1rem;margin-bottom:1.25rem;}
+    .field-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+    @media(max-width:480px){.field-row{grid-template-columns:1fr;}}
+    .checkbox-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.5rem;}
+    .checkbox-list li{display:flex;align-items:center;gap:.6rem;font-size:.9rem;cursor:pointer;}
+    .checkbox-list input[type=checkbox]{width:1rem;height:1rem;accent-color:var(--brand);flex-shrink:0;}
+    .mobile-fields{
+      display:none;flex-direction:column;gap:.9rem;margin-top:.9rem;
+      padding:1rem;background:#f8f9ff;border:1px solid #e0e7ff;border-radius:10px;
+    }
+    .mobile-fields.visible{display:flex;}
+    .step-nav{
+      display:flex;justify-content:space-between;align-items:center;
+      margin-top:1.75rem;padding-top:1.25rem;border-top:1px solid var(--border);
+    }
+    .alert{display:flex;align-items:flex-start;gap:.55rem;padding:.75rem .9rem;
+      border-radius:9px;font-size:.875rem;font-weight:500;line-height:1.5;
+      border:1px solid;margin-bottom:1.25rem;}
+    .alert-error{background:#fef2f2;color:#b91c1c;border-color:#fecaca;}
+    .alert svg{flex-shrink:0;width:.9rem;height:.9rem;stroke:currentColor;fill:none;
+      stroke-width:2;stroke-linecap:round;stroke-linejoin:round;margin-top:.1rem;}
+    .page-footer{text-align:center;margin-top:1.25rem;font-size:.8rem;color:var(--text-3);}
+    .page-footer a{color:var(--brand);font-weight:600;}
+  </style>
+</head>
+<body>
 <script id="countries-data" type="application/json">{{ countries_json }}</script>
 <script>
   window.__clientUUID = ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g,c=>
     (c^crypto.getRandomValues(new Uint8Array(1))[0]&15>>c/4).toString(16));
-</script>
-<style>
-  .stepper-nav{display:flex;gap:.5rem;margin-bottom:2rem;}
-  .step-dot{flex:1;height:4px;border-radius:4px;background:#ecedf1;transition:background .3s;}
-  .step-dot.active{background:var(--brand);} .step-dot.done{background:#a5b4fc;}
-  .step-panel{display:none;} .step-panel.active{display:block;}
-  .step-title{font-size:.9375rem;font-weight:700;color:#1a1d29;margin-bottom:.2rem;}
-  .step-sub{font-size:.8125rem;color:#9397a8;margin-bottom:1.25rem;}
-  .field-group{display:flex;flex-direction:column;gap:.9rem;margin-bottom:1rem;}
-  .checkbox-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.45rem;}
-  .checkbox-list li{display:flex;align-items:center;gap:.5rem;font-size:.875rem;cursor:pointer;}
-  .checkbox-list input[type=checkbox]{width:1rem;height:1rem;accent-color:var(--brand);}
-  .mobile-fields{display:none;margin-top:.75rem;flex-direction:column;gap:.75rem;}
-  .mobile-fields.visible{display:flex;}
-  .step-nav{display:flex;justify-content:space-between;margin-top:1.5rem;}
-</style>
+  var currentStep = 1;
 
-{% if error %}
-<div class="alert alert-error" style="margin-bottom:1rem;">
-  <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-  <span>{{ error }}</span>
-</div>
-{% endif %}
-
-<h2 class="step-title" style="font-size:1.0625rem;margin-bottom:.15rem;">Inscrire votre école</h2>
-<p style="font-size:.8125rem;color:#9397a8;margin-bottom:1.25rem;">
-  Nous vérifierons votre dossier et vous enverrons vos identifiants par email.
-</p>
-
-<div class="stepper-nav" role="progressbar">
-  <div class="step-dot active" id="dot-1"></div>
-  <div class="step-dot" id="dot-2"></div>
-  <div class="step-dot" id="dot-3"></div>
-</div>
-
-<form method="post" id="registration-form">
-  {% csrf_token %}
-  <input type="hidden" name="client_uuid" id="id_client_uuid">
-
-  {# Étape 1 : École #}
-  <div class="step-panel active" id="step-1">
-    <div class="step-title">
-      <svg style="width:.9rem;height:.9rem;stroke:var(--brand);fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;vertical-align:-.1em;margin-right:.35rem;" viewBox="0 0 24 24">
-        <path d="M22 10L12 5 2 10l10 5 10-5z"/>
-        <path d="M6 12v5c0 1 2.7 2.5 6 2.5s6-1.5 6-2.5v-5"/>
-      </svg>Votre école
-    </div>
-    <div class="step-sub">Étape 1 sur 3</div>
-    <div class="field-group">
-      <div>
-        <label class="field-label">{{ form.school_name.label }}</label>
-        {{ form.school_name }}
-        {% if form.school_name.errors %}<p class="field-error">{{ form.school_name.errors.0 }}</p>{% endif %}
-      </div>
-      <div>
-        <label class="field-label">{{ form.city.label }}</label>
-        {{ form.city }}
-        {% if form.city.errors %}<p class="field-error">{{ form.city.errors.0 }}</p>{% endif %}
-      </div>
-      <div>
-        <label class="field-label">{{ form.country_code.label }}</label>
-        {{ form.country_code }}
-        {% if form.country_code.errors %}<p class="field-error">{{ form.country_code.errors.0 }}</p>{% endif %}
-      </div>
-    </div>
-    <div class="step-nav">
-      <span></span>
-      <button type="button" class="btn-primary" onclick="goStep(2)" style="width:auto;padding:.65rem 1.5rem;">
-        Suivant →
-      </button>
-    </div>
-  </div>
-
-  {# Étape 2 : Encaissement #}
-  <div class="step-panel" id="step-2">
-    <div class="step-title">
-      <svg style="width:.9rem;height:.9rem;stroke:var(--brand);fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;vertical-align:-.1em;margin-right:.35rem;" viewBox="0 0 24 24">
-        <path d="M3 7a2 2 0 0 1 2-2h13a1 1 0 0 1 1 1v3M3 7v11a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4M3 7l3-3h9"/>
-        <path d="M15 13h4a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1h-4a2 2 0 0 1 0-4Z"/>
-      </svg>Encaissement
-    </div>
-    <div class="step-sub">Étape 2 sur 3 — comment allez-vous recevoir les paiements ?</div>
-    <div style="margin-bottom:.75rem;">
-      <label class="field-label">{{ form.payment_methods.label }}</label>
-      <ul class="checkbox-list">
-        {% for value, label in form.payment_methods.field.choices %}
-        <li>
-          <input type="checkbox" name="payment_methods" value="{{ value }}" id="pm_{{ value }}"
-                 onchange="onPaymentMethodChange()">
-          <label for="pm_{{ value }}" style="cursor:pointer;">{{ label }}</label>
-        </li>
-        {% endfor %}
-      </ul>
-      {% if form.payment_methods.errors %}<p class="field-error">{{ form.payment_methods.errors.0 }}</p>{% endif %}
-    </div>
-    <div class="mobile-fields" id="mobile-fields">
-      <div>
-        <label class="field-label">{{ form.mobile_operator.label }}</label>
-        <select name="mobile_operator" id="id_mobile_operator" class="form-select">
-          <option value="">Sélectionnez un opérateur…</option>
-        </select>
-        {% if form.mobile_operator.errors %}<p class="field-error">{{ form.mobile_operator.errors.0 }}</p>{% endif %}
-      </div>
-      <div>
-        <label class="field-label">{{ form.mobile_number.label }}</label>
-        {{ form.mobile_number }}
-        {% if form.mobile_number.errors %}<p class="field-error">{{ form.mobile_number.errors.0 }}</p>{% endif %}
-      </div>
-    </div>
-    <div class="step-nav">
-      <button type="button" class="btn-secondary" onclick="goStep(1)">← Retour</button>
-      <button type="button" class="btn-primary" onclick="goStep(3)" style="width:auto;padding:.65rem 1.5rem;">
-        Suivant →
-      </button>
-    </div>
-  </div>
-
-  {# Étape 3 : Gérant #}
-  <div class="step-panel" id="step-3">
-    <div class="step-title">
-      <svg style="width:.9rem;height:.9rem;stroke:var(--brand);fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;vertical-align:-.1em;margin-right:.35rem;" viewBox="0 0 24 24">
-        <circle cx="9" cy="8" r="3.2"/>
-        <path d="M2.5 20c.7-3.4 3-5.3 6.5-5.3s5.8 1.9 6.5 5.3"/>
-      </svg>Responsable de l'école
-    </div>
-    <div class="step-sub">Étape 3 sur 3 — coordonnées pour recevoir vos identifiants</div>
-    <div class="field-group">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;">
-        <div>
-          <label class="field-label">{{ form.manager_first_name.label }}</label>
-          {{ form.manager_first_name }}
-          {% if form.manager_first_name.errors %}<p class="field-error">{{ form.manager_first_name.errors.0 }}</p>{% endif %}
-        </div>
-        <div>
-          <label class="field-label">{{ form.manager_last_name.label }}</label>
-          {{ form.manager_last_name }}
-          {% if form.manager_last_name.errors %}<p class="field-error">{{ form.manager_last_name.errors.0 }}</p>{% endif %}
-        </div>
-      </div>
-      <div>
-        <label class="field-label">{{ form.manager_email.label }}</label>
-        {{ form.manager_email }}
-        {% if form.manager_email.errors %}<p class="field-error">{{ form.manager_email.errors.0 }}</p>{% endif %}
-      </div>
-      <div>
-        <label class="field-label">{{ form.manager_phone.label }}</label>
-        {{ form.manager_phone }}
-      </div>
-    </div>
-    <div class="step-nav">
-      <button type="button" class="btn-secondary" onclick="goStep(2)">← Retour</button>
-      <button type="submit" class="btn-primary" data-loading-text="Envoi en cours…"
-              style="width:auto;padding:.65rem 1.5rem;">
-        Envoyer la demande ✓
-      </button>
-    </div>
-  </div>
-</form>
-
-<p style="font-size:.75rem;color:#9397a8;text-align:center;margin-top:1.5rem;">
-  Déjà un compte ?
-  <a href="{% url 'economat:login' %}" style="color:var(--brand);font-weight:600;">Se connecter</a>
-</p>
-
-
-<script>
-const COUNTRIES = JSON.parse(document.getElementById('countries-data').textContent);
-document.getElementById('id_client_uuid').value = window.__clientUUID;
-let currentStep = 1;
-
-function goStep(n) {
-  if (n > currentStep && !validateStep(currentStep)) return;
-  document.getElementById('step-' + currentStep).classList.remove('active');
-  document.getElementById('dot-' + currentStep).classList.add('done');
-  document.getElementById('dot-' + currentStep).classList.remove('active');
-  currentStep = n;
-  document.getElementById('step-' + n).classList.add('active');
-  document.getElementById('dot-' + n).classList.add('active');
-  if (n === 2) updateOperators();
-}
-
-function validateStep(step) {
-  if (step === 1) {
-    const n = document.querySelector('[name=school_name]').value.trim();
-    const c = document.querySelector('[name=city]').value.trim();
-    const p = document.querySelector('[name=country_code]').value;
-    if (!n || !c || !p) { alert('Veuillez remplir tous les champs.'); return false; }
+  function goStep(n) {
+    if (n > currentStep && !validateStep(currentStep)) return;
+    document.getElementById('step-' + currentStep).classList.remove('active');
+    document.getElementById('dot-' + currentStep).classList.add('done');
+    document.getElementById('dot-' + currentStep).classList.remove('active');
+    currentStep = n;
+    document.getElementById('step-' + n).classList.add('active');
+    document.getElementById('dot-' + n).classList.add('active');
+    window.scrollTo({top:0,behavior:'smooth'});
+    if (n === 2) updateOperators();
   }
-  if (step === 2) {
-    const checked = [...document.querySelectorAll('[name=payment_methods]:checked')];
-    if (!checked.length) { alert("Sélectionnez au moins un moyen d'encaissement."); return false; }
-    if (checked.some(c => c.value === 'MOBILE_MONEY')) {
-      if (!document.getElementById('id_mobile_operator').value ||
-          !document.querySelector('[name=mobile_number]').value.trim()) {
-        alert('Sélectionnez un opérateur et saisissez un numéro Mobile Money.'); return false;
+
+  function validateStep(step) {
+    if (step === 1) {
+      var n = document.querySelector('[name=school_name]').value.trim();
+      var c = document.querySelector('[name=city]').value.trim();
+      var p = document.querySelector('[name=country_code]').value;
+      if (!n || !c || !p) { alert('Veuillez remplir tous les champs obligatoires.'); return false; }
+    }
+    if (step === 2) {
+      var checked = Array.from(document.querySelectorAll('[name=payment_methods]:checked'));
+      if (!checked.length) { alert("S\u00e9lectionnez au moins un moyen d'encaissement."); return false; }
+      if (checked.some(function(c){return c.value==='MOBILE_MONEY';})) {
+        if (!document.getElementById('id_mobile_operator').value ||
+            !document.querySelector('[name=mobile_number]').value.trim()) {
+          alert('S\u00e9lectionnez un op\u00e9rateur et saisissez un num\u00e9ro Mobile Money.'); return false;
+        }
       }
     }
+    return true;
   }
-  return true;
-}
 
-function updateOperators() {
-  const code = document.querySelector('[name=country_code]').value;
-  const ops = (COUNTRIES[code] || {}).mobile_operators || [];
-  const sel = document.getElementById('id_mobile_operator');
-  sel.innerHTML = '<option value="">Sélectionnez un opérateur…</option>';
-  ops.forEach(op => { const o = document.createElement('option'); o.value = op; o.textContent = op; sel.appendChild(o); });
-  onPaymentMethodChange();
-}
+  function updateOperators() {
+    var code = document.querySelector('[name=country_code]').value;
+    var COUNTRIES = JSON.parse(document.getElementById('countries-data').textContent);
+    var ops = (COUNTRIES[code] || {}).mobile_operators || [];
+    var sel = document.getElementById('id_mobile_operator');
+    sel.innerHTML = '<option value="">S\u00e9lectionnez un op\u00e9rateur…</option>';
+    ops.forEach(function(op){ var o=document.createElement('option');o.value=op;o.textContent=op;sel.appendChild(o); });
+    onPaymentMethodChange();
+  }
 
-function onPaymentMethodChange() {
-  const hasMM = !!document.querySelector('[name=payment_methods][value=MOBILE_MONEY]:checked');
-  document.getElementById('mobile-fields').classList.toggle('visible', hasMM);
-}
-
-document.querySelector('[name=country_code]').addEventListener('change', () => {
-  if (currentStep === 2) updateOperators();
-});
+  function onPaymentMethodChange() {
+    var hasMM = !!document.querySelector('[name=payment_methods][value=MOBILE_MONEY]:checked');
+    document.getElementById('mobile-fields').classList.toggle('visible', hasMM);
+  }
 </script>
-{% endblock %}
+<div class="page-wrap">
+  <div class="page-header">
+    <div class="logo-icon">
+      <svg style="width:1.6rem;height:1.6rem;color:#4f46e5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M22 10L12 5 2 10l10 5 10-5z"/>
+        <path d="M6 12v5c0 1 2.7 2.5 6 2.5s6-1.5 6-2.5v-5"/>
+        <line x1="22" y1="10" x2="22" y2="16"/>
+      </svg>
+    </div>
+    <div class="logo-name">Sukulu</div>
+    <div class="logo-sub">Gestion des frais de scolarit\u00e9</div>
+  </div>
 
+  <div class="reg-card">
+    {% if error %}
+    <div class="alert alert-error">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <span>{{ error }}</span>
+    </div>
+    {% endif %}
+
+    <div style="margin-bottom:1.75rem;">
+      <h2 style="font-size:1.125rem;font-weight:700;color:var(--text-1);margin:0 0 .25rem;">Inscrire votre \u00e9cole</h2>
+      <p style="font-size:.875rem;color:var(--text-3);margin:0;">Nous v\u00e9rifierons votre dossier et vous enverrons vos identifiants par email.</p>
+    </div>
+
+    <div class="stepper-nav" role="progressbar">
+      <div class="step-dot active" id="dot-1"></div>
+      <div class="step-dot" id="dot-2"></div>
+      <div class="step-dot" id="dot-3"></div>
+    </div>
+
+    <form method="post" id="registration-form">
+      {% csrf_token %}
+      <input type="hidden" name="client_uuid" id="id_client_uuid">
+      <!-- Etape 1 : Ecole -->
+      <div class="step-panel active" id="step-1">
+        <div class="step-heading">
+          <div class="step-title">
+            <svg width="16" height="16" viewBox="0 0 24 24"><path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1 2.7 2.5 6 2.5s6-1.5 6-2.5v-5"/></svg>
+            Votre \u00e9cole
+          </div>
+          <div class="step-sub">\u00c9tape 1 sur 3</div>
+        </div>
+        <div class="field-group">
+          <div>
+            <label class="field-label">{{ form.school_name.label }}</label>
+            {{ form.school_name }}
+            {% if form.school_name.errors %}<p class="field-error">{{ form.school_name.errors.0 }}</p>{% endif %}
+          </div>
+          <div class="field-row">
+            <div>
+              <label class="field-label">{{ form.country_code.label }}</label>
+              {{ form.country_code }}
+              {% if form.country_code.errors %}<p class="field-error">{{ form.country_code.errors.0 }}</p>{% endif %}
+            </div>
+            <div>
+              <label class="field-label">{{ form.city.label }}</label>
+              {{ form.city }}
+              {% if form.city.errors %}<p class="field-error">{{ form.city.errors.0 }}</p>{% endif %}
+            </div>
+          </div>
+        </div>
+        <div class="step-nav">
+          <span></span>
+          <button type="button" class="btn-primary" onclick="goStep(2)">
+            Suivant
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg>
+          </button>
+        </div>
+      </div>
+      <!-- Etape 2 : Encaissement -->
+      <div class="step-panel" id="step-2">
+        <div class="step-heading">
+          <div class="step-title">
+            <svg width="16" height="16" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h13a1 1 0 0 1 1 1v3M3 7v11a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4M3 7l3-3h9"/><path d="M15 13h4a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1h-4a2 2 0 0 1 0-4Z"/></svg>
+            Encaissement
+          </div>
+          <div class="step-sub">\u00c9tape 2 sur 3 \u2014 comment allez-vous recevoir les paiements\u00a0?</div>
+        </div>
+        <div class="field-group">
+          <div>
+            <label class="field-label">{{ form.payment_methods.label }}</label>
+            <ul class="checkbox-list">
+              {% for value, label in form.payment_methods.field.choices %}
+              <li>
+                <input type="checkbox" name="payment_methods" value="{{ value }}" id="pm_{{ value }}" onchange="onPaymentMethodChange()">
+                <label for="pm_{{ value }}" style="cursor:pointer;">{{ label }}</label>
+              </li>
+              {% endfor %}
+            </ul>
+            {% if form.payment_methods.errors %}<p class="field-error">{{ form.payment_methods.errors.0 }}</p>{% endif %}
+          </div>
+          <div class="mobile-fields" id="mobile-fields">
+            <div class="field-row">
+              <div>
+                <label class="field-label">{{ form.mobile_operator.label }}</label>
+                <select name="mobile_operator" id="id_mobile_operator" class="form-select">
+                  <option value="">S\u00e9lectionnez un op\u00e9rateur\u2026</option>
+                </select>
+                {% if form.mobile_operator.errors %}<p class="field-error">{{ form.mobile_operator.errors.0 }}</p>{% endif %}
+              </div>
+              <div>
+                <label class="field-label">{{ form.mobile_number.label }}</label>
+                {{ form.mobile_number }}
+                {% if form.mobile_number.errors %}<p class="field-error">{{ form.mobile_number.errors.0 }}</p>{% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="step-nav">
+          <button type="button" class="btn-secondary" onclick="goStep(1)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
+            Retour
+          </button>
+          <button type="button" class="btn-primary" onclick="goStep(3)">
+            Suivant
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg>
+          </button>
+        </div>
+      </div>
+      <!-- Etape 3 : Gerant -->
+      <div class="step-panel" id="step-3">
+        <div class="step-heading">
+          <div class="step-title">
+            <svg width="16" height="16" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M2.5 20c.7-3.4 3-5.3 6.5-5.3s5.8 1.9 6.5 5.3"/></svg>
+            Responsable de l'\u00e9cole
+          </div>
+          <div class="step-sub">\u00c9tape 3 sur 3 \u2014 coordonn\u00e9es pour recevoir vos identifiants</div>
+        </div>
+        <div class="field-group">
+          <div class="field-row">
+            <div>
+              <label class="field-label">{{ form.manager_first_name.label }}</label>
+              {{ form.manager_first_name }}
+              {% if form.manager_first_name.errors %}<p class="field-error">{{ form.manager_first_name.errors.0 }}</p>{% endif %}
+            </div>
+            <div>
+              <label class="field-label">{{ form.manager_last_name.label }}</label>
+              {{ form.manager_last_name }}
+              {% if form.manager_last_name.errors %}<p class="field-error">{{ form.manager_last_name.errors.0 }}</p>{% endif %}
+            </div>
+          </div>
+          <div>
+            <label class="field-label">{{ form.manager_email.label }}</label>
+            {{ form.manager_email }}
+            {% if form.manager_email.errors %}<p class="field-error">{{ form.manager_email.errors.0 }}</p>{% endif %}
+          </div>
+          <div>
+            <label class="field-label">{{ form.manager_phone.label }}</label>
+            {{ form.manager_phone }}
+          </div>
+        </div>
+        <div class="step-nav">
+          <button type="button" class="btn-secondary" onclick="goStep(2)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
+            Retour
+          </button>
+          <button type="submit" class="btn-primary" id="submit-btn">
+            Envoyer la demande
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </button>
+        </div>
+      </div>
+
+    </form>
+  </div>
+
+  <div class="page-footer">
+    D\u00e9j\u00e0 un compte\u00a0?
+    <a href="{% url 'economat:login' %}">Se connecter</a>
+  </div>
+</div>
+
+<script>
+  document.getElementById('id_client_uuid').value = window.__clientUUID;
+  document.getElementById('registration-form').addEventListener('submit', function(){
+    var btn = document.getElementById('submit-btn');
+    btn.disabled = true;
+    btn.innerHTML = 'Envoi en cours\u2026';
+  });
+  document.querySelector('[name=country_code]').addEventListener('change', function(){
+    if (currentStep === 2) updateOperators();
+  });
+</script>
+
+</body>
+</html>
