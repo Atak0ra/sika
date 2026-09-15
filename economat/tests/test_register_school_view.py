@@ -41,8 +41,10 @@ def test_register_school_countries_json_is_valid_and_unescaped(client, make_coun
     payload = json.loads(body[json_start:json_end])
 
     assert payload["SN"]["dial_code"] == "+221"
+    assert payload["SN"]["flag"] == "🇸🇳"
     assert "Orange Money" in payload["SN"]["mobile_operators"]
     assert payload["TG"]["dial_code"] == "+228"
+    assert payload["TG"]["flag"] == "🇹🇬"
 
 
 @pytest.mark.django_db
@@ -51,3 +53,12 @@ def test_register_school_country_select_shows_flag(client, make_country):
     resp = client.get(reverse("economat:register_school"))
     body = resp.content.decode()
     assert "🇸🇳 Sénégal" in body
+
+
+@pytest.mark.django_db
+def test_register_school_manager_phone_has_dial_code_badge(client, make_country):
+    make_country("SN")
+    resp = client.get(reverse("economat:register_school"))
+    body = resp.content.decode()
+    assert 'id="manager-dial-code"' in body
+    assert 'name="manager_phone"' in body

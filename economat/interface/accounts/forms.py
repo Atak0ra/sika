@@ -184,7 +184,7 @@ class SchoolRegistrationForm(forms.Form):
     )
     manager_phone = forms.CharField(
         label="Téléphone (optionnel)", max_length=30, required=False,
-        widget=forms.TextInput(attrs={"class": "form-input", "placeholder": "Ex : +221 77 123 45 67"}),
+        widget=forms.TextInput(attrs={"class": "form-input", "placeholder": "77 123 45 67"}),
     )
 
     # Champ caché — UUID idempotence généré côté JS

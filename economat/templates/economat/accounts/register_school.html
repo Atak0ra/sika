@@ -155,15 +155,26 @@
     return true;
   }
 
-  function updateOperators() {
+  function selectedCountry() {
     var code = document.querySelector('[name=country_code]').value;
     var COUNTRIES = JSON.parse(document.getElementById('countries-data').textContent);
-    var country = COUNTRIES[code] || {};
+    return COUNTRIES[code] || {};
+  }
+
+  function updateDialCodeBadges() {
+    var country = selectedCountry();
+    var badge = country.dial_code ? (country.flag + ' ' + country.dial_code) : '+…';
+    document.getElementById('mobile-dial-code').textContent = badge;
+    document.getElementById('manager-dial-code').textContent = badge;
+  }
+
+  function updateOperators() {
+    var country = selectedCountry();
     var ops = country.mobile_operators || [];
     var sel = document.getElementById('id_mobile_operator');
     sel.innerHTML = '<option value="">Sélectionnez un opérateur…</option>';
     ops.forEach(function(op){ var o=document.createElement('option');o.value=op;o.textContent=op;sel.appendChild(o); });
-    document.getElementById('mobile-dial-code').textContent = country.dial_code || '+…';
+    updateDialCodeBadges();
     onPaymentMethodChange();
   }
 
@@ -325,7 +336,10 @@
           </div>
           <div>
             <label class="field-label">{{ form.manager_phone.label }}</label>
-            {{ form.manager_phone }}
+            <div class="phone-group">
+              <span class="phone-prefix" id="manager-dial-code">+…</span>
+              {{ form.manager_phone }}
+            </div>
           </div>
         </div>
         <div class="step-nav">
@@ -357,7 +371,7 @@
     btn.innerHTML = 'Envoi en cours…';
   });
   document.querySelector('[name=country_code]').addEventListener('change', function(){
-    if (currentStep === 2) updateOperators();
+    if (currentStep === 2) { updateOperators(); } else { updateDialCodeBadges(); }
   });
 </script>
 

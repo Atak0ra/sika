@@ -406,6 +406,7 @@ def _get_countries_data():
     échappement correctement.
     """
     from economat.infrastructure.models import CountryModel
+    from economat.interface.accounts.forms import country_flag
     data = {}
     for c in CountryModel.objects.filter(is_active=True):
         data[c.code] = {
@@ -414,6 +415,7 @@ def _get_countries_data():
             "payment_provider": c.payment_provider or "",
             "mobile_operators": c.mobile_operators or [],
             "dial_code":        c.dial_code or "",
+            "flag":             country_flag(c.code),
         }
     return data
 
