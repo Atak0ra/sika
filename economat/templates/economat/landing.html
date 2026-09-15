@@ -26,7 +26,7 @@
       font-family:'Inter',system-ui,sans-serif;
       background:var(--bg);color:var(--text-1);
       -webkit-font-smoothing:antialiased;
-      font-size:14px;line-height:1.6;margin:0;
+      font-size:17px;line-height:1.6;margin:0;
       scroll-behavior:smooth;
     }
     h1,h2,h3{letter-spacing:-0.02em;font-weight:700;line-height:1.2;}
@@ -39,7 +39,7 @@
       position:sticky;top:0;z-index:50;
       background:rgba(18,16,38,.85);backdrop-filter:blur(16px);
       border-bottom:1px solid rgba(255,255,255,.07);
-      height:56px;display:flex;align-items:center;
+      height:64px;display:flex;align-items:center;
       padding:0 2rem;
       transition:background .3s ease;
     }
@@ -49,19 +49,19 @@
     }
     .nav-logo{
       display:flex;align-items:center;gap:.5rem;
-      font-size:1rem;color:#fff;
+      font-size:1.0625rem;color:#fff;
     }
     .nav-logo svg{color:#818cf8;}
     .brand-mark{
       font-family:'Fraunces',serif;font-style:italic;font-weight:600;
-      font-size:1.2rem;letter-spacing:-0.01em;
+      font-size:1.375rem;letter-spacing:-0.01em;
     }
 
     /* Boutons */
     .btn{
-      display:inline-flex;align-items:center;justify-content:center;gap:.45rem;
-      font-weight:600;border-radius:9px;padding:.65rem 1.25rem;
-      font-size:.875rem;transition:all var(--transition);cursor:pointer;
+      display:inline-flex;align-items:center;justify-content:center;gap:.5rem;
+      font-weight:600;border-radius:9px;padding:.8rem 1.5rem;
+      font-size:1rem;transition:all var(--transition);cursor:pointer;
       white-space:nowrap;border:1px solid transparent;
     }
     .btn-primary{
@@ -76,8 +76,8 @@
     .btn-outline:hover{border-color:var(--border-hover);background:#f6f7f9;}
 
     /* Section conteneur */
-    .section{padding:5rem 2rem;}
-    .section-inner{max-width:1100px;margin:0 auto;}
+    .section{padding:7rem 2rem;}
+    .section-inner{max-width:1140px;margin:0 auto;}
 
     /* Hero plein écran */
     .hero{
@@ -104,32 +104,32 @@
       position:relative;z-index:1;
     }
     .hero-title{
-      font-size:3.75rem;font-weight:900;
-      margin-bottom:1.5rem;color:#fff;
-      letter-spacing:-0.04em;line-height:1.05;
+      font-size:4.5rem;font-weight:900;
+      margin-bottom:1.75rem;color:#fff;
+      letter-spacing:-0.04em;line-height:1.03;
     }
     .hero-title em{font-style:normal;color:#a5b4fc;}
     .hero-sub{
-      font-size:1.125rem;color:var(--on-dark-secondary);
-      line-height:1.8;margin-bottom:2.25rem;max-width:520px;
+      font-size:1.3125rem;color:var(--on-dark-secondary);
+      line-height:1.7;margin-bottom:2.5rem;max-width:560px;
     }
-    .hero-cta{display:flex;align-items:center;gap:.75rem;flex-wrap:wrap;}
-    .hero-note{font-size:.8rem;color:var(--on-dark-muted);margin-top:.85rem;}
+    .hero-cta{display:flex;align-items:center;gap:.85rem;flex-wrap:wrap;}
+    .hero-note{font-size:.875rem;color:var(--on-dark-muted);margin-top:1rem;}
 
     /* ── Reçu de paiement (visuel hero) ──────────────────── */
-    .receipt-wrap{position:relative;height:380px;display:flex;align-items:center;justify-content:center;}
+    .receipt-wrap{position:relative;height:420px;display:flex;align-items:center;justify-content:center;}
 
     /* Carte arrière : évoque l'historique des reçus, sans détail */
     .receipt-back{
-      position:absolute;width:270px;height:300px;
+      position:absolute;width:300px;height:330px;
       background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);
-      border-radius:16px;transform:rotate(7deg) translate(18px,10px);
+      border-radius:18px;transform:rotate(7deg) translate(18px,10px);
     }
 
     /* Carte avant : le reçu lui-même */
     .receipt{
-      position:relative;width:290px;background:#fff;border-radius:16px;
-      padding:1.5rem 1.5rem 1.65rem;transform:rotate(-3deg);
+      position:relative;width:320px;background:#fff;border-radius:18px;
+      padding:1.75rem 1.75rem 1.9rem;transform:rotate(-3deg);
       box-shadow:0 30px 70px rgba(13,10,40,.35),0 8px 20px rgba(13,10,40,.2);
     }
     .receipt-top{
@@ -144,8 +144,8 @@
     .receipt-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:.85rem;}
     .receipt-student{font-size:.8125rem;font-weight:600;color:#1a1d29;}
     .receipt-class{font-size:.75rem;color:#6b7280;}
-    .receipt-amount-lbl{font-size:.7rem;color:#6b7280;margin-bottom:.15rem;}
-    .receipt-amount{font-size:1.75rem;font-weight:800;color:#1a1d29;letter-spacing:-0.02em;line-height:1;}
+    .receipt-amount-lbl{font-size:.75rem;color:#6b7280;margin-bottom:.2rem;}
+    .receipt-amount{font-size:2rem;font-weight:800;color:#1a1d29;letter-spacing:-0.02em;line-height:1;}
     .receipt-amount span{font-size:.9rem;font-weight:600;color:#4b4e5f;}
     .receipt-foot{display:flex;align-items:center;justify-content:space-between;margin-top:1.1rem;}
     .receipt-paid{
@@ -174,11 +174,11 @@
 
     /* Features */
     .features-grid{
-      display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;
+      display:grid;grid-template-columns:repeat(3,1fr);gap:1.25rem;
     }
     .feature{
       background:var(--surface);border:1px solid var(--border);
-      border-radius:14px;padding:1.5rem;
+      border-radius:16px;padding:1.85rem;
       box-shadow:var(--shadow-xs);
       transition:box-shadow var(--transition),border-color var(--transition),transform var(--transition);
     }
@@ -187,26 +187,26 @@
       transform:translateY(-2px);
     }
     .feature-icon{
-      width:2.5rem;height:2.5rem;border-radius:10px;
+      width:2.85rem;height:2.85rem;border-radius:11px;
       display:flex;align-items:center;justify-content:center;
-      margin-bottom:1rem;flex-shrink:0;
+      margin-bottom:1.15rem;flex-shrink:0;
     }
-    .feature-title{font-size:.9375rem;font-weight:700;margin-bottom:.4rem;}
-    .feature-desc{font-size:.84375rem;color:var(--text-2);line-height:1.6;}
+    .feature-title{font-size:1.125rem;font-weight:700;margin-bottom:.5rem;}
+    .feature-desc{font-size:.9375rem;color:var(--text-2);line-height:1.6;}
 
     /* Rôles */
-    .roles-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;}
+    .roles-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.25rem;}
     .role{
       background:var(--surface);border:1px solid var(--border);
-      border-radius:14px;padding:1.5rem;
+      border-radius:16px;padding:1.85rem;
       box-shadow:var(--shadow-xs);
     }
-    .role-title{font-size:.9375rem;font-weight:700;margin-bottom:.25rem;}
-    .role-sub{font-size:.78rem;color:var(--text-3);margin-bottom:1rem;}
-    .role-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.5rem;}
+    .role-title{font-size:1.0625rem;font-weight:700;margin-bottom:.3rem;}
+    .role-sub{font-size:.875rem;color:var(--text-3);margin-bottom:1.15rem;}
+    .role-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.6rem;}
     .role-list li{
       display:flex;align-items:center;gap:.5rem;
-      font-size:.84375rem;
+      font-size:.9375rem;
     }
     .role-check{color:#059669;flex-shrink:0;}
     .role-cross{color:#6b7280;flex-shrink:0;}
@@ -215,19 +215,19 @@
     /* CTA final */
     .cta-section{
       background:#1e1b4b;
-      padding:5rem 2rem;
+      padding:7rem 2rem;
     }
-    .cta-inner{max-width:560px;margin:0 auto;text-align:center;}
-    .cta-title{font-size:2rem;font-weight:800;color:#fff;margin-bottom:.75rem;}
-    .cta-sub{font-size:1rem;color:var(--on-dark-muted);margin-bottom:2rem;line-height:1.7;}
+    .cta-inner{max-width:600px;margin:0 auto;text-align:center;}
+    .cta-title{font-size:3rem;font-weight:800;color:#fff;margin-bottom:1rem;letter-spacing:-0.03em;line-height:1.1;}
+    .cta-sub{font-size:1.125rem;color:var(--on-dark-muted);margin-bottom:2.5rem;line-height:1.7;}
 
     /* Footer */
     .footer{
       background:#f4f5f9;
       border-top:1px solid var(--border);
-      padding:1.5rem 2rem;
+      padding:1.75rem 2rem;
       text-align:center;
-      font-size:.8125rem;
+      font-size:.875rem;
       color:var(--text-3);
     }
 
@@ -236,30 +236,33 @@
 
     /* Diviseur section */
     .section-label{
-      font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;
-      color:var(--brand);margin-bottom:.75rem;
+      font-size:.8125rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;
+      color:var(--brand);margin-bottom:.85rem;
     }
-    .section-title{font-size:1.75rem;font-weight:800;margin-bottom:.75rem;color:var(--text-1);}
-    .section-sub{font-size:1rem;color:var(--text-2);max-width:560px;line-height:1.7;}
+    .section-title{font-size:2.75rem;font-weight:800;margin-bottom:1rem;color:var(--text-1);letter-spacing:-0.03em;line-height:1.1;}
+    .section-sub{font-size:1.125rem;color:var(--text-2);max-width:600px;line-height:1.7;}
 
     @media(max-width:900px){
-      .hero-inner{grid-template-columns:1fr;padding:3.5rem 2rem 5.5rem;gap:3rem;}
-      .receipt-wrap{height:300px;}
-      .receipt{width:250px;}
-      .receipt-back{width:230px;height:250px;}
-      .hero-title{font-size:2.25rem;}
+      .hero-inner{grid-template-columns:1fr;padding:4rem 2rem 6rem;gap:3rem;}
+      .receipt-wrap{height:330px;}
+      .receipt{width:270px;}
+      .receipt-back{width:250px;height:270px;}
+      .hero-title{font-size:2.75rem;}
+      .section-title{font-size:2.25rem;}
+      .cta-title{font-size:2.5rem;}
     }
     @media(max-width:640px){
-      .section{padding:3.5rem 1.25rem;}
-      .hero-inner{padding:2.5rem 1.25rem 4.5rem;}
-      .hero-title{font-size:1.85rem;}
+      .section{padding:4rem 1.25rem;}
+      .hero-inner{padding:3rem 1.25rem 5rem;}
+      .hero-title{font-size:2.25rem;}
       .nav{padding:0 1.25rem;}
-      .section-title{font-size:1.4rem;}
-      .features-grid,.roles-grid{gap:.75rem;}
-      .cta-section{padding:3rem 1.25rem;}
-      .receipt-wrap{height:260px;}
-      .receipt{width:220px;padding:1.25rem 1.25rem 1.4rem;}
-      .receipt-back{width:200px;height:220px;}
+      .section-title{font-size:1.85rem;}
+      .features-grid,.roles-grid{gap:.85rem;}
+      .cta-section{padding:3.5rem 1.25rem;}
+      .cta-title{font-size:2rem;}
+      .receipt-wrap{height:280px;}
+      .receipt{width:240px;padding:1.4rem 1.4rem 1.55rem;}
+      .receipt-back{width:220px;height:240px;}
     }
   </style>
 </head>
@@ -306,12 +309,12 @@
       </p>
       <div class="hero-cta">
         <a href="{% url 'economat:register_school' %}" class="btn btn-primary"
-           style="background:#fff;color:#1a1d29;border-color:#fff;padding:.8rem 1.75rem;font-size:.9375rem;font-weight:700;box-shadow:0 4px 16px rgba(0,0,0,.2);">
+           style="background:#fff;color:#1a1d29;border-color:#fff;padding:1.05rem 2.25rem;font-size:1.0625rem;font-weight:700;box-shadow:0 4px 16px rgba(0,0,0,.2);">
           Inscrire mon école
           <svg aria-hidden="true" style="width:1em;height:1em;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;vertical-align:-.1em;" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
         </a>
         <a href="{% url 'economat:parent_portal_search' %}" class="btn btn-outline"
-           style="padding:.8rem 1.75rem;font-size:.9375rem;font-weight:700;
+           style="padding:1.05rem 2.25rem;font-size:1.0625rem;font-weight:700;
                   background:rgba(255,255,255,.1);color:#fff;border-color:rgba(255,255,255,.25);">
           <svg aria-hidden="true" style="width:1em;height:1em;stroke:currentColor;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;vertical-align:-.1em;" viewBox="0 0 24 24"><use href="#il-users"/></svg>
           Espace parent
