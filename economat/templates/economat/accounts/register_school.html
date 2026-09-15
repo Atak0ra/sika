@@ -246,6 +246,13 @@
               <label class="field-label">{{ form.country_code.label }}</label>
               {{ form.country_code }}
               {% if form.country_code.errors %}<p class="field-error">{{ form.country_code.errors.0 }}</p>{% endif %}
+              <p style="margin:.4rem 0 0;font-size:.75rem;color:var(--text-3);">
+                Votre pays n'est pas dans la liste ?
+                <a href="{% url 'economat:other_countries' %}"
+                   style="color:var(--brand);font-weight:600;text-decoration:none;white-space:nowrap;">
+                  Autres pays →
+                </a>
+              </p>
             </div>
             <div>
               <label class="field-label">{{ form.city.label }}</label>

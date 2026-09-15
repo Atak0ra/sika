@@ -406,6 +406,39 @@ class SchoolRegistrationModel(models.Model):
         return f"{self.school_name} ({self.city}) — {self.get_status_display()}"
 
 
+class PotentialCustomerModel(models.Model):
+    """
+    Client potentiel : personne intéressée par Sukulu dont le pays n'est pas
+    encore géré sur la plateforme.
+
+    Enregistré depuis la page publique « Autres pays » — un email suffit.
+    Les doublons sont autorisés : chaque soumission crée une ligne indépendante.
+    """
+    id           = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    email        = models.EmailField(verbose_name="Email")
+    country_name = models.CharField(
+        max_length=100, blank=True, default="",
+        verbose_name="Pays",
+        help_text="Nom du pays saisi librement par l'internaute.",
+    )
+    created_at   = models.DateTimeField(auto_now_add=True, verbose_name="Enregistré le")
+
+    class Meta:
+        app_label           = "economat"
+        db_table            = "economat_potential_customer"
+        ordering            = ["-created_at"]
+        verbose_name        = "Client potentiel"
+        verbose_name_plural = "Clients potentiels"
+        indexes = [
+            models.Index(fields=["email"],      name="idx_potential_email"),
+            models.Index(fields=["created_at"], name="idx_potential_created_at"),
+        ]
+
+    def __str__(self):
+        suffix = f" ({self.country_name})" if self.country_name else ""
+        return f"{self.email}{suffix}"
+
+
 class OfflineCredentialModel(models.Model):
     """
     Verifier PBKDF2 dédié pour l'authentification offline.

@@ -8,7 +8,8 @@ from django.utils.html import format_html
 
 from economat.infrastructure.models import (
     ClassModel, CountryModel, EnrollmentModel, LevelModel, MembershipModel,
-    PaymentModel, SchoolModel, SchoolRegistrationModel, SchoolYearModel, StudentModel,
+    PaymentModel, PotentialCustomerModel, SchoolModel, SchoolRegistrationModel,
+    SchoolYearModel, StudentModel,
 )
 
 
@@ -288,4 +289,23 @@ class SchoolRegistrationAdmin(admin.ModelAdmin):
         labels = {"ESPECES": "Espèces", "MOBILE_MONEY": "Mobile Money",
                   "VIREMENT": "Virement", "CHEQUE": "Chèque"}
         return ", ".join(labels.get(m, m) for m in methods) or "—"
+
+
+# ─ Clients potentiels ────────────────────────────────────────────────────────
+
+@admin.register(PotentialCustomerModel)
+class PotentialCustomerAdmin(admin.ModelAdmin):
+    list_display   = ("email", "country_name", "created_at")
+    list_filter    = ("created_at",)
+    search_fields  = ("email", "country_name")
+    readonly_fields = ("id", "created_at")
+    fieldsets = (
+        ("Contact", {
+            "fields": ("email", "country_name"),
+        }),
+        ("Technique", {
+            "fields": ("id", "created_at"),
+            "classes": ("collapse",),
+        }),
+    )
 

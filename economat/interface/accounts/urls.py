@@ -11,6 +11,7 @@ urlpatterns = [
     path("logout/",           views.logout_view,             name="logout"),
     path("ecoles/",           views.school_selector,         name="school_selector"),
     path("inscription/",      views.register_school,         name="register_school"),
+    path("autres-pays/",      views.other_countries,         name="other_countries"),
     path("<str:school_id>/equipe/",
          views.team,                                          name="team"),
     path("<str:school_id>/equipe/<str:member_id>/toggle/",

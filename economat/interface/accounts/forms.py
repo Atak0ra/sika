@@ -217,6 +217,28 @@ class ProfileForm(forms.Form):
     )
 
 
+class PotentialCustomerForm(forms.Form):
+    """
+    Formulaire public « Autres pays » — permet à une personne dont le pays
+    n'est pas encore géré de laisser son email pour être prévenue du lancement.
+    """
+    email = forms.EmailField(
+        label="Votre adresse email",
+        widget=forms.EmailInput(attrs={
+            "class":       "form-input",
+            "placeholder": "ex : contact@ecole.ci",
+            "autofocus":   True,
+        }),
+    )
+    country_name = forms.CharField(
+        label="Votre pays (optionnel)", max_length=100, required=False,
+        widget=forms.TextInput(attrs={
+            "class":       "form-input",
+            "placeholder": "ex : Côte d'Ivoire",
+        }),
+    )
+
+
 class ChangePasswordForm(forms.Form):
     """Formulaire de changement de mot de passe."""
     old_password = forms.CharField(

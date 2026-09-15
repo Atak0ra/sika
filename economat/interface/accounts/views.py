@@ -33,7 +33,7 @@ from economat.infrastructure.models import (
 )
 from economat.interface.decorators import require_membership
 
-from .forms import ChangePasswordForm, CreateCollaboratorForm, LoginForm, ProfileForm, SchoolRegistrationForm
+from .forms import ChangePasswordForm, CreateCollaboratorForm, LoginForm, PotentialCustomerForm, ProfileForm, SchoolRegistrationForm
 
 # ── Connexion / Déconnexion ───────────────────────────────────────────────────
 
@@ -393,6 +393,37 @@ def register_school(request):
         "page_title":    "Inscrire votre école",
         "form":          form,
         "countries": _get_countries_data(),
+    })
+
+
+# ── Page « Autres pays » — liste d'attente clients potentiels ─────────────────
+
+def other_countries(request):
+    """
+    Page publique d'inscription à la liste d'attente pour les pays non encore
+    gérés par Sukulu.
+
+    GET  → Affiche le formulaire d'information + saisie d'email.
+    POST → Enregistre un PotentialCustomerModel et confirme à l'utilisateur.
+    """
+    from economat.infrastructure.models import PotentialCustomerModel
+
+    submitted = False
+    form = PotentialCustomerForm(request.POST or None)
+
+    if request.method == "POST" and form.is_valid():
+        cd = form.cleaned_data
+        PotentialCustomerModel.objects.create(
+            email        = cd["email"],
+            country_name = cd.get("country_name", ""),
+        )
+        submitted = True
+        form = PotentialCustomerForm()  # remet le formulaire à blanc
+
+    return render(request, "economat/accounts/other_countries.html", {
+        "page_title": "Arrivée dans votre pays bientôt",
+        "form":       form,
+        "submitted":  submitted,
     })
 
 
