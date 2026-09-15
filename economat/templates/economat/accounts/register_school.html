@@ -136,11 +136,11 @@
     }
     if (step === 2) {
       var checked = Array.from(document.querySelectorAll('[name=payment_methods]:checked'));
-      if (!checked.length) { alert("S\u00e9lectionnez au moins un moyen d'encaissement."); return false; }
+      if (!checked.length) { alert("Sélectionnez au moins un moyen d'encaissement."); return false; }
       if (checked.some(function(c){return c.value==='MOBILE_MONEY';})) {
         if (!document.getElementById('id_mobile_operator').value ||
             !document.querySelector('[name=mobile_number]').value.trim()) {
-          alert('S\u00e9lectionnez un op\u00e9rateur et saisissez un num\u00e9ro Mobile Money.'); return false;
+          alert('Sélectionnez un opérateur et saisissez un numéro Mobile Money.'); return false;
         }
       }
     }
@@ -152,7 +152,7 @@
     var COUNTRIES = JSON.parse(document.getElementById('countries-data').textContent);
     var ops = (COUNTRIES[code] || {}).mobile_operators || [];
     var sel = document.getElementById('id_mobile_operator');
-    sel.innerHTML = '<option value="">S\u00e9lectionnez un op\u00e9rateur…</option>';
+    sel.innerHTML = '<option value="">Sélectionnez un opérateur…</option>';
     ops.forEach(function(op){ var o=document.createElement('option');o.value=op;o.textContent=op;sel.appendChild(o); });
     onPaymentMethodChange();
   }
@@ -172,7 +172,7 @@
       </svg>
     </div>
     <div class="logo-name">Sukulu</div>
-    <div class="logo-sub">Gestion des frais de scolarit\u00e9</div>
+    <div class="logo-sub">Gestion des frais de scolarité</div>
   </div>
 
   <div class="reg-card">
@@ -184,8 +184,8 @@
     {% endif %}
 
     <div style="margin-bottom:1.75rem;">
-      <h2 style="font-size:1.125rem;font-weight:700;color:var(--text-1);margin:0 0 .25rem;">Inscrire votre \u00e9cole</h2>
-      <p style="font-size:.875rem;color:var(--text-3);margin:0;">Nous v\u00e9rifierons votre dossier et vous enverrons vos identifiants par email.</p>
+      <h2 style="font-size:1.125rem;font-weight:700;color:var(--text-1);margin:0 0 .25rem;">Inscrire votre école</h2>
+      <p style="font-size:.875rem;color:var(--text-3);margin:0;">Nous vérifierons votre dossier et vous enverrons vos identifiants par email.</p>
     </div>
 
     <div class="stepper-nav" role="progressbar">
@@ -202,9 +202,9 @@
         <div class="step-heading">
           <div class="step-title">
             <svg width="16" height="16" viewBox="0 0 24 24"><path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1 2.7 2.5 6 2.5s6-1.5 6-2.5v-5"/></svg>
-            Votre \u00e9cole
+            Votre école
           </div>
-          <div class="step-sub">\u00c9tape 1 sur 3</div>
+          <div class="step-sub">Étape 1 sur 3</div>
         </div>
         <div class="field-group">
           <div>
@@ -240,7 +240,7 @@
             <svg width="16" height="16" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h13a1 1 0 0 1 1 1v3M3 7v11a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4M3 7l3-3h9"/><path d="M15 13h4a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1h-4a2 2 0 0 1 0-4Z"/></svg>
             Encaissement
           </div>
-          <div class="step-sub">\u00c9tape 2 sur 3 \u2014 comment allez-vous recevoir les paiements\u00a0?</div>
+          <div class="step-sub">Étape 2 sur 3 · comment allez-vous recevoir les paiements ?</div>
         </div>
         <div class="field-group">
           <div>
@@ -260,7 +260,7 @@
               <div>
                 <label class="field-label">{{ form.mobile_operator.label }}</label>
                 <select name="mobile_operator" id="id_mobile_operator" class="form-select">
-                  <option value="">S\u00e9lectionnez un op\u00e9rateur\u2026</option>
+                  <option value="">Sélectionnez un opérateur…</option>
                 </select>
                 {% if form.mobile_operator.errors %}<p class="field-error">{{ form.mobile_operator.errors.0 }}</p>{% endif %}
               </div>
@@ -288,9 +288,9 @@
         <div class="step-heading">
           <div class="step-title">
             <svg width="16" height="16" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M2.5 20c.7-3.4 3-5.3 6.5-5.3s5.8 1.9 6.5 5.3"/></svg>
-            Responsable de l'\u00e9cole
+            Responsable de l'école
           </div>
-          <div class="step-sub">\u00c9tape 3 sur 3 \u2014 coordonn\u00e9es pour recevoir vos identifiants</div>
+          <div class="step-sub">Étape 3 sur 3 · coordonnées pour recevoir vos identifiants</div>
         </div>
         <div class="field-group">
           <div class="field-row">
@@ -331,7 +331,7 @@
   </div>
 
   <div class="page-footer">
-    D\u00e9j\u00e0 un compte\u00a0?
+    Déjà un compte ?
     <a href="{% url 'economat:login' %}">Se connecter</a>
   </div>
 </div>
@@ -341,7 +341,7 @@
   document.getElementById('registration-form').addEventListener('submit', function(){
     var btn = document.getElementById('submit-btn');
     btn.disabled = true;
-    btn.innerHTML = 'Envoi en cours\u2026';
+    btn.innerHTML = 'Envoi en cours…';
   });
   document.querySelector('[name=country_code]').addEventListener('change', function(){
     if (currentStep === 2) updateOperators();
