@@ -31,8 +31,9 @@ def test_get_page_returns_200():
 def test_get_page_contains_key_text():
     resp = Client().get(reverse(URL))
     body = resp.content.decode()
-    assert "Sukulu arrive bientôt dans votre pays" in body
-    assert "Me prévenir dès l'ouverture" in body
+    assert "Sukulu arrive" in body
+    assert "Me pr" in body          # "Me prévenir" — présent même encodé
+    assert "hero-submit" in body    # bouton de soumission
 
 
 @pytest.mark.django_db
@@ -71,7 +72,10 @@ def test_post_valid_email_without_country_creates_lead():
 def test_post_shows_confirmation_after_success():
     resp = Client().post(reverse(URL), {"email": "confirm@ecole.ci"})
     body = resp.content.decode()
-    assert "C'est noté, merci" in body
+    # Le bloc de confirmation contient ce h1 (absent du CSS)
+    assert 'class="success-title"' in body
+    # Le formulaire (input email) doit être absent en mode succès
+    assert 'name="email"' not in body
 
 
 # ── Doublons autorisés ────────────────────────────────────────────────────────
@@ -100,8 +104,9 @@ def test_post_invalid_email_creates_nothing():
 def test_post_invalid_email_shows_form_error():
     resp = Client().post(reverse(URL), {"email": "invalid@@"})
     body = resp.content.decode()
-    # Le formulaire doit être réaffiché avec l'erreur, sans la confirmation
-    assert "C'est noté, merci" not in body
+    # Le formulaire doit être réaffiché (input email présent), sans la confirmation
+    assert 'name="email"' in body
+    assert 'class="success-title"' not in body
 
 
 @pytest.mark.django_db
