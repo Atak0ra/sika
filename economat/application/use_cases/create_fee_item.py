@@ -61,6 +61,15 @@ class CreateFeeItemUseCase:
             if not cmd.class_ids:
                 raise DomainError("Au moins une classe doit être sélectionnée.")
             scope = FeeScope.for_classes(cmd.class_ids)
+            # Vérifier que les surcharges ne ciblent que des classes dans la portée
+            if cmd.class_amounts:
+                scope_ids = set(str(c) for c in cmd.class_ids)
+                invalid = set(str(k) for k in cmd.class_amounts.keys()) - scope_ids
+                if invalid:
+                    raise DomainError(
+                        "Des tarifs spécifiques ciblent des classes hors de la portée "
+                        "sélectionnée. Retirez-les ou ajoutez ces classes à la portée."
+                    )
         else:
             scope = FeeScope.all_classes()
 

@@ -86,21 +86,36 @@ class FeeItemForm(_forms.Form):
     def clean(self):
         data = super().clean()
         scope = data.get("scope_type")
-        if scope == "CLASSES" and not data.get("class_ids"):
+        selected_class_ids = set(data.get("class_ids") or [])
+
+        if scope == "CLASSES" and not selected_class_ids:
             self.add_error("class_ids", "Sélectionnez au moins une classe.")
         if not data.get("nb_months"):
             data["nb_months"] = 10
+
         # Parser les surcharges JSON
         import json
         raw = data.get("class_amounts_json", "").strip()
         try:
             parsed = json.loads(raw) if raw else {}
-            # Convertir les valeurs en int, ignorer les invalides
             data["class_amounts"] = {
                 k: int(v) for k, v in parsed.items() if str(v).isdigit() and int(v) > 0
             }
         except (json.JSONDecodeError, ValueError):
             data["class_amounts"] = {}
+
+        # Cohérence : si portée = CLASSES, les surcharges ne peuvent cibler que
+        # les classes sélectionnées dans la portée.
+        if scope == "CLASSES" and data.get("class_amounts") and selected_class_ids:
+            out_of_scope = set(data["class_amounts"].keys()) - selected_class_ids
+            if out_of_scope:
+                # Nettoyer silencieusement les surcharges hors portée
+                # (le JS ne devrait pas en produire, mais par sécurité)
+                data["class_amounts"] = {
+                    k: v for k, v in data["class_amounts"].items()
+                    if k in selected_class_ids
+                }
+
         return data
 
 

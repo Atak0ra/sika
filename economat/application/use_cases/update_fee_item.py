@@ -46,12 +46,22 @@ class UpdateFeeItemUseCase:
         except ValueError:
             raise DomainError(f"Mode de paiement inconnu : {cmd.payment_mode}")
 
-        fee_item.name         = cmd.name.strip()
-        fee_item.amount       = Money(cmd.amount_fcfa, Currency.XOF)
+        fee_item.name          = cmd.name.strip()
+        fee_item.amount        = Money(cmd.amount_fcfa, Currency.XOF)
+        fee_item.payment_mode  = payment_mode
+        fee_item.nb_months     = cmd.nb_months
+        fee_item.is_mandatory  = cmd.is_mandatory
+
+        # Valider la cohérence surcharges / portée avant d'affecter class_amounts
+        if cmd.class_amounts and fee_item.scope.scope_type.value == "CLASSES":
+            scope_ids = set(str(c) for c in fee_item.scope.class_ids)
+            invalid   = set(str(k) for k in cmd.class_amounts.keys()) - scope_ids
+            if invalid:
+                raise DomainError(
+                    "Des tarifs spécifiques ciblent des classes hors de la portée "
+                    "sélectionnée. Retirez-les ou ajoutez ces classes à la portée."
+                )
         fee_item.class_amounts = cmd.class_amounts
-        fee_item.payment_mode = payment_mode
-        fee_item.nb_months    = cmd.nb_months
-        fee_item.is_mandatory = cmd.is_mandatory
 
         self._fees.save(fee_item)
         return FeeItemResult(

@@ -120,8 +120,8 @@
   </div>
 
   <!-- RESTE -->
-  <div style="background:{% if bi.kpi.remaining > 0 %}#fef2f2{% else %}#f0fdf4{% endif %};border:1px solid {% if bi.kpi.remaining > 0 %}#fecaca{% else %}#bbf7d0{% endif %};border-radius:12px;padding:1rem 1.25rem;display:flex;align-items:center;gap:.9rem;">
-    <div style="width:2.25rem;height:2.25rem;border-radius:9px;background:{% if bi.kpi.remaining > 0 %}rgba(239,68,68,.1){% else %}rgba(16,185,129,.1){% endif %};display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+  <div style="background:#fff;border:1px solid #ecedf1;border-radius:12px;padding:1rem 1.25rem;display:flex;align-items:center;gap:.9rem;">
+    <div style="width:2.25rem;height:2.25rem;border-radius:9px;background:#f9fafb;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
       <svg aria-hidden="true" style="width:1.1rem;height:1.1rem;stroke:{% if bi.kpi.remaining > 0 %}#b91c1c{% else %}#059669{% endif %};fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24">
         {% if bi.kpi.remaining > 0 %}<use href="#icon-alert-circle"/>{% else %}<use href="#icon-check-circle"/>{% endif %}
       </svg>
@@ -135,7 +135,64 @@
 </div>
 
 <!-- ================================================================
-     RANGÉE 2 : GRAPHIQUES
+     RANGÉE 2 : RECETTES PAR CATÉGORIE (visibilité accrue)
+     Cartes blanches — couleur sur pastille, donut et barres uniquement
+================================================================ -->
+{% if bi.category_breakdown %}
+<div style="display:grid;grid-template-columns:220px 1fr;gap:1.25rem;margin-bottom:1.5rem;align-items:start;" id="rgCat">
+
+  <!-- Donut synthèse -->
+  <div class="card" style="padding:1.25rem;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;">
+      <h2 style="font-size:.8rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#6b7280;margin:0;">Recettes par type</h2>
+    </div>
+    <div style="position:relative;height:160px;">
+      <canvas id="chartDonut"></canvas>
+    </div>
+    <!-- Légende donut : pastilles -->
+    <div style="margin-top:.75rem;display:flex;flex-direction:column;gap:.3rem;">
+      {% for cat in bi.category_breakdown %}
+      <div style="display:flex;align-items:center;gap:.45rem;">
+        <span style="width:.55rem;height:.55rem;border-radius:50%;background:{{ cat.color }};flex-shrink:0;display:inline-block;"></span>
+        <span style="font-size:.72rem;color:#6b7280;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ cat.category_label }}</span>
+        <span style="font-size:.72rem;font-weight:600;color:#4b4e5f;margin-left:auto;font-variant-numeric:tabular-nums;">{{ cat.rate }}&nbsp;%</span>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Barres par catégorie -->
+  <div class="card" style="padding:1.25rem 1.5rem;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+      <h2 style="font-size:.8rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#6b7280;margin:0;">Détail par type de frais</h2>
+      <span style="font-size:.72rem;color:#c4c7d0;">{{ bi.category_breakdown|length }} catégorie{{ bi.category_breakdown|length|pluralize }}</span>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:.85rem;">
+      {% for cat in bi.category_breakdown %}
+      <div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.35rem;">
+          <span style="display:flex;align-items:center;gap:.45rem;">
+            <span style="width:.55rem;height:.55rem;border-radius:50%;background:{{ cat.color }};flex-shrink:0;display:inline-block;"></span>
+            <span style="font-size:.8125rem;font-weight:600;color:#1a1d29;">{{ cat.category_label }}</span>
+          </span>
+          <span style="font-size:.75rem;color:#6b7280;font-variant-numeric:tabular-nums;">
+            {{ cat.collected|fcfa_long }} / {{ cat.expected|fcfa_long }}
+            &middot; <strong style="color:{% if cat.rate >= 80 %}#059669{% elif cat.rate >= 50 %}#d97706{% else %}#dc2626{% endif %};">{{ cat.rate }}&nbsp;%</strong>
+          </span>
+        </div>
+        <div style="height:7px;background:#f4f5f7;border-radius:999px;overflow:hidden;">
+          <div style="height:100%;border-radius:999px;width:{{ cat.rate }}%;background:{{ cat.color }};"></div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+</div>
+{% endif %}
+
+<!-- ================================================================
+     RANGÉE 3 : GRAPHIQUES
 ================================================================ -->
 <div class="rg-charts" style="margin-bottom:1.5rem;">
 
@@ -186,44 +243,6 @@
 
 </div>
 
-<!-- ================================================================
-     RANGÉE 3 : RECETTES PAR CATÉGORIE
-================================================================ -->
-{% if bi.category_breakdown %}
-<div style="display:grid;grid-template-columns:220px 1fr;gap:1.25rem;margin-bottom:1.5rem;align-items:start;">
-
-  <!-- Donut -->
-  <div class="card" style="padding:1.25rem;">
-    <h2 style="font-size:.8rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#6b7280;margin-bottom:1rem;">Recettes par type</h2>
-    <div style="position:relative;height:160px;">
-      <canvas id="chartDonut"></canvas>
-    </div>
-  </div>
-
-  <!-- Barres par catégorie -->
-  <div class="card" style="padding:1.25rem 1.5rem;">
-    <h2 style="font-size:.8rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#6b7280;margin-bottom:1rem;">Détail par type de frais</h2>
-    <div style="display:flex;flex-direction:column;gap:.7rem;">
-      {% for cat in bi.category_breakdown %}
-      <div>
-        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:.3rem;">
-          <span style="font-size:.8125rem;font-weight:600;color:#1a1d29;">{{ cat.category_label }}</span>
-          <span style="font-size:.75rem;color:#6b7280;font-variant-numeric:tabular-nums;">
-            {{ cat.collected|fcfa_long }} / {{ cat.expected|fcfa_long }}
-            &middot; <strong style="color:{% if cat.rate >= 80 %}#059669{% elif cat.rate >= 50 %}#d97706{% else %}#dc2626{% endif %};">{{ cat.rate }}&nbsp;%</strong>
-          </span>
-        </div>
-        <div style="height:7px;background:#f4f5f7;border-radius:999px;overflow:hidden;">
-          <div style="height:100%;border-radius:999px;width:{{ cat.rate }}%;background:{{ cat.color }};opacity:.85;"></div>
-        </div>
-      </div>
-      {% endfor %}
-    </div>
-  </div>
-
-</div>
-{% endif %}
-
 <!-- Widget alertes compact — renvoi vers la page dédiée -->
 {% if school and school_year %}
 <a href="{% url 'economat:alerts' school.id school_year.id %}"
@@ -234,8 +253,7 @@
    onmouseover="this.style.boxShadow='0 4px 16px rgba(16,24,40,.08)';this.style.borderColor='#d1d5db'"
    onmouseout="this.style.boxShadow='0 1px 2px rgba(16,24,40,.04)';this.style.borderColor='#ecedf1'">
   <div style="display:flex;align-items:center;gap:.75rem;">
-    <div style="width:2.25rem;height:2.25rem;border-radius:9px;display:flex;align-items:center;justify-content:center;
-                background:{% if bi.total_critical > 0 %}#fef2f2{% elif bi.total_late > 0 %}#fff7ed{% else %}#ecfdf5{% endif %};">
+    <div style="width:2.25rem;height:2.25rem;border-radius:9px;display:flex;align-items:center;justify-content:center;background:#f9fafb;">
       <svg aria-hidden="true" style="width:1.1rem;height:1.1rem;stroke:{% if bi.total_critical > 0 %}#b91c1c{% elif bi.total_late > 0 %}#d97706{% else %}#059669{% endif %};fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24">
         {% if bi.total_critical > 0 or bi.total_late > 0 %}<use href="#icon-alert-circle"/>{% else %}<use href="#icon-check-circle"/>{% endif %}
       </svg>

@@ -145,24 +145,43 @@ var FEE_INIT_AMOUNTS = {{ fee_item.class_amounts|default:"{}" }};
     jsonInput.value = JSON.stringify(amounts);
   }
 
+  function getActiveScopeClassIds(){
+    var scope = document.querySelector('input[name="scope_type"]:checked');
+    if (!scope || scope.value !== 'CLASSES') return null; // null = ALL, tout est valide
+    var checked = Array.from(document.querySelectorAll('input[name="class_ids"]:checked'))
+                       .map(function(cb){ return cb.value; });
+    return new Set(checked);
+  }
+
   function renderSurcharges(){
     list.innerHTML = '';
     var keys = Object.keys(amounts);
     emptyMsg.style.display = keys.length ? 'none' : 'block';
+    var activeScopeIds = getActiveScopeClassIds(); // null = ALL ok
     keys.forEach(function(cid){
+      var outOfScope = activeScopeIds !== null && !activeScopeIds.has(cid);
       var row = document.createElement('div');
       row.style.cssText = 'display:flex;align-items:center;gap:.5rem;';
+      var warningBadge = outOfScope
+        ? '<span style="font-size:.7rem;background:#fef2f2;color:#b91c1c;border:1px solid #fecaca;'
+          + 'padding:.1rem .4rem;border-radius:999px;white-space:nowrap;" title="Cette classe n'est pas dans la portée sélectionnée">'
+          + '&#x26A0; hors portée</span>'
+        : '';
       row.innerHTML =
-        '<span style="flex:1;font-size:.8375rem;color:#1a1d29;">' + classLabel(cid) + '</span>' +
+        '<span style="flex:1;font-size:.8375rem;color:' + (outOfScope ? '#b91c1c' : '#1a1d29') + ';">' + classLabel(cid) + '</span>' +
+        warningBadge +
         '<input type="number" min="1" value="' + amounts[cid] + '"' +
-        ' style="width:130px;" class="form-input" data-cid="' + cid + '">' +
+        ' style="width:130px;border-color:' + (outOfScope ? '#fca5a5' : '') + ';" class="form-input" data-cid="' + cid + '"' +
+        (outOfScope ? ' disabled title="Retirez cette surcharge ou ajoutez la classe à la portée"' : '') + '>' +
         '<span style="font-size:.8rem;color:#6b7280;">FCFA</span>' +
         '<button type="button" data-cid="' + cid + '" style="background:none;border:none;cursor:pointer;color:#b91c1c;font-size:1rem;padding:0 .25rem;">&#x2715;</button>';
 
-      row.querySelector('input[type="number"]').addEventListener('input', function(){
-        var v = parseInt(this.value, 10);
-        if (v > 0) { amounts[cid] = v; updateJSON(); }
-      });
+      if (!outOfScope) {
+        row.querySelector('input[type="number"]').addEventListener('input', function(){
+          var v = parseInt(this.value, 10);
+          if (v > 0) { amounts[cid] = v; updateJSON(); }
+        });
+      }
       row.querySelector('button').addEventListener('click', function(){
         delete amounts[this.dataset.cid];
         renderSurcharges();
@@ -171,6 +190,17 @@ var FEE_INIT_AMOUNTS = {{ fee_item.class_amounts|default:"{}" }};
       list.appendChild(row);
     });
   }
+
+  // À la soumission : supprimer silencieusement les surcharges hors portée
+  document.getElementById('feeItemForm').addEventListener('submit', function(){
+    var activeScopeIds = getActiveScopeClassIds();
+    if (activeScopeIds !== null) {
+      Object.keys(amounts).forEach(function(cid){
+        if (!activeScopeIds.has(cid)) { delete amounts[cid]; }
+      });
+      updateJSON();
+    }
+  });
 
   addBtn.addEventListener('click', function(){
     // Choisir une classe pas encore dans les surcharges
@@ -223,7 +253,11 @@ var FEE_INIT_AMOUNTS = {{ fee_item.class_amounts|default:"{}" }};
       if(lbl) lbl.style.borderColor = r.checked ? '#4f46e5' : '#ecedf1';
     });
   }
-  scopeRadios.forEach(function(r){ r.addEventListener('change', updateScope); });
+  scopeRadios.forEach(function(r){ r.addEventListener('change', function(){ updateScope(); renderSurcharges(); }); });
+  // Aussi quand on coche/décoche une classe individuelle
+  document.querySelectorAll('input[name="class_ids"]').forEach(function(cb){
+    cb.addEventListener('change', renderSurcharges);
+  });
   updateScope();
 })();
 </script>

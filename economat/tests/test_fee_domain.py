@@ -254,3 +254,61 @@ class TestFeeItemClassAmounts:
         item = self._item(class_amounts={"cls-a": 10_000})
         s = item.get_payment_schedule(datetime.date(2024, 9, 1))
         assert s.total_amount == _money(15_000)
+
+
+class TestFeeItemScopeAmountCoherence:
+    """Tests de la règle : surcharges cohérentes avec la portée."""
+
+    def test_all_scope_accepts_any_class_surcharge(self):
+        """Scope ALL : n'importe quelle classe peut avoir une surcharge."""
+        item = _fee_item(
+            scope=FeeScope.all_classes(),
+            class_amounts={"cls-x": 10_000, "cls-y": 20_000},
+        )
+        assert item.class_amounts == {"cls-x": 10_000, "cls-y": 20_000}
+
+    def test_classes_scope_accepts_surcharge_for_in_scope_class(self):
+        """Scope CLASSES : surcharge pour une classe dans la portée = OK."""
+        item = _fee_item(
+            scope=FeeScope.for_classes(["cls-a", "cls-b"]),
+            class_amounts={"cls-a": 10_000},
+        )
+        assert item.class_amounts == {"cls-a": 10_000}
+
+    def test_classes_scope_rejects_surcharge_for_out_of_scope_class(self):
+        """Scope CLASSES : surcharge pour classe hors portée => DomainError."""
+        import pytest
+        with pytest.raises(DomainError, match="hors portée"):
+            _fee_item(
+                scope=FeeScope.for_classes(["cls-a", "cls-b"]),
+                class_amounts={"cls-c": 10_000},  # cls-c pas dans la portée
+            )
+
+    def test_classes_scope_rejects_partial_out_of_scope(self):
+        """Même si une seule surcharge est hors portée, c'est refusé."""
+        with pytest.raises(DomainError, match="hors portée"):
+            _fee_item(
+                scope=FeeScope.for_classes(["cls-a", "cls-b"]),
+                class_amounts={
+                    "cls-a": 10_000,  # OK
+                    "cls-z": 5_000,   # hors portée
+                },
+            )
+
+    def test_classes_scope_no_surcharges_is_valid(self):
+        """Scope CLASSES sans surcharges : toujours valide."""
+        item = _fee_item(
+            scope=FeeScope.for_classes(["cls-a"]),
+            class_amounts={},
+        )
+        assert not item.has_variable_amounts()
+
+    def test_classes_scope_all_surcharges_in_scope(self):
+        """Toutes les classes de la portée ont une surcharge : OK."""
+        item = _fee_item(
+            scope=FeeScope.for_classes(["cls-a", "cls-b"]),
+            class_amounts={"cls-a": 10_000, "cls-b": 15_000},
+        )
+        assert item.amount_for("cls-a") == _money(10_000)
+        assert item.amount_for("cls-b") == _money(15_000)
+        assert item.amount_for("cls-c") == _money(15_000)  # défaut

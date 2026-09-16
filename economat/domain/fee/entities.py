@@ -53,6 +53,22 @@ class FeeItem:
         for class_id, montant in (self.class_amounts or {}).items():
             if not isinstance(montant, int) or montant <= 0:
                 raise ValueError(f"La surcharge pour {class_id} doit être un entier > 0.")
+        # Cohérence portée / surcharges : si scope CLASSES, chaque surcharge
+        # doit cibler une classe présente dans la portée.
+        if (
+            self.scope.scope_type.value == "CLASSES"
+            and self.class_amounts
+        ):
+            from .value_objects import FeeScopeType
+            scope_class_ids = set(str(cid) for cid in self.scope.class_ids)
+            invalid = set(str(k) for k in self.class_amounts.keys()) - scope_class_ids
+            if invalid:
+                raise DomainError(
+                    f"Surcharge(s) pour des classes hors portée : "
+                    f"{', '.join(sorted(invalid))}. "
+                    f"Seules les classes sélectionnées dans la portée peuvent "
+                    f"avoir un tarif spécifique."
+                )
 
     def applies_to(self, class_id: Optional[str]) -> bool:
         return self.scope.applies_to(class_id)

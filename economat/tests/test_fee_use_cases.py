@@ -144,3 +144,31 @@ class TestUpdateFeeItemUseCase:
             scope_type="CLASSES", class_ids=[]
         ))
         assert not r.success
+
+    def test_rejects_surcharge_for_class_out_of_scope(self):
+        """scope=CLASSES + surcharge sur classe hors portée => refus."""
+        r = CreateFeeItemUseCase(_FeeItemRepo()).execute(_cmd(
+            scope_type="CLASSES",
+            class_ids=["cls-a", "cls-b"],
+            class_amounts={"cls-c": 10_000},  # cls-c pas dans la portée
+        ))
+        assert not r.success
+        assert "hors" in r.error_message or "portée" in r.error_message
+
+    def test_accepts_surcharge_for_class_in_scope(self):
+        """scope=CLASSES + surcharge sur classe dans la portée => OK."""
+        r = CreateFeeItemUseCase(_FeeItemRepo()).execute(_cmd(
+            scope_type="CLASSES",
+            class_ids=["cls-a", "cls-b"],
+            class_amounts={"cls-a": 10_000},  # cls-a est dans la portée
+        ))
+        assert r.success
+
+    def test_all_scope_accepts_any_surcharge(self):
+        """scope=ALL + surcharge sur n'importe quelle classe => OK."""
+        r = CreateFeeItemUseCase(_FeeItemRepo()).execute(_cmd(
+            scope_type="ALL",
+            class_ids=[],
+            class_amounts={"cls-anywhere": 8_000},
+        ))
+        assert r.success

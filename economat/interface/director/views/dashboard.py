@@ -140,6 +140,7 @@ def secretary_dashboard(request):
       - Nombre de classes et de niveaux
       - Répartition des inscrits par niveau (effectifs, pas de montants)
       - Derniers élèves inscrits (8 plus récents)
+      - Aperçu des types de frais configurés (compteurs par catégorie, zéro montant)
       - Raccourcis métier
     """
     result = get_list_memberships_query().execute(user_id=str(request.user.pk))
@@ -165,6 +166,7 @@ def secretary_dashboard(request):
     total_niveaux     = 0
     repartition       = []
     derniers_inscrits = []
+    fee_categories_overview = []   # compteurs de lignes de frais — ZÉRO montant
 
     if active_school and active_year_orm:
         base_enr = EnrollmentModel.objects.filter(
@@ -191,6 +193,34 @@ def secretary_dashboard(request):
             .order_by("-created_at")[:8]
         )
 
+        # Aperçu types de frais — nb de lignes actives par catégorie (pas de montant)
+        from economat.infrastructure.models import FeeItemModel
+        from economat.domain.fee.value_objects import FeeCategory as _FC
+        _CAT_COLORS = {
+            "SCOLARITE": "#4f46e5", "CANTINE": "#d97706", "TRANSPORT": "#0369a1",
+            "SORTIES": "#059669",   "SPORT": "#be185d",   "FOURNITURES": "#7c3aed",
+            "AUTRE": "#6b7280",
+        }
+        fee_rows = (
+            FeeItemModel.objects
+            .filter(school_year=active_year_orm, is_active=True)
+            .values("category")
+            .annotate(nb=Count("id"))
+            .order_by("category")
+        )
+        for row in fee_rows:
+            cat_code = row["category"]
+            try:
+                label = _FC(cat_code).label
+            except ValueError:
+                label = cat_code
+            fee_categories_overview.append({
+                "category": cat_code,
+                "label": label,
+                "nb": row["nb"],
+                "color": _CAT_COLORS.get(cat_code, "#6b7280"),
+            })
+
     ctx = base_context(
         request, active_school, active_year_orm, "dashboard_secretaire",
         schools=schools,
@@ -199,6 +229,7 @@ def secretary_dashboard(request):
         total_niveaux=total_niveaux,
         repartition=repartition,
         derniers_inscrits=derniers_inscrits,
+        fee_categories_overview=fee_categories_overview,
         page_title="Tableau de bord — Secrétaire",
     )
     return render(request, "economat/director/secretary_dashboard.html", ctx)
