@@ -39,7 +39,7 @@
         {% if item.is_system %}<span style="font-size:.7rem;font-weight:500;color:#6b7280;margin-left:.4rem;">⚙ Scolarité (auto)</span>{% endif %}
       </div>
       <div style="font-size:.75rem;color:#6b7280;margin-top:.1rem;">
-        {% if item.scope_type == 'LEVEL' %}Niveau : {{ item.level.name }}{% else %}Classe : {{ item.klass.level.name }} {{ item.klass.name }}{% endif %}
+        {% if item.scope_type == 'ALL' %}Toutes les classes{% elif item.class_ids %}{{ item.class_ids|length }} classe{{ item.class_ids|length|pluralize }}{% else %}Toutes les classes{% endif %}
         &middot; {{ item.get_payment_mode_display }}{% if item.payment_mode == 'MENSUEL' %} · {{ item.nb_months }} mois{% endif %}
       </div>
     </div>

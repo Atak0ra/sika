@@ -111,9 +111,11 @@ class FeeItemRepository(ABC):
 
     @abstractmethod
     def find_applicable_to_enrollment(
-        self, year_id: SchoolYearId, level_id: LevelId, class_id: ClassId,
+        self, year_id: SchoolYearId, class_id: ClassId,
     ) -> List[FeeItem]:
-        """Lignes actives qui s'appliquent à cet enrollment (scope LEVEL ou CLASS)."""
+        """Lignes actives qui s'appliquent à cet enrollment (via sa classe).
+        Retourne les lignes ALL + les lignes CLASSES contenant class_id.
+        """
         ...
 
     @abstractmethod

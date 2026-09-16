@@ -202,15 +202,16 @@ def collection_dashboard(request):
         fee_items_qs = FeeItemModel.objects.filter(
             school_year=active_year, is_active=True, is_system=False,
         )
+        total_enrollments = sum(e["nb"] for e in class_map.values())
         for fi in fee_items_qs:
-            if fi.scope_type == "LEVEL" and fi.level_id:
+            if fi.scope_type == "ALL":
+                # S'applique à tous : ajouter à toutes les classes
                 for entry in class_map.values():
-                    if str(entry["level"].id) == str(fi.level_id):
-                        entry["expected"] += fi.amount
-            elif fi.scope_type == "CLASS" and fi.klass_id:
-                cid = str(fi.klass_id)
-                if cid in class_map:
-                    class_map[cid]["expected"] += fi.amount
+                    entry["expected"] += fi.amount
+            elif fi.scope_type == "CLASSES" and fi.class_ids:
+                for cid in fi.class_ids:
+                    if cid in class_map:
+                        class_map[cid]["expected"] += fi.amount
 
         for entry in class_map.values():
             entry["balance"] = max(entry["expected"] - entry["collected"], 0)
@@ -242,23 +243,8 @@ def collection_dashboard(request):
             school_year=active_year, status="ACTIVE"
         ).only("level_id", "klass_id"))
 
-        # Scolarité : expected = total_expected_scol (sum annual_fee)
-        scol_expected = sum(
-            c["expected"] - sum(
-                fi.amount
-                for fi in FeeItemModel.objects.filter(
-                    school_year=active_year, is_active=True, is_system=False,
-                    scope_type="LEVEL", level_id=c["level"].id,
-                )
-            ) - sum(
-                fi.amount
-                for fi in FeeItemModel.objects.filter(
-                    school_year=active_year, is_active=True, is_system=False,
-                    scope_type="CLASS", klass_id=c["klass"].id,
-                )
-            )
-            for c in class_map.values()
-        ) if class_map else total_expected
+        # scol_expected dérivé via _fee_item_expected_by_category
+        # (le calcul détaillé se fait dans febc)
 
         cbc = _collected_by_category(str(active_year.id))
         febc = _fee_item_expected_by_category(str(active_year.id), active_enrollments)

@@ -5,16 +5,16 @@
 <div style="margin-bottom:1.5rem;">
   <a href="{% url 'economat:fee_items_list' school.id school_year.id %}"
      style="font-size:.8125rem;color:#6b7280;display:inline-flex;align-items:center;gap:.3rem;margin-bottom:.75rem;">
-    ← Retour aux postes de frais
+    &larr; Retour aux postes de frais
   </a>
   <h1 style="font-size:1.125rem;font-weight:700;letter-spacing:-0.02em;">{{ page_title }}</h1>
 </div>
 
-<div class="card" style="padding:1.75rem;max-width:560px;">
+<div class="card" style="padding:1.75rem;max-width:600px;">
   <form method="post">
     {% csrf_token %}
 
-    <!-- Libellé -->
+    <!-- Libéllé -->
     <div style="margin-bottom:1rem;">
       <label class="field-label">{{ form.name.label }}</label>
       {{ form.name }}
@@ -34,12 +34,14 @@
       {% if form.amount_fcfa.errors %}<p class="field-error">{{ form.amount_fcfa.errors.0 }}</p>{% endif %}
     </div>
 
-    <!-- Mode + nb_months -->
+    <!-- Mode de paiement -->
     <div style="margin-bottom:1rem;">
       <label class="field-label">{{ form.payment_mode.label }}</label>
       {{ form.payment_mode }}
     </div>
-    <div id="nbMonthsBlock" style="margin-bottom:1rem;{% if form.payment_mode.value != 'MENSUEL' %}display:none;{% endif %}">
+
+    <!-- Nombre de mensualités (visible si MENSUEL) -->
+    <div id="nbMonthsBlock" style="margin-bottom:1rem;display:none;">
       <label class="field-label">{{ form.nb_months.label }}</label>
       {{ form.nb_months }}
       <p style="font-size:.75rem;color:#6b7280;margin-top:.25rem;">{{ form.nb_months.help_text }}</p>
@@ -47,24 +49,44 @@
 
     <!-- Portée -->
     <div style="margin-bottom:1rem;">
-      <label class="field-label">{{ form.scope_type.label }}</label>
-      <div style="display:flex;gap:.75rem;margin-top:.4rem;">
+      <label class="field-label" style="margin-bottom:.5rem;display:block;">{{ form.scope_type.label }}</label>
+      <div style="display:flex;flex-direction:column;gap:.5rem;">
         {% for radio in form.scope_type %}
-        <label style="display:flex;align-items:center;gap:.4rem;cursor:pointer;font-size:.875rem;">
-          {{ radio.tag }} {{ radio.choice_label }}
+        <label style="display:flex;align-items:center;gap:.5rem;cursor:pointer;font-size:.875rem;
+                      padding:.6rem .9rem;border:1.5px solid #ecedf1;border-radius:9px;
+                      transition:border-color .12s,background .12s;"
+               id="scope-label-{{ radio.data.value }}">
+          {{ radio.tag }}
+          <div>
+            <div style="font-weight:600;">{{ radio.choice_label }}</div>
+            {% if radio.data.value == 'ALL' %}
+            <div style="font-size:.75rem;color:#6b7280;">Ce frais concerne tous les élèves de l&rsquo;école</div>
+            {% else %}
+            <div style="font-size:.75rem;color:#6b7280;">Choisissez une ou plusieurs classes ci-dessous</div>
+            {% endif %}
+          </div>
         </label>
         {% endfor %}
       </div>
     </div>
-    <div id="levelBlock" style="margin-bottom:1rem;">
-      <label class="field-label">{{ form.target_level_id.label }}</label>
-      {{ form.target_level_id }}
-      {% if form.target_level_id.errors %}<p class="field-error">{{ form.target_level_id.errors.0 }}</p>{% endif %}
-    </div>
-    <div id="classBlock" style="margin-bottom:1rem;display:none;">
-      <label class="field-label">{{ form.target_class_id.label }}</label>
-      {{ form.target_class_id }}
-      {% if form.target_class_id.errors %}<p class="field-error">{{ form.target_class_id.errors.0 }}</p>{% endif %}
+
+    <!-- Checkboxes classes (visibles si scope_type=CLASSES) -->
+    <div id="classesBlock" style="margin-bottom:1.25rem;display:none;">
+      <label class="field-label" style="margin-bottom:.5rem;display:block;">{{ form.class_ids.label }}</label>
+      {% if form.class_ids.errors %}
+      <p class="field-error">{{ form.class_ids.errors.0 }}</p>
+      {% endif %}
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:.4rem;
+                  max-height:240px;overflow-y:auto;padding:.75rem;background:#f9fafb;
+                  border:1px solid #ecedf1;border-radius:9px;">
+        {% for cb in form.class_ids %}
+        <label style="display:flex;align-items:center;gap:.4rem;cursor:pointer;font-size:.8375rem;">
+          {{ cb.tag }}
+          <span>{{ cb.choice_label }}</span>
+        </label>
+        {% endfor %}
+      </div>
+      <p style="font-size:.75rem;color:#6b7280;margin-top:.4rem;">Maintenez Ctrl/Cmd pour sélectionner plusieurs.</p>
     </div>
 
     <!-- Obligatoire -->
@@ -82,11 +104,10 @@
 
 <script>
 (function(){
-  var modeSelect = document.querySelector('select[name="payment_mode"]');
-  var nbBlock = document.getElementById('nbMonthsBlock');
+  var modeSelect  = document.querySelector('select[name="payment_mode"]');
+  var nbBlock     = document.getElementById('nbMonthsBlock');
+  var classesBlock = document.getElementById('classesBlock');
   var scopeRadios = document.querySelectorAll('input[name="scope_type"]');
-  var lvlBlock = document.getElementById('levelBlock');
-  var clsBlock = document.getElementById('classBlock');
 
   function updateMode(){
     if(modeSelect) nbBlock.style.display = modeSelect.value === 'MENSUEL' ? 'block' : 'none';
@@ -94,9 +115,14 @@
   function updateScope(){
     var val = document.querySelector('input[name="scope_type"]:checked');
     if(!val) return;
-    lvlBlock.style.display = val.value === 'LEVEL' ? 'block' : 'none';
-    clsBlock.style.display = val.value === 'CLASS' ? 'block' : 'none';
+    classesBlock.style.display = val.value === 'CLASSES' ? 'block' : 'none';
+    // Mettre en surbrillance la carte radio sélectionnée
+    scopeRadios.forEach(function(r){
+      var lbl = document.getElementById('scope-label-' + r.value);
+      if(lbl) lbl.style.borderColor = r.checked ? '#4f46e5' : '#ecedf1';
+    });
   }
+
   if(modeSelect){ modeSelect.addEventListener('change', updateMode); updateMode(); }
   scopeRadios.forEach(function(r){ r.addEventListener('change', updateScope); });
   updateScope();

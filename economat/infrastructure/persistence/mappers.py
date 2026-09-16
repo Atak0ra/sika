@@ -150,10 +150,13 @@ def fee_item_to_domain(orm) -> "FeeItem":
     from economat.domain.fee.entities import FeeItem
     from economat.domain.fee.value_objects import FeeCategory, FeeItemId, FeeScope, FeeScopeType
     from economat.domain.school.payment_schedule import PaymentMode
-    scope = FeeScope(
-        scope_type=FeeScopeType(orm.scope_type),
-        target_id=str(orm.level_id) if orm.scope_type == "LEVEL" else str(orm.klass_id),
-    )
+
+    scope_type = FeeScopeType(orm.scope_type) if orm.scope_type in ("ALL", "CLASSES") else FeeScopeType.ALL
+    if scope_type == FeeScopeType.CLASSES and orm.class_ids:
+        scope = FeeScope.for_classes(list(orm.class_ids))
+    else:
+        scope = FeeScope.all_classes()
+
     return FeeItem(
         id=FeeItemId(str(orm.id)),
         school_year_id=SchoolYearId(str(orm.school_year_id)),

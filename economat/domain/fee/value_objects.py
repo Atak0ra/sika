@@ -80,35 +80,61 @@ class FeeCategory(str, Enum):
 
 class FeeScopeType(str, Enum):
     """Type de portée d'une ligne de frais."""
-    LEVEL = "LEVEL"   # S'applique à tous les élèves d'un niveau
-    CLASS = "CLASS"   # S'applique uniquement aux élèves d'une classe précise
+    ALL     = "ALL"     # S'applique à tous les élèves de l'école (toutes classes)
+    CLASSES = "CLASSES" # S'applique à une sélection de classes précises
 
 
 @dataclass(frozen=True)
 class FeeScope:
     """Portée d'une ligne de frais.
 
-    scope_type : LEVEL → target_id est un LevelId.value
-                 CLASS → target_id est un ClassId.value
+    scope_type : ALL     → class_ids est vide, s'applique à tous les élèves.
+                 CLASSES → class_ids contient les ClassId.value concernés.
+
+    La scolarité système utilise un FeeScope interne mais n'est pas modifiable
+    via les formulaires manuels.
     """
     scope_type: FeeScopeType
-    target_id: str           # LevelId.value ou ClassId.value selon scope_type
+    class_ids:  tuple = ()   # tuple[str] — vide si ALL
 
     def __post_init__(self) -> None:
-        if not self.target_id or not self.target_id.strip():
-            raise ValueError("FeeScope.target_id ne peut pas être vide.")
+        if self.scope_type == FeeScopeType.CLASSES and not self.class_ids:
+            raise ValueError(
+                "FeeScope CLASSES doit avoir au moins une classe."
+            )
 
-    def applies_to(self, level_id: str, class_id: Optional[str]) -> bool:
-        """Retourne True si cette portée s'applique à l'enrollment décrit."""
-        if self.scope_type == FeeScopeType.LEVEL:
-            return self.target_id == level_id
-        # CLASS : s'applique si la classe correspond
-        return class_id is not None and self.target_id == class_id
-
-    @classmethod
-    def for_level(cls, level_id: str) -> FeeScope:
-        return cls(scope_type=FeeScopeType.LEVEL, target_id=level_id)
+    def applies_to(self, class_id: Optional[str]) -> bool:
+        """Retourne True si cette portée s'applique à l'enrollment (via sa classe)."""
+        if self.scope_type == FeeScopeType.ALL:
+            return True
+        return class_id is not None and class_id in self.class_ids
 
     @classmethod
-    def for_class(cls, class_id: str) -> FeeScope:
-        return cls(scope_type=FeeScopeType.CLASS, target_id=class_id)
+    def all_classes(cls) -> "FeeScope":
+        """Portée globale — s'applique à tous les élèves."""
+        return cls(scope_type=FeeScopeType.ALL)
+
+    @classmethod
+    def for_classes(cls, class_ids: list[str]) -> "FeeScope":
+        """Portée sur une liste de classes précises."""
+        if not class_ids:
+            raise ValueError("for_classes requiert au moins une classe.")
+        return cls(scope_type=FeeScopeType.CLASSES, class_ids=tuple(class_ids))
+
+    # ── Helpers rétro-compat pour la scolarité système (mono-cible niveau) ──
+    # Utilisés uniquement en interne pour les lignes is_system=True.
+
+    @classmethod
+    def for_level(cls, level_id: str) -> "FeeScope":
+        """Portée système — marque la scolarité comme globale (ALL).
+        Le lien réel niveau↔FeeItem est géré via la FK level sur FeeItemModel.
+        """
+        # Pour les lignes système on utilise ALL ; le niveau est stocké
+        # directement sur FeeItemModel.level (FK) et n'est pas dans class_ids.
+        return cls(scope_type=FeeScopeType.ALL)
+
+    @classmethod
+    def for_class(cls, class_id: str) -> "FeeScope":
+        """Portée sur une seule classe (helper 1-élément)."""
+        return cls.for_classes([class_id])
+

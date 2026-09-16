@@ -23,12 +23,12 @@ class _FeeItemRepo:
     def find_by_id(self, fid): return self._store.get(str(fid))
     def find_by_year(self, yid): return list(self._store.values())
     def find_active_by_year(self, yid): return [fi for fi in self._store.values() if fi.is_active]
-    def find_applicable_to_enrollment(self, yid, lid, cid):
+    def find_applicable_to_enrollment(self, yid, cid):
         return [fi for fi in self._store.values()
-                if fi.is_active and fi.applies_to(str(lid), str(cid))]
+                if fi.is_active and fi.applies_to(str(cid))]
     def find_system_for_level(self, lid, yid):
         return next((fi for fi in self._store.values()
-                     if fi.is_system and fi.scope.target_id == str(lid)), None)
+                     if fi.is_system and fi.level_id_hint == str(lid)), None)  # not used in new scope
     def ensure_system_fee_for_level(self, level_id, level_name, year_id,
                                     annual_fee_fcfa, payment_mode, nb_months, scope):
         import uuid
@@ -53,7 +53,7 @@ class _FeeItemRepo:
 
 def _cmd(**kw):
     base = dict(school_year_id="year-1", name="Cantine T1", category="CANTINE",
-                amount_fcfa=15_000, scope_type="LEVEL", target_id="level-1",
+                amount_fcfa=15_000, scope_type="ALL", class_ids=[],
                 payment_mode="UNIQUE", nb_months=10, is_mandatory=True)
     base.update(kw)
     return CreateFeeItemCommand(**base)
@@ -82,7 +82,7 @@ class TestCreateFeeItemUseCase:
         assert not r.success
 
     def test_class_scope(self):
-        r = CreateFeeItemUseCase(_FeeItemRepo()).execute(_cmd(scope_type="CLASS", target_id="class-a"))
+        r = CreateFeeItemUseCase(_FeeItemRepo()).execute(_cmd(scope_type="CLASSES", class_ids=["class-a"]))
         assert r.success
 
 
@@ -109,7 +109,7 @@ class TestUpdateFeeItemUseCase:
             id=FeeItemId("sys-1"), school_year_id=SchoolYearId("year-1"),
             name="Scolarité", category=FeeCategory.SCOLARITE,
             amount=Money(100_000, Currency.XOF),
-            scope=FeeScope.for_level("lv-1"), is_system=True,
+            scope=FeeScope.all_classes(), is_system=True,
         )
         repo.save(sys)
         r = UpdateFeeItemUseCase(repo).execute(UpdateFeeItemCommand(

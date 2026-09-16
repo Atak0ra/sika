@@ -97,7 +97,7 @@ class ListPayableItemsUseCase:
 
         # ── 2. Lignes manuelles applicables ──────────────────────────────────
         fee_items = self._fees.find_applicable_to_enrollment(
-            yid, enrollment.level_id, enrollment.class_id,
+            yid, enrollment.class_id,
         )
         for fee in fee_items:
             if fee.is_system:

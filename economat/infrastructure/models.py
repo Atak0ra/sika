@@ -307,8 +307,8 @@ class FeeItemModel(models.Model):
         ("AUTRE",       "Autre"),
     ]
     SCOPE_TYPE_CHOICES = [
-        ("LEVEL", "Niveau entier"),
-        ("CLASS", "Classe précise"),
+        ("ALL",     "Toutes les classes"),
+        ("CLASSES", "Classes sélectionnées"),
     ]
     PAYMENT_MODES = [
         ("UNIQUE",   "Paiement unique"),
@@ -330,16 +330,20 @@ class FeeItemModel(models.Model):
         help_text="Montant total attendu. Pour les lignes système, synchronisé avec le tarif du niveau.",
     )
     # ── Portée ────────────────────────────────────────────────────────────────
-    scope_type  = models.CharField(max_length=10, choices=SCOPE_TYPE_CHOICES, default="LEVEL")
-    # FK niveau — rempli si scope_type=LEVEL
+    scope_type  = models.CharField(
+        max_length=10, choices=SCOPE_TYPE_CHOICES, default="ALL",
+        verbose_name="Portée",
+    )
+    # class_ids : liste JSON des ClassId ciblés (vide = ALL)
+    class_ids   = models.JSONField(
+        default=list, blank=True,
+        verbose_name="Classes ciblées",
+        help_text="Liste JSON de class_ids. Vide si scope_type=ALL.",
+    )
+    # FK niveau — conservée pour la scolarité système (is_system=True)
     level       = models.ForeignKey(
         LevelModel, on_delete=models.CASCADE, null=True, blank=True,
-        related_name="fee_items", verbose_name="Niveau",
-    )
-    # FK classe — rempli si scope_type=CLASS
-    klass       = models.ForeignKey(
-        ClassModel, on_delete=models.CASCADE, null=True, blank=True,
-        related_name="fee_items", db_column="class_id", verbose_name="Classe",
+        related_name="fee_items", verbose_name="Niveau (scolarité système)",
     )
     # ── Paiement ──────────────────────────────────────────────────────────────
     payment_mode = models.CharField(max_length=20, choices=PAYMENT_MODES, default="UNIQUE")

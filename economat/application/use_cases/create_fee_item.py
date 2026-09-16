@@ -55,8 +55,14 @@ class CreateFeeItemUseCase:
         try:
             scope_type = FeeScopeType(cmd.scope_type)
         except ValueError:
-            raise DomainError(f"Type de portée inconnu : {cmd.scope_type}")
-        scope = FeeScope(scope_type=scope_type, target_id=cmd.target_id)
+            raise DomainError(f"Type de portée inconnu : {cmd.scope_type} (attendu ALL ou CLASSES)")
+
+        if scope_type == FeeScopeType.CLASSES:
+            if not cmd.class_ids:
+                raise DomainError("Au moins une classe doit être sélectionnée.")
+            scope = FeeScope.for_classes(cmd.class_ids)
+        else:
+            scope = FeeScope.all_classes()
 
         # Validation mode de paiement
         try:

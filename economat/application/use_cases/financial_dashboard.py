@@ -158,7 +158,7 @@ def _fee_item_expected_by_category(year_id, enrollments):
     from economat.infrastructure.models import FeeItemModel
     from collections import defaultdict
     result = defaultdict(int)
-    fee_items = FeeItemModel.objects.filter(school_year_id=year_id, is_active=True, is_system=False).select_related("level", "klass")
+    fee_items = FeeItemModel.objects.filter(school_year_id=year_id, is_active=True, is_system=False).select_related("level")
     level_counts = defaultdict(int)
     class_counts = defaultdict(int)
     for e in enrollments:
@@ -166,10 +166,10 @@ def _fee_item_expected_by_category(year_id, enrollments):
         cid = str(getattr(e, "klass_id", None) or getattr(e, "class_id", None) or "")
         if cid: class_counts[cid] += 1
     for fi in fee_items:
-        if fi.scope_type == "LEVEL" and fi.level_id:
-            nb = level_counts.get(str(fi.level_id), 0)
-        elif fi.scope_type == "CLASS" and fi.klass_id:
-            nb = class_counts.get(str(fi.klass_id), 0)
+        if fi.scope_type == "ALL":
+            nb = sum(level_counts.values())  # tous les élèves inscrits
+        elif fi.scope_type == "CLASSES" and fi.class_ids:
+            nb = sum(class_counts.get(str(cid), 0) for cid in fi.class_ids)
         else:
             nb = 0
         if nb > 0: result[fi.category] += fi.amount * nb

@@ -195,14 +195,18 @@ class CreateFeeItemCommand:
     """Créer une ligne de frais manuelle (hors scolarité système)."""
     school_year_id: str
     name:           str
-    category:       str        # FeeCategory.value (hors SCOLARITE)
+    category:       str          # FeeCategory.value (hors SCOLARITE)
     amount_fcfa:    int
-    scope_type:     str        # "LEVEL" ou "CLASS"
-    target_id:      str        # LevelId.value ou ClassId.value
+    scope_type:     str          # "ALL" ou "CLASSES"
+    class_ids:      list = None  # liste de ClassId.value si scope_type=CLASSES
     payment_mode:   str = "UNIQUE"
     nb_months:      int = 10
     is_mandatory:   bool = True
     created_by:     str = ""
+
+    def __post_init__(self):
+        # normalise None → liste vide
+        object.__setattr__(self, "class_ids", list(self.class_ids or []))
 
 @dataclass(frozen=True)
 class UpdateFeeItemCommand:

@@ -259,20 +259,25 @@ class DjangoFeeItemRepository:
         return [fee_item_to_domain(o)
                 for o in _FIM.objects.filter(school_year_id=str(year_id), is_active=True)]
 
-    def find_applicable_to_enrollment(self, year_id, level_id, class_id):
-        from django.db.models import Q
+    def find_applicable_to_enrollment(self, year_id, class_id):
+        """Retourne les FeeItem actifs qui s'appliquent à une classe donnée.
+        - scope_type=ALL → toujours applicable
+        - scope_type=CLASSES → applicable si class_id est dans class_ids (JSON)
+        Le filtrage CLASSES se fait côté Python car le JSON n'est pas requêtable
+        en SQLite avec un filtre standard contains (cf. JSONField limitations).
+        """
         from economat.infrastructure.models import FeeItemModel as _FIM
         from economat.infrastructure.persistence.mappers import fee_item_to_domain
-        lid = str(level_id)
         cid = str(class_id)
-        qs = _FIM.objects.filter(
-            school_year_id=str(year_id),
-            is_active=True,
-        ).filter(
-            Q(scope_type="LEVEL", level_id=lid) |
-            Q(scope_type="CLASS", klass_id=cid)
-        )
-        return [fee_item_to_domain(o) for o in qs]
+        # Charger toutes les lignes actives de l'année (peu nombreuses en pratique)
+        qs = _FIM.objects.filter(school_year_id=str(year_id), is_active=True, is_system=False)
+        result = []
+        for orm in qs:
+            if orm.scope_type == "ALL":
+                result.append(fee_item_to_domain(orm))
+            elif orm.scope_type == "CLASSES" and cid in (orm.class_ids or []):
+                result.append(fee_item_to_domain(orm))
+        return result
 
     def find_system_for_level(self, level_id, year_id):
         from economat.infrastructure.models import FeeItemModel as _FIM
@@ -297,7 +302,8 @@ class DjangoFeeItemRepository:
             defaults={
                 "name":         f"Scolarité — {level_name}",
                 "amount":       annual_fee_fcfa,
-                "scope_type":   "LEVEL",
+                "scope_type":   "ALL",
+                "class_ids":    [],
                 "payment_mode": payment_mode,
                 "nb_months":    nb_months,
                 "is_mandatory": True,
@@ -312,9 +318,9 @@ class DjangoFeeItemRepository:
 
     def save(self, fee_item):
         from economat.infrastructure.models import FeeItemModel as _FIM
+        from economat.domain.fee.value_objects import FeeScopeType
         scope_type = fee_item.scope.scope_type.value
-        level_id = fee_item.scope.target_id if scope_type == "LEVEL" else None
-        class_id = fee_item.scope.target_id if scope_type == "CLASS" else None
+        class_ids  = list(fee_item.scope.class_ids) if scope_type == "CLASSES" else []
         _FIM.objects.update_or_create(
             pk=str(fee_item.id),
             defaults={
@@ -323,8 +329,7 @@ class DjangoFeeItemRepository:
                 "category":       fee_item.category.value,
                 "amount":         fee_item.amount.amount,
                 "scope_type":     scope_type,
-                "level_id":       level_id,
-                "klass_id":       class_id,
+                "class_ids":      class_ids,
                 "payment_mode":   fee_item.payment_mode.value,
                 "nb_months":      fee_item.nb_months,
                 "is_mandatory":   fee_item.is_mandatory,

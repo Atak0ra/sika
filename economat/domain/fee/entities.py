@@ -82,9 +82,9 @@ class FeeItem:
 
     # ── Méthodes métier ───────────────────────────────────────────────────────
 
-    def applies_to(self, level_id: str, class_id: str | None) -> bool:
-        """Retourne True si cette ligne s'applique à l'enrollment décrit."""
-        return self.scope.applies_to(level_id, class_id)
+    def applies_to(self, class_id: str | None) -> bool:
+        """Retourne True si cette ligne s'applique à l'enrollment (via sa classe)."""
+        return self.scope.applies_to(class_id)
 
     def get_payment_schedule(self, year_start: datetime.date) -> PaymentSchedule:
         """Génère l'échéancier attendu pour cette ligne, identique au mécanisme Level."""

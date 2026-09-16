@@ -56,43 +56,36 @@ class FeeItemForm(_forms.Form):
                                          "placeholder": "Ex : 10", "min": "1", "max": "24"}),
         help_text="Uniquement si mode = Mensualités.",
     )
+    # Portée : ALL (toutes les classes) ou CLASSES (sélection)
     scope_type = _forms.ChoiceField(
         label="Portée",
-        choices=[("LEVEL", "Tous les élèves du niveau"), ("CLASS", "Une classe précise")],
-        widget=_forms.RadioSelect(), initial="LEVEL",
+        choices=[("ALL", "Toutes les classes de l'école"),
+                 ("CLASSES", "Classes précises (à sélectionner)")],
+        widget=_forms.RadioSelect(), initial="ALL",
     )
-    target_level_id = _forms.ChoiceField(
-        label="Niveau", choices=[], required=False,
-        widget=_forms.Select(attrs={"class": "form-select"}),
-    )
-    target_class_id = _forms.ChoiceField(
-        label="Classe", choices=[], required=False,
-        widget=_forms.Select(attrs={"class": "form-select"}),
+    # Sélection multiple de classes — visible seulement si scope_type=CLASSES
+    class_ids = _forms.MultipleChoiceField(
+        label="Classes concernées", choices=[], required=False,
+        widget=_forms.CheckboxSelectMultiple(),
     )
     is_mandatory = _forms.BooleanField(label="Frais obligatoire", required=False, initial=True)
 
     def __init__(self, *args, year_orm=None, **kwargs):
         super().__init__(*args, **kwargs)
         if year_orm:
-            from economat.infrastructure.models import ClassModel, LevelModel
-            levels = LevelModel.objects.filter(school_year_id=year_orm.id).order_by("name")
-            self.fields["target_level_id"].choices = [("", "— Choisir —")] + [
-                (str(l.id), l.name) for l in levels
-            ]
+            from economat.infrastructure.models import ClassModel
             classes = ClassModel.objects.filter(
                 level__school_year_id=year_orm.id
             ).select_related("level").order_by("level__name", "name")
-            self.fields["target_class_id"].choices = [("", "— Choisir —")] + [
+            self.fields["class_ids"].choices = [
                 (str(c.id), f"{c.level.name} — {c.name}") for c in classes
             ]
 
     def clean(self):
         data = super().clean()
         scope = data.get("scope_type")
-        if scope == "LEVEL" and not data.get("target_level_id"):
-            self.add_error("target_level_id", "Choisissez un niveau.")
-        if scope == "CLASS" and not data.get("target_class_id"):
-            self.add_error("target_class_id", "Choisissez une classe.")
+        if scope == "CLASSES" and not data.get("class_ids"):
+            self.add_error("class_ids", "Sélectionnez au moins une classe.")
         if not data.get("nb_months"):
             data["nb_months"] = 10
         return data
@@ -114,7 +107,7 @@ def fee_items_list(request, school_id: str, year_id: str, membership=None):
     items = (
         FeeItemModel.objects
         .filter(school_year_id=year_id)
-        .select_related("level", "klass", "klass__level")
+        .select_related("level")
         .order_by("is_system", "category", "name")
     )
     ctx = base_context(request, school, year, "frais", membership=membership,
@@ -136,11 +129,10 @@ def fee_item_create(request, school_id: str, year_id: str, membership=None):
     form = FeeItemForm(request.POST or None, year_orm=year)
     if request.method == "POST" and form.is_valid():
         d = form.cleaned_data
-        scope_type = d["scope_type"]
-        target_id  = d["target_level_id"] if scope_type == "LEVEL" else d["target_class_id"]
         result = get_create_fee_item_use_case().execute(CreateFeeItemCommand(
             school_year_id=year_id, name=d["name"], category=d["category"],
-            amount_fcfa=d["amount_fcfa"], scope_type=scope_type, target_id=target_id,
+            amount_fcfa=d["amount_fcfa"], scope_type=d["scope_type"],
+            class_ids=d.get("class_ids") or [],
             payment_mode=d["payment_mode"], nb_months=d["nb_months"],
             is_mandatory=d.get("is_mandatory", True), created_by=request.user.username,
         ))
@@ -171,12 +163,14 @@ def fee_item_edit(request, school_id: str, year_id: str, fee_item_id: str, membe
         return redirect("economat:fee_items_list", school_id=school_id, year_id=year_id)
 
     initial = {
-        "name": fee_item.name, "category": fee_item.category,
-        "amount_fcfa": fee_item.amount, "payment_mode": fee_item.payment_mode,
-        "nb_months": fee_item.nb_months, "is_mandatory": fee_item.is_mandatory,
-        "scope_type": fee_item.scope_type,
-        "target_level_id": str(fee_item.level_id) if fee_item.level_id else "",
-        "target_class_id": str(fee_item.klass_id) if fee_item.klass_id else "",
+        "name":         fee_item.name,
+        "category":     fee_item.category,
+        "amount_fcfa":  fee_item.amount,
+        "payment_mode": fee_item.payment_mode,
+        "nb_months":    fee_item.nb_months,
+        "is_mandatory": fee_item.is_mandatory,
+        "scope_type":   fee_item.scope_type,
+        "class_ids":    fee_item.class_ids or [],
     }
     form = FeeItemForm(request.POST or None, initial=initial, year_orm=year)
     if request.method == "POST" and form.is_valid():

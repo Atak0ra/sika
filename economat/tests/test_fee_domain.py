@@ -12,7 +12,7 @@ import datetime
 import pytest
 
 from economat.domain.fee.entities import FeeItem
-from economat.domain.fee.value_objects import FeeCategory, FeeItemId, FeeScope, FeeScopeType
+from economat.domain.fee.value_objects import FeeCategory, FeeItemId, FeeScope, FeeScopeType  # noqa
 from economat.domain.school.entities import Level
 from economat.domain.school.payment_schedule import PaymentMode, PaymentSchedule
 from economat.domain.school.value_objects import LevelId, SchoolYearId
@@ -59,24 +59,39 @@ class TestFeeCategory:
 
 
 class TestFeeScope:
-    def test_level_scope_applies_to_matching_level(self):
-        assert FeeScope.for_level("lv-1").applies_to("lv-1", "cls-a") is True
+    def test_all_applies_to_any_class(self):
+        assert FeeScope.all_classes().applies_to("cls-a") is True
 
-    def test_level_scope_no_match(self):
-        assert FeeScope.for_level("lv-1").applies_to("lv-2", "cls-a") is False
+    def test_all_applies_to_none(self):
+        assert FeeScope.all_classes().applies_to(None) is True
 
-    def test_class_scope_applies_to_matching_class(self):
-        assert FeeScope.for_class("cls-a").applies_to("lv-1", "cls-a") is True
+    def test_classes_applies_to_matching(self):
+        scope = FeeScope.for_classes(["cls-a", "cls-b"])
+        assert scope.applies_to("cls-a") is True
+        assert scope.applies_to("cls-b") is True
 
-    def test_class_scope_no_match(self):
-        assert FeeScope.for_class("cls-a").applies_to("lv-1", "cls-b") is False
+    def test_classes_no_match(self):
+        assert FeeScope.for_classes(["cls-a"]).applies_to("cls-c") is False
 
-    def test_class_scope_none_class_id(self):
-        assert FeeScope.for_class("cls-a").applies_to("lv-1", None) is False
+    def test_classes_none_class_id(self):
+        assert FeeScope.for_classes(["cls-a"]).applies_to(None) is False
 
-    def test_empty_target_id_raises(self):
+    def test_for_classes_empty_raises(self):
         with pytest.raises(ValueError):
-            FeeScope(scope_type=FeeScopeType.LEVEL, target_id="")
+            FeeScope.for_classes([])
+
+    def test_classes_scope_empty_tuple_raises(self):
+        with pytest.raises(ValueError):
+            FeeScope(scope_type=FeeScopeType.CLASSES, class_ids=())
+
+    def test_single_class_helper(self):
+        scope = FeeScope.for_class("cls-x")
+        assert scope.applies_to("cls-x") is True
+        assert scope.applies_to("cls-y") is False
+
+    def test_for_level_returns_all(self):
+        scope = FeeScope.for_level("lv-1")
+        assert scope.scope_type == FeeScopeType.ALL
 
 
 class TestFeeItemInvariants:
