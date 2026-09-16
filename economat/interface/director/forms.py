@@ -2,7 +2,7 @@ from django import forms
 
 PAYMENT_MODE_CHOICES = [
     ("TRANCHES", "3 tranches (40% + 30% + 30%)"),
-    ("MENSUEL",  "Mensualités (10 mois)"),
+    ("MENSUEL",  "Mensualités"),
     ("UNIQUE",   "Paiement unique à l'inscription"),
 ]
 
@@ -50,7 +50,16 @@ class AddLevelForm(forms.Form):
         label="Mode de paiement", choices=PAYMENT_MODE_CHOICES,
         widget=forms.RadioSelect(), initial="TRANCHES",
     )
+    nb_months = forms.IntegerField(
+        label="Nombre de mensualités", min_value=1, max_value=24, initial=10,
+        required=False,
+        widget=forms.NumberInput(attrs={"class":"form-input","placeholder":"Ex : 10","min":"1","max":"24"}),
+        help_text="Nombre de mois (uniquement pour le mode Mensualités).",
+    )
 
+    def clean_nb_months(self):
+        val = self.cleaned_data.get("nb_months")
+        return val if val else 10
 
 class AddClassForm(forms.Form):
     class_name = forms.CharField(
@@ -73,6 +82,18 @@ class ConfigurePricingForm(forms.Form):
         label="Mode de paiement", choices=PAYMENT_MODE_CHOICES,
         widget=forms.RadioSelect(), initial="TRANCHES",
     )
+
+
+    nb_months = forms.IntegerField(
+        label="Nombre de mensualités", min_value=1, max_value=24, initial=10,
+        required=False,
+        widget=forms.NumberInput(attrs={"class":"form-input","placeholder":"Ex : 10","min":"1","max":"24"}),
+        help_text="Nombre de mois (uniquement pour le mode Mensualités).",
+    )
+
+    def clean_nb_months(self):
+        val = self.cleaned_data.get("nb_months")
+        return val if val else 10
 
 
 class RegisterStudentForm(forms.Form):

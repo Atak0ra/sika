@@ -86,6 +86,28 @@
 </div>
 
 
+<!-- VENTILATION PAR TYPE DE FRAIS -->
+{% if category_breakdown %}
+<div style="background:#fff;border:1px solid #ecedf1;border-radius:14px;padding:1.25rem 1.5rem;margin-bottom:1.25rem;">
+  <h2 style="font-size:.8rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#6b7280;margin-bottom:1rem;">Encaissements par type de frais</h2>
+  <div style="display:flex;flex-wrap:wrap;gap:.75rem;">
+    {% for cat in category_breakdown %}
+    <div style="flex:1;min-width:140px;background:#f9fafb;border-radius:10px;padding:.75rem 1rem;border-left:3px solid {{ cat.color }};">
+      <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#6b7280;margin-bottom:.3rem;">{{ cat.label }}</div>
+      <div style="font-size:1rem;font-weight:700;color:#1a1d29;font-variant-numeric:tabular-nums;">{{ cat.collected|fcfa_long }}</div>
+      <div style="font-size:.72rem;color:#6b7280;margin-top:.15rem;">
+        sur {{ cat.expected|fcfa_long }}
+        &middot; <span style="font-weight:600;color:{% if cat.rate >= 80 %}#059669{% elif cat.rate >= 50 %}#d97706{% else %}#dc2626{% endif %};">{{ cat.rate }}&nbsp;%</span>
+      </div>
+      <div style="height:4px;background:#ecedf1;border-radius:999px;margin-top:.5rem;overflow:hidden;">
+        <div style="height:100%;width:{{ cat.rate }}%;background:{{ cat.color }};border-radius:999px;opacity:.8;"></div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
 
 <!-- GRILLE : collecte par classe | derniers encaissements -->
 <div style="display:grid;grid-template-columns:1fr 300px;gap:1rem;align-items:start;">

@@ -197,6 +197,21 @@ def collection_dashboard(request):
             class_map[cid]["collected"] += enr.paid_total
             class_map[cid]["expected"]  += enr.klass.level.annual_fee
 
+        # Ajouter les FeeItem manuels au prévisionnel par classe
+        from economat.infrastructure.models import FeeItemModel
+        fee_items_qs = FeeItemModel.objects.filter(
+            school_year=active_year, is_active=True, is_system=False,
+        )
+        for fi in fee_items_qs:
+            if fi.scope_type == "LEVEL" and fi.level_id:
+                for entry in class_map.values():
+                    if str(entry["level"].id) == str(fi.level_id):
+                        entry["expected"] += fi.amount
+            elif fi.scope_type == "CLASS" and fi.klass_id:
+                cid = str(fi.klass_id)
+                if cid in class_map:
+                    class_map[cid]["expected"] += fi.amount
+
         for entry in class_map.values():
             entry["balance"] = max(entry["expected"] - entry["collected"], 0)
             entry["rate"]    = (
@@ -215,17 +230,69 @@ def collection_dashboard(request):
         round(total_collected / total_expected * 100) if total_expected else 0
     )
 
+    # ── Ventilation par catégorie (pour les chips KPI) ────────────────────
+    category_breakdown = []
+    if active_year:
+        from economat.application.use_cases.financial_dashboard import (
+            _collected_by_category, _fee_item_expected_by_category,
+            _CATEGORY_COLORS, _CATEGORY_LABELS,
+        )
+        from economat.infrastructure.models import EnrollmentModel as _EM
+        active_enrollments = list(_EM.objects.filter(
+            school_year=active_year, status="ACTIVE"
+        ).only("level_id", "klass_id"))
+
+        # Scolarité : expected = total_expected_scol (sum annual_fee)
+        scol_expected = sum(
+            c["expected"] - sum(
+                fi.amount
+                for fi in FeeItemModel.objects.filter(
+                    school_year=active_year, is_active=True, is_system=False,
+                    scope_type="LEVEL", level_id=c["level"].id,
+                )
+            ) - sum(
+                fi.amount
+                for fi in FeeItemModel.objects.filter(
+                    school_year=active_year, is_active=True, is_system=False,
+                    scope_type="CLASS", klass_id=c["klass"].id,
+                )
+            )
+            for c in class_map.values()
+        ) if class_map else total_expected
+
+        cbc = _collected_by_category(str(active_year.id))
+        febc = _fee_item_expected_by_category(str(active_year.id), active_enrollments)
+
+        scol_col = cbc.get("SCOLARITE", 0)
+        scol_exp = total_expected - sum(febc.values())
+        if scol_exp > 0 or scol_col > 0:
+            category_breakdown.append({
+                "category": "SCOLARITE", "label": "Scolarité",
+                "collected": scol_col, "expected": scol_exp,
+                "rate": round(scol_col / scol_exp * 100) if scol_exp else 0,
+                "color": _CATEGORY_COLORS["SCOLARITE"],
+            })
+        for cat, exp in sorted(febc.items()):
+            coll = cbc.get(cat, 0)
+            category_breakdown.append({
+                "category": cat, "label": _CATEGORY_LABELS.get(cat, cat),
+                "collected": coll, "expected": exp,
+                "rate": round(coll / exp * 100) if exp else 0,
+                "color": _CATEGORY_COLORS.get(cat, "#6b7280"),
+            })
+
     ctx = _sidebar_ctx(school, active_year, "dashboard_econome")
     ctx.update(_payment_modal_ctx(school, active_year))
     ctx.update({
-        "stats":           stats,
-        "classes_data":    classes_data,
-        "total_expected":  total_expected,
-        "total_collected": total_collected,
-        "total_balance":   total_balance,
-        "global_rate":     global_rate,
-        "recent_payments": recent_payments,
-        "page_title":      "Tableau de bord — Économe",
+        "stats":              stats,
+        "classes_data":       classes_data,
+        "total_expected":     total_expected,
+        "total_collected":    total_collected,
+        "total_balance":      total_balance,
+        "global_rate":        global_rate,
+        "recent_payments":    recent_payments,
+        "category_breakdown": category_breakdown,
+        "page_title":         "Tableau de bord — Économe",
     })
     return render(request, "economat/econome/collection_dashboard.html", ctx)
 
@@ -412,6 +479,7 @@ def record_payment(request):
         paid_by=form.cleaned_data.get("paid_by", ""),
         mobile_operator=form.cleaned_data.get("mobile_operator", ""),
         mobile_number=form.cleaned_data.get("mobile_number", ""),
+        fee_item_id=request.POST.get("fee_item_id", ""),
     )
     result = get_record_payment_use_case().execute(command)
     if result.success:
@@ -509,6 +577,47 @@ def student_search_api(request):
         for e in qs[:10]
     ]
     return JsonResponse({"results": results})
+
+@login_required
+@require_GET
+def fee_items_api(request):
+    """
+    AJAX : retourne les postes de frais dus pour un élève.
+    ?student_id=<uuid>
+    Utilisé par la modale d'encaissement pour peupler le dropdown.
+    """
+    student_id = request.GET.get("student_id", "").strip()
+    if not student_id:
+        return JsonResponse({"lines": []})
+
+    _, active_year = _get_user_active_year(request)
+    if not active_year:
+        return JsonResponse({"lines": []})
+
+    from economat.composition import get_list_payable_items_use_case
+    result = get_list_payable_items_use_case().execute(
+        student_id=student_id, year_id=str(active_year.id)
+    )
+    if not result.success:
+        return JsonResponse({"lines": [], "error": result.error_message})
+
+    lines = [
+        {
+            "fee_item_id":    ln.fee_item_id,
+            "name":           ln.name,
+            "category_label": ln.category_label,
+            "remaining":      ln.remaining,
+            "amount_due":     ln.amount_due,
+            "amount_paid":    ln.amount_paid,
+            "payment_status": ln.payment_status,
+            "is_system":      ln.is_system,
+        }
+        for ln in result.lines
+        if ln.remaining > 0   # n'afficher que ce qui reste à payer
+    ]
+    return JsonResponse({"lines": lines})
+
+
 
 
 # ── Synchronisation offline batch ─────────────────────────────────────────────

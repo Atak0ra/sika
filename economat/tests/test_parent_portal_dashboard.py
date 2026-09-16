@@ -42,7 +42,7 @@ def test_dashboard_shows_student_and_school(client, active_enrollment):
 def test_dashboard_pay_button_visible_when_balance_positive(client, active_enrollment):
     student = _identify(client, active_enrollment)
     resp = client.get(reverse("economat:parent_portal_dashboard", args=[str(student.id)]))
-    assert "Payer les frais" in resp.content.decode()
+    assert "Payer maintenant" in resp.content.decode()
 
 
 @pytest.mark.django_db
@@ -57,7 +57,7 @@ def test_dashboard_frais_soldes_when_balance_zero(client, active_enrollment):
     )
     student = _identify(client, active_enrollment)
     resp = client.get(reverse("economat:parent_portal_dashboard", args=[str(student.id)]))
-    assert "Frais soldés" in resp.content.decode()
+    assert "Tous les frais sold" in resp.content.decode()
 
 
 @pytest.mark.django_db

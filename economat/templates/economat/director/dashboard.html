@@ -169,13 +169,13 @@
           <span style="width:1.2rem;height:2px;border-top:2px dashed rgba(99,102,241,.6);display:inline-block;"></span>Objectif
         </span>
         <span style="display:flex;align-items:center;gap:.35rem;">
-          <span style="width:.75rem;height:.75rem;border-radius:3px;background:#10b981;display:inline-block;"></span>≥ 80 %
+          <span style="width:.75rem;height:.75rem;border-radius:3px;background:#10b981;display:inline-block;"></span>&ge; 80&nbsp;%
         </span>
         <span style="display:flex;align-items:center;gap:.35rem;">
-          <span style="width:.75rem;height:.75rem;border-radius:3px;background:#f59e0b;display:inline-block;"></span>50–80 %
+          <span style="width:.75rem;height:.75rem;border-radius:3px;background:#f59e0b;display:inline-block;"></span>50&ndash;80&nbsp;%
         </span>
         <span style="display:flex;align-items:center;gap:.35rem;">
-          <span style="width:.75rem;height:.75rem;border-radius:3px;background:#ef4444;display:inline-block;"></span>< 50 %
+          <span style="width:.75rem;height:.75rem;border-radius:3px;background:#ef4444;display:inline-block;"></span>&lt;&nbsp;50&nbsp;%
         </span>
       </div>
     </div>
@@ -185,6 +185,44 @@
   </div>
 
 </div>
+
+<!-- ================================================================
+     RANGÉE 3 : RECETTES PAR CATÉGORIE
+================================================================ -->
+{% if bi.category_breakdown %}
+<div style="display:grid;grid-template-columns:220px 1fr;gap:1.25rem;margin-bottom:1.5rem;align-items:start;">
+
+  <!-- Donut -->
+  <div class="card" style="padding:1.25rem;">
+    <h2 style="font-size:.8rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#6b7280;margin-bottom:1rem;">Recettes par type</h2>
+    <div style="position:relative;height:160px;">
+      <canvas id="chartDonut"></canvas>
+    </div>
+  </div>
+
+  <!-- Barres par catégorie -->
+  <div class="card" style="padding:1.25rem 1.5rem;">
+    <h2 style="font-size:.8rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#6b7280;margin-bottom:1rem;">Détail par type de frais</h2>
+    <div style="display:flex;flex-direction:column;gap:.7rem;">
+      {% for cat in bi.category_breakdown %}
+      <div>
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:.3rem;">
+          <span style="font-size:.8125rem;font-weight:600;color:#1a1d29;">{{ cat.category_label }}</span>
+          <span style="font-size:.75rem;color:#6b7280;font-variant-numeric:tabular-nums;">
+            {{ cat.collected|fcfa_long }} / {{ cat.expected|fcfa_long }}
+            &middot; <strong style="color:{% if cat.rate >= 80 %}#059669{% elif cat.rate >= 50 %}#d97706{% else %}#dc2626{% endif %};">{{ cat.rate }}&nbsp;%</strong>
+          </span>
+        </div>
+        <div style="height:7px;background:#f4f5f7;border-radius:999px;overflow:hidden;">
+          <div style="height:100%;border-radius:999px;width:{{ cat.rate }}%;background:{{ cat.color }};opacity:.85;"></div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+</div>
+{% endif %}
 
 <!-- Widget alertes compact — renvoi vers la page dédiée -->
 {% if school and school_year %}
@@ -422,6 +460,49 @@
     }
   });
 })();
+
+/* ================================================================
+   CHART.JS : Graphique 3 — Donut Recettes par catégorie
+================================================================ */
+(function() {
+  var labels    = {{ cat_labels|safe }};
+  var collected = {{ cat_collected|safe }};
+  var colors    = {{ cat_colors|safe }};
+  if (!labels.length) return;
+  var ctx = document.getElementById('chartDonut');
+  if (!ctx) return;
+  new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: labels,
+      datasets: [{
+        data: collected,
+        backgroundColor: colors.map(function(c){ return c + 'cc'; }),
+        borderColor: colors,
+        borderWidth: 1.5,
+        hoverOffset: 6,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: '60%',
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: function(ctx) {
+              var v = ctx.parsed;
+              return ' ' + ctx.label + ' : ' + v.toLocaleString('fr-FR') + ' FCFA';
+            }
+          }
+        }
+      }
+    }
+  });
+})();
+
+
 </script>
 
 <script>

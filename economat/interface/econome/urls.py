@@ -15,6 +15,8 @@ urlpatterns = [
     path("encaissements/",          views.payments_list,        name="econome_payments"),
     # API AJAX recherche élève
     path("api/eleves/",             views.student_search_api,   name="student_search_api"),
+    # API AJAX postes de frais d'un élève (pour le dropdown de la modale)
+    path("api/frais/",              views.fee_items_api,        name="fee_items_api"),
     # Endpoint de synchronisation batch (paiements offline)
     path("sync/",                   views.sync_payments,        name="sync_payments"),
 ]

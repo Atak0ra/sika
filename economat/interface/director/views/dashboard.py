@@ -98,6 +98,17 @@ def dashboard(request):
             class_collected  = json.dumps([b.collected  for b in bi_data.class_bars])
             class_rates      = json.dumps([b.rate       for b in bi_data.class_bars])
 
+    # Préparer les séries du donut "Recettes par catégorie" pour Chart.js
+    cat_labels     = "[]"
+    cat_collected  = "[]"
+    cat_expected   = "[]"
+    cat_colors     = "[]"
+    if bi_data and bi_data.category_breakdown:
+        cat_labels    = json.dumps([c.category_label for c in bi_data.category_breakdown])
+        cat_collected = json.dumps([c.collected      for c in bi_data.category_breakdown])
+        cat_expected  = json.dumps([c.expected       for c in bi_data.category_breakdown])
+        cat_colors    = json.dumps([c.color          for c in bi_data.category_breakdown])
+
     ctx = base_context(
         request, active_school, active_year_orm, "dashboard",
         schools=schools,
@@ -109,6 +120,10 @@ def dashboard(request):
         class_objectives=class_objectives,
         class_collected=class_collected,
         class_rates=class_rates,
+        cat_labels=cat_labels,
+        cat_collected=cat_collected,
+        cat_expected=cat_expected,
+        cat_colors=cat_colors,
         page_title="Tableau de bord — Directeur",
     )
     return render(request, "economat/director/dashboard.html", ctx)

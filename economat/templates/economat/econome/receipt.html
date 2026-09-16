@@ -81,7 +81,9 @@
     </div>
     <div class="rh-school">{{ school.name }}</div>
     {% if school.city %}<div class="rh-city">{{ school.city }}{% if school.country %} — {{ school.country }}{% endif %}</div>{% endif %}
-    <span class="rh-badge">Reçu de scolarité</span>
+    <span class="rh-badge">
+        {% if payment.fee_item %}{{ payment.fee_item.get_category_display }}{% else %}Reçu de scolarité{% endif %}
+    </span>
   </div>
 
   <!-- Corps -->
@@ -98,7 +100,7 @@
     <div class="decl">
       Reçu de <strong>{% if payment.paid_by %}{{ payment.paid_by }}{% else %}M./Mme le parent ou tuteur{% endif %}</strong>,
       la somme de <strong>{{ payment.amount|fcfa_long }}</strong>
-      pour la scolarité de l'élève&nbsp;: <strong>{{ payment.student.first_name }} {{ payment.student.last_name|upper }}</strong>.
+      pour {% if payment.fee_item and not payment.fee_item.is_system %}{{ payment.fee_item.get_category_display|lower }} — <strong>{{ payment.fee_item.name }}</strong>{% else %}la scolarité{% endif %} de l'élève&nbsp;: <strong>{{ payment.student.first_name }} {{ payment.student.last_name|upper }}</strong>.
     </div>
 
     <!-- Grille de détails -->
@@ -123,6 +125,12 @@
         <div class="dl">Année scolaire</div>
         <div class="dv">{{ school_year.label }}</div>
       </div>
+      {% if payment.fee_item and not payment.fee_item.is_system %}
+      <div>
+        <div class="dl">Poste de frais</div>
+        <div class="dv">{{ payment.fee_item.name }}</div>
+      </div>
+      {% endif %}
       <div>
         <div class="dl">Date de paiement</div>
         <div class="dv">{{ payment.payment_date|date:"d/m/Y" }}</div>

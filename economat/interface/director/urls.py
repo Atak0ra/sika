@@ -27,6 +27,16 @@ urlpatterns = [
     path("<str:school_id>/<str:year_id>/tarifs/",
          views.configure_pricing,  name="configure_pricing"),
 
+    # Frais de scolarité — création et gestion (DIRECTOR + SECRETARY + ECONOME)
+    path("<str:school_id>/<str:year_id>/frais/",
+         views.fee_items_list,     name="fee_items_list"),
+    path("<str:school_id>/<str:year_id>/frais/nouveau/",
+         views.fee_item_create,    name="fee_item_create"),
+    path("<str:school_id>/<str:year_id>/frais/<str:fee_item_id>/modifier/",
+         views.fee_item_edit,      name="fee_item_edit"),
+    path("<str:school_id>/<str:year_id>/frais/<str:fee_item_id>/archiver/",
+         views.fee_item_deactivate, name="fee_item_deactivate"),
+
     # Vue dédiée par classe
     path("<str:school_id>/<str:year_id>/classes/<str:class_id>/",
          views.class_detail,       name="class_detail"),

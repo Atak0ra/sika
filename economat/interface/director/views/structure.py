@@ -55,6 +55,7 @@ def add_level(request, school_id: str, year_id: str, membership=None):
             level_name=form.cleaned_data["level_name"],
             annual_fee_fcfa=form.cleaned_data["annual_fee_fcfa"],
             payment_mode=form.cleaned_data["payment_mode"],
+            nb_months=form.cleaned_data.get("nb_months", 10),
         ))
         if result.success:
             messages.success(
@@ -136,6 +137,7 @@ def configure_pricing(request, school_id: str, year_id: str, membership=None):
                 level_id=form.cleaned_data["level_id"],
                 annual_fee_fcfa=form.cleaned_data["annual_fee_fcfa"],
                 payment_mode=form.cleaned_data["payment_mode"],
+                nb_months=form.cleaned_data.get("nb_months", 10),
             ))
             if result.success:
                 messages.success(request, f"{result.level_name} : {result.new_fee_fcfa:,} FCFA")

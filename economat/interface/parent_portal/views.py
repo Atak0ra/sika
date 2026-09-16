@@ -105,7 +105,7 @@ def search(request):
 
 
 def portal_dashboard(request, student_id: str):
-    """Espace parent : carte élève, solde/progression, 2 boutons Payer/Historique."""
+    """Espace parent : carte élève, liste de tous les frais dus, boutons Payer/Historique."""
     if request.session.get("parent_portal_student_id") != str(student_id):
         return redirect("economat:parent_portal_search")
 
@@ -118,10 +118,28 @@ def portal_dashboard(request, student_id: str):
     annual_fee = enrollment.level.annual_fee if enrollment else 0
     pct_paid = int(paid / annual_fee * 100) if annual_fee else 0
 
+    # ── Postes de frais tous types (scolarité + autres) ────────────────────
+    payable_lines = []
+    total_remaining = balance  # fallback si list_payable_items échoue
+    if enrollment:
+        try:
+            from economat.composition import get_list_payable_items_use_case
+            result = get_list_payable_items_use_case().execute(
+                student_id=str(student_id),
+                year_id=str(enrollment.school_year_id),
+            )
+            if result.success:
+                payable_lines = result.lines
+                total_remaining = result.total_remaining
+        except Exception:
+            pass  # fallback sur l'affichage simplifié
+
     return render(request, "economat/parent_portal/dashboard.html", {
         "student": student, "enrollment": enrollment,
         "annual_fee": annual_fee, "paid": paid,
         "balance": balance, "pct_paid": pct_paid,
+        "payable_lines": payable_lines,
+        "total_remaining": total_remaining,
         "page_title": f"Espace parent — {student.first_name} {student.last_name.upper()}",
     })
 

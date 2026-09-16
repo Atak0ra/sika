@@ -61,9 +61,26 @@
 
       <div style="height:1px;background:#f1f2f5;margin-bottom:1.75rem;"></div>
 
+      <!-- ── Poste de frais ─────────────────────────────────────── -->
+      <div style="margin-bottom:1.75rem;" id="feeItemBlock">
+        <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.9rem;">
+          <span style="width:1.4rem;height:1.4rem;border-radius:50%;background:#059669;color:#fff;font-size:.65rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">2</span>
+          <span style="font-size:.8125rem;font-weight:600;color:#4b4e5f;text-transform:uppercase;letter-spacing:.04em;">Poste de frais</span>
+        </div>
+        <input type="hidden" name="fee_item_id" id="feeItemId">
+        <select id="feeItemSelect" class="form-select" style="width:100%;">
+          <option value="">— Sélectionner un poste (sélectionnez d'abord un élève) —</option>
+        </select>
+        <p id="feeItemHint" style="font-size:.75rem;color:#6b7280;margin-top:.35rem;display:none;"></p>
+      </div>
+
+      <div style="height:1px;background:#f1f2f5;margin-bottom:1.75rem;"></div>
+
+
+
       <div style="margin-bottom:1.75rem;">
         <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.9rem;">
-          <span style="width:1.4rem;height:1.4rem;border-radius:50%;background:#4f46e5;color:#fff;font-size:.65rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">2</span>
+          <span style="width:1.4rem;height:1.4rem;border-radius:50%;background:#4f46e5;color:#fff;font-size:.65rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">3</span>
           <span style="font-size:.8125rem;font-weight:600;color:#4b4e5f;text-transform:uppercase;letter-spacing:.04em;">Montant et date</span>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:.6rem;">
@@ -84,7 +101,7 @@
 
       <div style="margin-bottom:1.75rem;">
         <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.9rem;">
-          <span style="width:1.4rem;height:1.4rem;border-radius:50%;background:#4f46e5;color:#fff;font-size:.65rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">3</span>
+          <span style="width:1.4rem;height:1.4rem;border-radius:50%;background:#4f46e5;color:#fff;font-size:.65rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">4</span>
           <span style="font-size:.8125rem;font-weight:600;color:#4b4e5f;text-transform:uppercase;letter-spacing:.04em;">Moyen de paiement</span>
         </div>
         <div id="methodGroup" style="display:grid;grid-template-columns:repeat(4,1fr);gap:.5rem;">
@@ -268,7 +285,65 @@ function selectStudent(id, label, matricule, className) {
   form.dataset.studentName      = label    || '';
   form.dataset.studentClass     = className|| '';
   form.dataset.schoolName = '{{ school.name|escapejs|default:"École" }}';
+  // Charger les postes de frais dus pour cet élève
+  _loadFeeItems(id);
 }
+
+function _loadFeeItems(studentId) {
+  var sel  = document.getElementById('feeItemSelect');
+  var inp  = document.getElementById('feeItemId');
+  var hint = document.getElementById('feeItemHint');
+  if (!sel) return;
+  sel.innerHTML = '<option value="">Chargement…</option>';
+  inp.value = '';
+  fetch('{% url "economat:fee_items_api" %}?student_id=' + encodeURIComponent(studentId))
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      sel.innerHTML = '';
+      if (!data.lines || !data.lines.length) {
+        sel.innerHTML = '<option value="">Aucun frais en attente pour cet élève</option>';
+        hint.style.display = 'none';
+        return;
+      }
+      // Option vide en tête
+      var opt0 = document.createElement('option');
+      opt0.value = ''; opt0.textContent = '— Choisir un poste —';
+      sel.appendChild(opt0);
+      data.lines.forEach(function(ln){
+        var opt = document.createElement('option');
+        opt.value = ln.fee_item_id;
+        var fmt = function(n){ return n.toLocaleString('fr-FR'); };
+        opt.textContent = ln.name + ' (' + ln.category_label + ') — reste : ' + fmt(ln.remaining) + ' FCFA';
+        opt.dataset.remaining = ln.remaining;
+        sel.appendChild(opt);
+      });
+      hint.style.display = 'none';
+    })
+    .catch(function(){ sel.innerHTML = '<option value="">Erreur réseau</option>'; });
+}
+
+sel_feeItem = document.getElementById('feeItemSelect');
+if (sel_feeItem) {
+  sel_feeItem.addEventListener('change', function(){
+    var opt = this.options[this.selectedIndex];
+    document.getElementById('feeItemId').value = this.value;
+    var hint = document.getElementById('feeItemHint');
+    if (this.value && opt.dataset.remaining) {
+      var remaining = parseInt(opt.dataset.remaining, 10);
+      hint.textContent = 'Reste à payer : ' + remaining.toLocaleString('fr-FR') + ' FCFA';
+      hint.style.display = 'block';
+      // Pré-remplir le montant avec le reste à payer
+      var amtInput = document.querySelector('input[name="amount_fcfa"]');
+      var amtDisplay = document.querySelector('[data-amount-for="amount_fcfa"]');
+      if (amtInput) amtInput.value = remaining;
+      if (amtDisplay) amtDisplay.value = remaining;
+    } else {
+      hint.style.display = 'none';
+    }
+  });
+}
+
+
 
 clearBtn.addEventListener('click', () => {
   studentField.value = '';
