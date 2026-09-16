@@ -98,18 +98,15 @@
           <svg aria-hidden="true" class="icon" style="width:1em;height:1em;"><use href="#icon-coins"/></svg>
           Tarifs
         </a>
+        {% endif %}
 
-        {% if school_year %}
+        <!-- Frais : visible par DIRECTOR, SECRETARY et ECONOME -->
         <a href="{% url 'economat:fee_items_list' school.id school_year.id %}"
            class="nav-link {% if active_nav == 'frais' %}nav-link-active{% endif %}"
            style="font-size:.84375rem;">
           <svg aria-hidden="true" class="icon" style="width:1em;height:1em;"><use href="#icon-layers"/></svg>
           Frais
         </a>
-        {% endif %}
-
-
-        {% endif %}
 
         {% if user_role != 'ECONOME' %}
         <a href="{% url 'economat:students_list' school.id school_year.id %}"
