@@ -1,0 +1,97 @@
+{% extends "economat/director/_base_director.html" %}
+{% load economat_tags %}
+{% block title %}Frais — {{ school_year.label }}{% endblock %}
+{% block director_content %}
+
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:.75rem;">
+  <div>
+    <h1 style="font-size:1.125rem;font-weight:700;letter-spacing:-0.02em;">Postes de frais</h1>
+    <p style="font-size:.8375rem;color:#6b7280;margin-top:.25rem;">{{ school.name }} — {{ school_year.label }}</p>
+  </div>
+  <a href="{% url 'economat:fee_item_create' school.id school_year.id %}" class="btn-primary"
+     style="display:inline-flex;gap:.4rem;align-items:center;font-size:.875rem;">
+    <svg aria-hidden="true" class="icon" style="width:.9em;height:.9em;"><use href="#icon-plus"/></svg>
+    Nouveau poste
+  </a>
+</div>
+
+{% if fee_items %}
+<div style="display:flex;flex-direction:column;gap:.6rem;">
+  {% for item in fee_items %}
+  <div class="card" style="padding:1rem 1.25rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
+
+    <!-- Catégorie badge -->
+    <span style="
+      font-size:.7rem;font-weight:700;padding:.2rem .55rem;border-radius:999px;white-space:nowrap;
+      {% if item.category == 'SCOLARITE' %}background:#eef2ff;color:#3730a3;
+      {% elif item.category == 'CANTINE' %}background:#fef3c7;color:#92400e;
+      {% elif item.category == 'TRANSPORT' %}background:#e0f2fe;color:#0369a1;
+      {% elif item.category == 'SORTIES' %}background:#d1fae5;color:#065f46;
+      {% elif item.category == 'SPORT' %}background:#fce7f3;color:#be185d;
+      {% elif item.category == 'FOURNITURES' %}background:#ede9fe;color:#5b21b6;
+      {% else %}background:#f3f4f6;color:#374151;{% endif %}
+    ">{{ item.get_category_display }}</span>
+
+    <!-- Nom + portée -->
+    <div style="flex:1;min-width:180px;">
+      <div style="font-size:.9rem;font-weight:600;color:#1a1d29;">
+        {{ item.name }}
+        {% if item.is_system %}<span style="font-size:.7rem;font-weight:500;color:#6b7280;margin-left:.4rem;">⚙ Scolarité (auto)</span>{% endif %}
+      </div>
+      <div style="font-size:.75rem;color:#6b7280;margin-top:.1rem;">
+        {% if item.scope_type == 'LEVEL' %}Niveau : {{ item.level.name }}{% else %}Classe : {{ item.klass.level.name }} {{ item.klass.name }}{% endif %}
+        &middot; {{ item.get_payment_mode_display }}{% if item.payment_mode == 'MENSUEL' %} · {{ item.nb_months }} mois{% endif %}
+      </div>
+    </div>
+
+    <!-- Montant -->
+    <div style="font-size:1rem;font-weight:700;color:#1a1d29;white-space:nowrap;font-variant-numeric:tabular-nums;">
+      {{ item.amount|fcfa_long }}
+    </div>
+
+    <!-- Statut -->
+    {% if not item.is_active %}
+    <span style="font-size:.7rem;background:#fef2f2;color:#b91c1c;padding:.2rem .55rem;border-radius:999px;font-weight:600;">Archivé</span>
+    {% elif not item.is_mandatory %}
+    <span style="font-size:.7rem;background:#f3f4f6;color:#6b7280;padding:.2rem .55rem;border-radius:999px;">Optionnel</span>
+    {% endif %}
+
+    <!-- Actions (masquées pour les lignes système) -->
+    {% if not item.is_system %}
+    <div style="display:flex;gap:.4rem;flex-shrink:0;">
+      <a href="{% url 'economat:fee_item_edit' school.id school_year.id item.id %}"
+         class="btn-outline" style="padding:.35rem .75rem;font-size:.8rem;">Modifier</a>
+      {% if item.is_active %}
+      <form method="post" action="{% url 'economat:fee_item_deactivate' school.id school_year.id item.id %}" style="display:inline;">
+        {% csrf_token %}
+        <button type="submit" class="btn-outline"
+                style="padding:.35rem .75rem;font-size:.8rem;color:#b91c1c;border-color:#fecaca;"
+                onclick="return confirm('Archiver « {{ item.name }} » ?')">Archiver</button>
+      </form>
+      {% endif %}
+    </div>
+    {% else %}
+    <a href="{% url 'economat:configure_pricing' school.id school_year.id %}"
+       class="btn-outline" style="padding:.35rem .75rem;font-size:.8rem;color:#6b7280;">
+       ↗ Modifier tarif niveau
+    </a>
+    {% endif %}
+
+  </div>
+  {% endfor %}
+</div>
+
+{% else %}
+<div style="text-align:center;padding:3rem 1.5rem;border:1.5px dashed #ecedf1;border-radius:14px;">
+  <p style="color:#6b7280;font-size:.875rem;margin-bottom:.75rem;">
+    Aucun poste de frais créé pour cette année.<br>
+    <span style="font-size:.8125rem;">La ligne Scolarité apparaît automatiquement dès qu'un tarif est configuré.</span>
+  </p>
+  <a href="{% url 'economat:fee_item_create' school.id school_year.id %}" class="btn-primary" style="display:inline-flex;">
+    <svg aria-hidden="true" class="icon" style="width:.9em;height:.9em;"><use href="#icon-plus"/></svg>
+    Créer un poste
+  </a>
+</div>
+{% endif %}
+
+{% endblock %}

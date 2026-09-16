@@ -1,0 +1,106 @@
+{% extends "economat/director/_base_director.html" %}
+{% block title %}{{ page_title }}{% endblock %}
+{% block director_content %}
+
+<div style="margin-bottom:1.5rem;">
+  <a href="{% url 'economat:fee_items_list' school.id school_year.id %}"
+     style="font-size:.8125rem;color:#6b7280;display:inline-flex;align-items:center;gap:.3rem;margin-bottom:.75rem;">
+    ← Retour aux postes de frais
+  </a>
+  <h1 style="font-size:1.125rem;font-weight:700;letter-spacing:-0.02em;">{{ page_title }}</h1>
+</div>
+
+<div class="card" style="padding:1.75rem;max-width:560px;">
+  <form method="post">
+    {% csrf_token %}
+
+    <!-- Libellé -->
+    <div style="margin-bottom:1rem;">
+      <label class="field-label">{{ form.name.label }}</label>
+      {{ form.name }}
+      {% if form.name.errors %}<p class="field-error">{{ form.name.errors.0 }}</p>{% endif %}
+    </div>
+
+    <!-- Catégorie -->
+    <div style="margin-bottom:1rem;">
+      <label class="field-label">{{ form.category.label }}</label>
+      {{ form.category }}
+    </div>
+
+    <!-- Montant -->
+    <div style="margin-bottom:1rem;">
+      <label class="field-label">{{ form.amount_fcfa.label }}</label>
+      {{ form.amount_fcfa }}
+      {% if form.amount_fcfa.errors %}<p class="field-error">{{ form.amount_fcfa.errors.0 }}</p>{% endif %}
+    </div>
+
+    <!-- Mode + nb_months -->
+    <div style="margin-bottom:1rem;">
+      <label class="field-label">{{ form.payment_mode.label }}</label>
+      {{ form.payment_mode }}
+    </div>
+    <div id="nbMonthsBlock" style="margin-bottom:1rem;{% if form.payment_mode.value != 'MENSUEL' %}display:none;{% endif %}">
+      <label class="field-label">{{ form.nb_months.label }}</label>
+      {{ form.nb_months }}
+      <p style="font-size:.75rem;color:#6b7280;margin-top:.25rem;">{{ form.nb_months.help_text }}</p>
+    </div>
+
+    <!-- Portée -->
+    <div style="margin-bottom:1rem;">
+      <label class="field-label">{{ form.scope_type.label }}</label>
+      <div style="display:flex;gap:.75rem;margin-top:.4rem;">
+        {% for radio in form.scope_type %}
+        <label style="display:flex;align-items:center;gap:.4rem;cursor:pointer;font-size:.875rem;">
+          {{ radio.tag }} {{ radio.choice_label }}
+        </label>
+        {% endfor %}
+      </div>
+    </div>
+    <div id="levelBlock" style="margin-bottom:1rem;">
+      <label class="field-label">{{ form.target_level_id.label }}</label>
+      {{ form.target_level_id }}
+      {% if form.target_level_id.errors %}<p class="field-error">{{ form.target_level_id.errors.0 }}</p>{% endif %}
+    </div>
+    <div id="classBlock" style="margin-bottom:1rem;display:none;">
+      <label class="field-label">{{ form.target_class_id.label }}</label>
+      {{ form.target_class_id }}
+      {% if form.target_class_id.errors %}<p class="field-error">{{ form.target_class_id.errors.0 }}</p>{% endif %}
+    </div>
+
+    <!-- Obligatoire -->
+    <div style="margin-bottom:1.5rem;display:flex;align-items:center;gap:.5rem;">
+      {{ form.is_mandatory }}
+      <label style="font-size:.875rem;cursor:pointer;">{{ form.is_mandatory.label }}</label>
+    </div>
+
+    <button type="submit" class="btn-primary" style="width:100%;">
+      <svg aria-hidden="true" class="icon" style="width:.9em;height:.9em;"><use href="#icon-save"/></svg>
+      {% if fee_item %}Mettre à jour{% else %}Créer le poste{% endif %}
+    </button>
+  </form>
+</div>
+
+<script>
+(function(){
+  var modeSelect = document.querySelector('select[name="payment_mode"]');
+  var nbBlock = document.getElementById('nbMonthsBlock');
+  var scopeRadios = document.querySelectorAll('input[name="scope_type"]');
+  var lvlBlock = document.getElementById('levelBlock');
+  var clsBlock = document.getElementById('classBlock');
+
+  function updateMode(){
+    if(modeSelect) nbBlock.style.display = modeSelect.value === 'MENSUEL' ? 'block' : 'none';
+  }
+  function updateScope(){
+    var val = document.querySelector('input[name="scope_type"]:checked');
+    if(!val) return;
+    lvlBlock.style.display = val.value === 'LEVEL' ? 'block' : 'none';
+    clsBlock.style.display = val.value === 'CLASS' ? 'block' : 'none';
+  }
+  if(modeSelect){ modeSelect.addEventListener('change', updateMode); updateMode(); }
+  scopeRadios.forEach(function(r){ r.addEventListener('change', updateScope); });
+  updateScope();
+})();
+</script>
+
+{% endblock %}
