@@ -124,6 +124,12 @@ class LevelModel(models.Model):
     name         = models.CharField(max_length=100)
     annual_fee   = models.PositiveIntegerField()
     payment_mode = models.CharField(max_length=20, choices=PAYMENT_MODES, default="TRANCHES")
+    nb_months    = models.PositiveSmallIntegerField(
+        default=10,
+        verbose_name="Nombre de mois",
+        help_text="Nombre de mensualités (pertinent uniquement si mode = Mensualités).",
+    )
+
     created_at   = models.DateTimeField(auto_now_add=True)
     updated_at   = models.DateTimeField(auto_now=True)
 
@@ -262,6 +268,14 @@ class PaymentModel(models.Model):
         null=True, blank=True, unique=True, db_index=True,
         help_text="UUID généré côté client (idempotence offline).",
     )
+    # Poste de frais auquel ce paiement est imputé (non-null après migration 0014).
+    fee_item    = models.ForeignKey(
+        "FeeItemModel", on_delete=models.PROTECT,
+        null=True, blank=True,
+        related_name="payments_for_fee",
+        verbose_name="Poste de frais",
+    )
+
     created_at     = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -274,6 +288,91 @@ class PaymentModel(models.Model):
         ]
 
     def __str__(self): return f"{self.receipt_number} | {self.amount} FCFA"
+
+
+
+class FeeItemModel(models.Model):
+    """Ligne de frais de scolarité rattachée à une année scolaire.
+
+    Les lignes système (is_system=True) sont générées automatiquement
+    depuis le tarif du niveau et ne doivent jamais être modifiées manuellement.
+    """
+    CATEGORY_CHOICES = [
+        ("SCOLARITE",   "Scolarité"),
+        ("CANTINE",     "Cantine"),
+        ("TRANSPORT",   "Transport scolaire"),
+        ("SORTIES",     "Sorties scolaires"),
+        ("SPORT",       "Activités sportives"),
+        ("FOURNITURES", "Fournitures scolaires"),
+        ("AUTRE",       "Autre"),
+    ]
+    SCOPE_TYPE_CHOICES = [
+        ("LEVEL", "Niveau entier"),
+        ("CLASS", "Classe précise"),
+    ]
+    PAYMENT_MODES = [
+        ("UNIQUE",   "Paiement unique"),
+        ("MENSUEL",  "Mensualités"),
+        ("TRANCHES", "3 tranches"),
+    ]
+
+    id          = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    school_year = models.ForeignKey(
+        SchoolYearModel, on_delete=models.CASCADE, related_name="fee_items",
+    )
+    name        = models.CharField(max_length=200, verbose_name="Libellé")
+    category    = models.CharField(
+        max_length=20, choices=CATEGORY_CHOICES, db_index=True,
+        verbose_name="Catégorie",
+    )
+    amount      = models.PositiveIntegerField(
+        default=0, verbose_name="Montant (FCFA)",
+        help_text="Montant total attendu. Pour les lignes système, synchronisé avec le tarif du niveau.",
+    )
+    # ── Portée ────────────────────────────────────────────────────────────────
+    scope_type  = models.CharField(max_length=10, choices=SCOPE_TYPE_CHOICES, default="LEVEL")
+    # FK niveau — rempli si scope_type=LEVEL
+    level       = models.ForeignKey(
+        LevelModel, on_delete=models.CASCADE, null=True, blank=True,
+        related_name="fee_items", verbose_name="Niveau",
+    )
+    # FK classe — rempli si scope_type=CLASS
+    klass       = models.ForeignKey(
+        ClassModel, on_delete=models.CASCADE, null=True, blank=True,
+        related_name="fee_items", db_column="class_id", verbose_name="Classe",
+    )
+    # ── Paiement ──────────────────────────────────────────────────────────────
+    payment_mode = models.CharField(max_length=20, choices=PAYMENT_MODES, default="UNIQUE")
+    nb_months    = models.PositiveSmallIntegerField(
+        default=10, verbose_name="Nombre de mois",
+        help_text="Nombre de mensualités (pertinent uniquement si mode = Mensualités).",
+    )
+    # ── Drapeaux ──────────────────────────────────────────────────────────────
+    is_mandatory = models.BooleanField(default=True, verbose_name="Obligatoire")
+    is_active    = models.BooleanField(default=True, db_index=True, verbose_name="Actif")
+    is_system    = models.BooleanField(
+        default=False, db_index=True, verbose_name="Ligne système",
+        help_text="Si coché, ligne générée automatiquement (scolarité). Ne pas modifier.",
+    )
+    created_at   = models.DateTimeField(auto_now_add=True)
+    updated_at   = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        app_label           = "economat"
+        db_table            = "economat_fee_item"
+        ordering            = ["category", "name"]
+        verbose_name        = "Ligne de frais"
+        verbose_name_plural = "Lignes de frais"
+        indexes = [
+            models.Index(fields=["school_year", "is_active"],  name="idx_fee_item_year_active"),
+            models.Index(fields=["school_year", "category"],   name="idx_fee_item_year_category"),
+            models.Index(fields=["level", "is_system"],        name="idx_fee_item_level_system"),
+        ]
+
+    def __str__(self):
+        return f"{self.name} [{self.get_category_display()}] — {self.school_year.label}"
+
+
 
 
 class MembershipModel(models.Model):

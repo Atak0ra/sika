@@ -74,7 +74,9 @@ def level_to_domain(orm: LevelModel) -> Level:
         id=LevelId(str(orm.id)), name=orm.name,
         school_year_id=SchoolYearId(str(orm.school_year_id)),
         annual_fee=Money(orm.annual_fee, Currency.XOF),
-        payment_mode=PaymentMode(orm.payment_mode), classes=classes,
+        payment_mode=PaymentMode(orm.payment_mode),
+        nb_months=orm.nb_months,
+        classes=classes,
     )
 
 def level_to_orm(domain: Level) -> LevelModel:
@@ -82,6 +84,7 @@ def level_to_orm(domain: Level) -> LevelModel:
         id=domain.id.value, school_year_id=domain.school_year_id.value,
         name=domain.name, annual_fee=domain.annual_fee.amount,
         payment_mode=domain.payment_mode.value,
+        nb_months=domain.nb_months,
     )
 
 
@@ -140,7 +143,33 @@ def enrollment_to_orm(domain: Enrollment) -> EnrollmentModel:
     )
 
 
-# ─ Payment ────────────────────────────────────────────────────────────────────────
+
+# ─ FeeItem ────────────────────────────────────────────────────────────────────
+
+def fee_item_to_domain(orm) -> "FeeItem":
+    from economat.domain.fee.entities import FeeItem
+    from economat.domain.fee.value_objects import FeeCategory, FeeItemId, FeeScope, FeeScopeType
+    from economat.domain.school.payment_schedule import PaymentMode
+    scope = FeeScope(
+        scope_type=FeeScopeType(orm.scope_type),
+        target_id=str(orm.level_id) if orm.scope_type == "LEVEL" else str(orm.klass_id),
+    )
+    return FeeItem(
+        id=FeeItemId(str(orm.id)),
+        school_year_id=SchoolYearId(str(orm.school_year_id)),
+        name=orm.name,
+        category=FeeCategory(orm.category),
+        amount=Money(orm.amount, Currency.XOF),
+        scope=scope,
+        payment_mode=PaymentMode(orm.payment_mode),
+        nb_months=orm.nb_months,
+        is_mandatory=orm.is_mandatory,
+        is_active=orm.is_active,
+        is_system=orm.is_system,
+        created_at=orm.created_at,
+    )
+
+
 
 def payment_to_domain(orm: PaymentModel) -> Payment:
     return Payment(

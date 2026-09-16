@@ -7,6 +7,10 @@ Concepts :
 - PaymentMode : UNIQUE, MENSUEL, TRANCHES (3 tranches fixes).
 - ExpectedInstallment : une échéance attendue (montant + date d'échéance).
 - PaymentSchedule : génère les échéances à partir d'un total et d'un mode.
+
+Changements :
+- for_mensuel accepte nb_months explicite (plus de défaut 10 codé en dur).
+- Les labels mensuels sont dérivés du mois calendaire réel (locale FR).
 """
 
 from __future__ import annotations
@@ -23,7 +27,7 @@ from ..shared.errors import InvalidPaymentScheduleError
 class PaymentMode(str, Enum):
     """Mode de paiement d'un niveau scolaire."""
     UNIQUE   = "UNIQUE"    # Paiement intégral à l'inscription
-    MENSUEL  = "MENSUEL"   # Mensualités lissées sur l'année scolaire (10 mois)
+    MENSUEL  = "MENSUEL"   # Mensualités lissées sur N mois (nb_months paramétrable)
     TRANCHES = "TRANCHES"  # 3 tranches : 40% + 30% + 30%
 
 
@@ -109,19 +113,21 @@ class PaymentSchedule:
         cls,
         total: Money,
         school_year_start: datetime.date,
-        nb_months: int = 10,
+        nb_months: int,
     ) -> PaymentSchedule:
-        """Mensualités lissées sur nb_months mois. Le dernier mois absorbe l'arrondi."""
+        """Mensualités lissées sur nb_months mois à partir de school_year_start.
+
+        Le dernier mois absorbe l'arrondi.
+        Les labels sont dérivés du mois calendaire réel (ex. « Octobre », « Novembre »…).
+        """
         if nb_months < 1:
             raise InvalidPaymentScheduleError("Le nombre de mois doit être >= 1.")
         monthly_base = Money(total.amount // nb_months, total.currency)
         remainder = total.subtract(monthly_base.multiply(nb_months))
-        months_fr = ["Octobre", "Novembre", "Décembre", "Janvier", "Février",
-                     "Mars", "Avril", "Mai", "Juin", "Juillet"]
         installments: List[ExpectedInstallment] = []
         for i in range(nb_months):
             due = _add_months(school_year_start, i)
-            label = months_fr[i] if i < len(months_fr) else f"Mois {i + 1}"
+            label = _month_label_fr(due)
             amount = monthly_base.add(remainder) if i == nb_months - 1 else monthly_base
             installments.append(ExpectedInstallment(label, amount, due, i + 1))
         return cls(mode=PaymentMode.MENSUEL, total_amount=total, installments=installments)
@@ -137,3 +143,14 @@ def _add_months(d: datetime.date, months: int) -> datetime.date:
     month = month % 12 + 1
     day = min(d.day, calendar.monthrange(year, month)[1])
     return datetime.date(year, month, day)
+
+
+_MOIS_FR = [
+    "", "Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
+    "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre",
+]
+
+
+def _month_label_fr(d: datetime.date) -> str:
+    """Retourne le nom du mois en français à partir d'une date."""
+    return _MOIS_FR[d.month]

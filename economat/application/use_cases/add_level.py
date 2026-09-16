@@ -50,6 +50,7 @@ class AddLevelUseCase:
             school_year_id=year_id,
             annual_fee=Money(cmd.annual_fee_fcfa, Currency.XOF),
             payment_mode=PaymentMode(cmd.payment_mode),
+            nb_months=cmd.nb_months,
         )
         year.add_level(level)
         self._years.save(year)

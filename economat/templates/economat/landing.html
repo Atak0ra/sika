@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sukulu Gestion des frais de scolarité en FCFA</title>
+  <title>Sukulu — Gestion de tous les frais scolaires en FCFA</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fraunces:ital,wght@0,600;1,600&display=swap" rel="stylesheet">
@@ -270,6 +270,8 @@
 
 <!-- SPRITE SVG -->
 <svg style="display:none" aria-hidden="true">
+  <symbol id="il-layers" viewBox="0 0 24 24"><path d="M12 2 2 7l10 5 10-5-10-5z"/><path d="M2 12l10 5 10-5"/><path d="M2 17l10 5 10-5"/></symbol>
+  <symbol id="il-phone" viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></symbol>
   <symbol id="il-school" viewBox="0 0 24 24"><path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1 2.7 2.5 6 2.5s6-1.5 6-2.5v-5"/><line x1="22" y1="10" x2="22" y2="16"/><circle cx="22" cy="17" r="1" fill="var(--brand)" stroke="none"/></symbol>
   <symbol id="il-wallet" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h13a1 1 0 0 1 1 1v3M3 7v11a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4M3 7l3-3h9"/><path d="M15 13h4a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1h-4a2 2 0 0 1 0-4Z"/></symbol>
   <symbol id="il-chart" viewBox="0 0 24 24"><path d="M4 20V10M12 20V4M20 20v-7M2 20h20"/></symbol>
@@ -300,12 +302,12 @@
     <!-- Texte gauche -->
     <div>
       <h1 class="hero-title">
-        Les frais scolaires,<br>
-        <em>sans zone grise.</em>
+        Tous les frais scolaires,<br>
+        <em>une seule plateforme.</em>
       </h1>
       <p class="hero-sub">
-        Un reçu numéroté à chaque encaissement, un solde à jour pour chaque élève.
-        Une seule plateforme, un accès adapté à chaque membre de l&rsquo;équipe.
+        Scolarité, cantine, transport, sorties&hellip; centralisez chaque encaissement,
+        laissez le parent payer depuis son mobile, et pilotez tout d&rsquo;un coup d&rsquo;œil.
       </p>
       <div class="hero-cta">
         <a href="{% url 'economat:register_school' %}" class="btn btn-primary"
@@ -344,8 +346,9 @@
           <span class="receipt-class">CM2 A</span>
         </div>
         <div class="receipt-divider"></div>
-        <div class="receipt-amount-lbl">Montant encaissé &middot; Tranche 1</div>
-        <div class="receipt-amount">60&thinsp;000 <span>FCFA</span></div>
+        <div class="receipt-amount-lbl">Cantine &mdash; Octobre</div>
+        <div class="receipt-amount" style="font-size:1.5rem;">15&thinsp;000 <span>FCFA</span></div>
+        <div style="font-size:.72rem;color:#6b7280;margin-top:.3rem;margin-bottom:.7rem;">Scolarité soldée &middot; Reste cantine : 75&thinsp;000 FCFA</div>
         <div class="receipt-foot">
           <span class="receipt-paid">
             <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
@@ -372,8 +375,9 @@
   <div class="section-inner">
     <div style="margin-bottom:3rem;">
       <div class="section-label">Fonctionnalités</div>
-      <h2 class="section-title">Tout ce dont votre école a besoin</h2>
-      <p class="section-sub">De l’inscription à l’encaissement, tout ce dont votre école a besoin.</p>
+      <h2 class="section-title">Scolarité, cantine, transport&hellip; tout centralisé</h2>
+      <p class="section-sub">Créez vos postes de frais librement. Ils apparaissent automatiquement chez les parents concernés, au guichet et en Mobile Money.</p>
+
     </div>
     <div class="features-grid">
       {% for f in features %}
@@ -394,10 +398,10 @@
   <div class="section-inner">
     <div style="margin-bottom:3rem;">
       <div class="section-label">Accès</div>
-      <h2 class="section-title">Un espace pour chaque rôle</h2>
-      <p class="section-sub">Chaque collaborateur accède uniquement à son périmètre métier.</p>
+      <h2 class="section-title">Un espace pour chaque acteur</h2>
+      <p class="section-sub">Du directeur au parent, chacun accède uniquement à son périmètre.</p>
     </div>
-    <div class="roles-grid">
+    <div class="roles-grid" style="grid-template-columns:repeat(2,1fr);">
 
       <!-- Directeur -->
       <div class="role" style="border-color:#c7d2fe;background:#eef2ff;">
@@ -410,6 +414,8 @@
           <li><svg aria-hidden="true" class="icon role-check" style="width:.9em;height:.9em;"><use href="#il-check"/></svg> Dashboard &amp; KPIs</li>
           <li><svg aria-hidden="true" class="icon role-check" style="width:.9em;height:.9em;"><use href="#il-check"/></svg> Configuration des tarifs</li>
           <li><svg aria-hidden="true" class="icon role-check" style="width:.9em;height:.9em;"><use href="#il-check"/></svg> Gestion de l’équipe</li>
+          <li><svg aria-hidden="true" class="icon role-check" style="width:.9em;height:.9em;"><use href="#il-check"/></svg> Création des postes de frais</li>
+          <li><svg aria-hidden="true" class="icon role-check" style="width:.9em;height:.9em;"><use href="#il-check"/></svg> Reporting par catégorie</li>
         </ul>
       </div>
 
@@ -419,11 +425,11 @@
           <svg aria-hidden="true" style="width:1rem;height:1rem;stroke:#059669;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><use href="#il-users"/></svg>
         </div>
         <div class="role-title">Secrétaire</div>
-        <div class="role-sub">Inscriptions &amp; paiements</div>
+        <div class="role-sub">Inscriptions &amp; frais</div>
         <ul class="role-list">
           <li><svg aria-hidden="true" class="icon role-check" style="width:.9em;height:.9em;"><use href="#il-check"/></svg> Inscription des élèves</li>
           <li><svg aria-hidden="true" class="icon role-check" style="width:.9em;height:.9em;"><use href="#il-check"/></svg> Saisie des paiements</li>
-          <li><svg aria-hidden="true" class="icon role-check" style="width:.9em;height:.9em;"><use href="#il-check"/></svg> Niveaux &amp; classes</li>
+          <li><svg aria-hidden="true" class="icon role-check" style="width:.9em;height:.9em;"><use href="#il-check"/></svg> Création des postes de frais</li>
           <li class="off"><svg aria-hidden="true" class="icon role-cross" style="width:.9em;height:.9em;"><use href="#il-x"/></svg> Configuration tarifs</li>
         </ul>
       </div>
@@ -434,12 +440,28 @@
           <svg aria-hidden="true" style="width:1rem;height:1rem;stroke:#d97706;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><use href="#il-wallet"/></svg>
         </div>
         <div class="role-title">Économe <span style="font-size:.75rem;font-weight:500;color:#6b7280;">(DAF / Comptable)</span></div>
-        <div class="role-sub">Encaissement uniquement</div>
+        <div class="role-sub">Encaissements</div>
         <ul class="role-list">
-          <li><svg aria-hidden="true" class="icon role-check" style="width:.9em;height:.9em;"><use href="#il-check"/></svg> Saisie des paiements</li>
+          <li><svg aria-hidden="true" class="icon role-check" style="width:.9em;height:.9em;"><use href="#il-check"/></svg> Saisie tout type de frais</li>
+          <li><svg aria-hidden="true" class="icon role-check" style="width:.9em;height:.9em;"><use href="#il-check"/></svg> Dropdown des frais dus par élève</li>
           <li><svg aria-hidden="true" class="icon role-check" style="width:.9em;height:.9em;"><use href="#il-check"/></svg> Génération des reçus</li>
-          <li class="off"><svg aria-hidden="true" class="icon role-cross" style="width:.9em;height:.9em;"><use href="#il-x"/></svg> Inscription élèves</li>
-          <li class="off"><svg aria-hidden="true" class="icon role-cross" style="width:.9em;height:.9em;"><use href="#il-x"/></svg> Configuration tarifs</li>
+          <li><svg aria-hidden="true" class="icon role-check" style="width:.9em;height:.9em;"><use href="#il-check"/></svg> Création des postes de frais</li>
+        </ul>
+      </div>
+
+
+      <!-- Parent -->
+      <div class="role" style="border-color:#bbf7d0;background:#f0fdf4;">
+        <div style="width:2rem;height:2rem;border-radius:8px;background:#16a34a;display:flex;align-items:center;justify-content:center;margin-bottom:.85rem;">
+          <svg aria-hidden="true" style="width:1rem;height:1rem;stroke:#fff;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><use href="#il-phone"/></svg>
+        </div>
+        <div class="role-title" style="color:#14532d;">Parent</div>
+        <div class="role-sub">Espace mobile, sans compte</div>
+        <ul class="role-list">
+          <li><svg aria-hidden="true" class="icon role-check" style="width:.9em;height:.9em;"><use href="#il-check"/></svg> Voir tous les frais dus</li>
+          <li><svg aria-hidden="true" class="icon role-check" style="width:.9em;height:.9em;"><use href="#il-check"/></svg> Choisir ce qu&rsquo;il veut payer</li>
+          <li><svg aria-hidden="true" class="icon role-check" style="width:.9em;height:.9em;"><use href="#il-check"/></svg> Payer en Mobile Money</li>
+          <li><svg aria-hidden="true" class="icon role-check" style="width:.9em;height:.9em;"><use href="#il-check"/></svg> Télécharger ses reçus</li>
         </ul>
       </div>
 

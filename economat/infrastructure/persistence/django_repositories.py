@@ -97,7 +97,8 @@ class DjangoSchoolYearRepository(SchoolYearRepository):
             LevelModel.objects.update_or_create(
                 pk=l_orm.id,
                 defaults={"school_year_id": l_orm.school_year_id, "name": l_orm.name,
-                          "annual_fee": l_orm.annual_fee, "payment_mode": l_orm.payment_mode},
+                          "annual_fee": l_orm.annual_fee, "payment_mode": l_orm.payment_mode,
+                          "nb_months": l_orm.nb_months},
             )
             for klass in level.classes:
                 c_orm = class_to_orm(klass)
@@ -190,6 +191,14 @@ class DjangoPaymentRepository(PaymentRepository):
         except PaymentModel.DoesNotExist:
             return None
 
+    def find_by_fee_item(self, fee_item_id) -> list:
+        from economat.domain.fee.value_objects import FeeItemId
+        fid = fee_item_id.value if hasattr(fee_item_id, "value") else str(fee_item_id)
+        return [payment_to_domain(o)
+                for o in PaymentModel.objects.filter(fee_item_id=fid)]
+
+
+
     def find_by_enrollment(self, enrollment_id: EnrollmentId) -> List[Payment]:
         return [payment_to_domain(o)
                 for o in PaymentModel.objects.filter(enrollment_id=enrollment_id.value)]
@@ -226,3 +235,105 @@ class DjangoPaymentRepository(PaymentRepository):
             try: return int(last.split("-")[-1])
             except (ValueError, IndexError): return 0
         return 0
+
+
+class DjangoFeeItemRepository:
+    """Implémentation Django ORM du port FeeItemRepository."""
+
+    def find_by_id(self, fee_item_id):
+        from economat.infrastructure.models import FeeItemModel as _FIM
+        from economat.infrastructure.persistence.mappers import fee_item_to_domain
+        try:
+            return fee_item_to_domain(_FIM.objects.get(pk=str(fee_item_id)))
+        except _FIM.DoesNotExist:
+            return None
+
+    def find_by_year(self, year_id):
+        from economat.infrastructure.models import FeeItemModel as _FIM
+        from economat.infrastructure.persistence.mappers import fee_item_to_domain
+        return [fee_item_to_domain(o) for o in _FIM.objects.filter(school_year_id=str(year_id))]
+
+    def find_active_by_year(self, year_id):
+        from economat.infrastructure.models import FeeItemModel as _FIM
+        from economat.infrastructure.persistence.mappers import fee_item_to_domain
+        return [fee_item_to_domain(o)
+                for o in _FIM.objects.filter(school_year_id=str(year_id), is_active=True)]
+
+    def find_applicable_to_enrollment(self, year_id, level_id, class_id):
+        from django.db.models import Q
+        from economat.infrastructure.models import FeeItemModel as _FIM
+        from economat.infrastructure.persistence.mappers import fee_item_to_domain
+        lid = str(level_id)
+        cid = str(class_id)
+        qs = _FIM.objects.filter(
+            school_year_id=str(year_id),
+            is_active=True,
+        ).filter(
+            Q(scope_type="LEVEL", level_id=lid) |
+            Q(scope_type="CLASS", klass_id=cid)
+        )
+        return [fee_item_to_domain(o) for o in qs]
+
+    def find_system_for_level(self, level_id, year_id):
+        from economat.infrastructure.models import FeeItemModel as _FIM
+        from economat.infrastructure.persistence.mappers import fee_item_to_domain
+        obj = _FIM.objects.filter(
+            level_id=str(level_id),
+            school_year_id=str(year_id),
+            is_system=True, category="SCOLARITE",
+        ).first()
+        return fee_item_to_domain(obj) if obj else None
+
+    def ensure_system_fee_for_level(self, level_id, level_name, year_id,
+                                    annual_fee_fcfa, payment_mode, nb_months, scope):
+        import uuid as _uuid
+        from economat.infrastructure.models import FeeItemModel as _FIM
+        from economat.infrastructure.persistence.mappers import fee_item_to_domain
+        fee_item_orm, _ = _FIM.objects.update_or_create(
+            school_year_id=str(year_id),
+            level_id=str(level_id),
+            is_system=True,
+            category="SCOLARITE",
+            defaults={
+                "name":         f"Scolarité — {level_name}",
+                "amount":       annual_fee_fcfa,
+                "scope_type":   "LEVEL",
+                "payment_mode": payment_mode,
+                "nb_months":    nb_months,
+                "is_mandatory": True,
+                "is_active":    True,
+            },
+        )
+        # S'assurer qu'un id est généré si c'est une création
+        if not fee_item_orm.id:
+            fee_item_orm.id = _uuid.uuid4()
+            fee_item_orm.save(update_fields=["id"])
+        return fee_item_to_domain(fee_item_orm)
+
+    def save(self, fee_item):
+        from economat.infrastructure.models import FeeItemModel as _FIM
+        scope_type = fee_item.scope.scope_type.value
+        level_id = fee_item.scope.target_id if scope_type == "LEVEL" else None
+        class_id = fee_item.scope.target_id if scope_type == "CLASS" else None
+        _FIM.objects.update_or_create(
+            pk=str(fee_item.id),
+            defaults={
+                "school_year_id": str(fee_item.school_year_id),
+                "name":           fee_item.name,
+                "category":       fee_item.category.value,
+                "amount":         fee_item.amount.amount,
+                "scope_type":     scope_type,
+                "level_id":       level_id,
+                "klass_id":       class_id,
+                "payment_mode":   fee_item.payment_mode.value,
+                "nb_months":      fee_item.nb_months,
+                "is_mandatory":   fee_item.is_mandatory,
+                "is_active":      fee_item.is_active,
+                "is_system":      fee_item.is_system,
+            },
+        )
+
+    def next_id(self):
+        from economat.domain.fee.value_objects import FeeItemId
+        return FeeItemId.generate()
+

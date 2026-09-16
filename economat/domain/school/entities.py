@@ -57,18 +57,21 @@ class Level:
     school_year_id: SchoolYearId
     annual_fee: Money
     payment_mode: PaymentMode
+    nb_months: int = 10              # Pertinent si payment_mode == MENSUEL
     classes: List[Class] = field(default_factory=list)
 
     def __post_init__(self):
         if not self.name.strip():
             raise ValueError("Le nom du niveau ne peut pas être vide.")
+        if self.nb_months < 1:
+            raise ValueError("Le nombre de mois doit être >= 1.")
 
     def get_payment_schedule(self, year_start: datetime.date) -> PaymentSchedule:
         if self.payment_mode == PaymentMode.UNIQUE:
             return PaymentSchedule.for_unique(self.annual_fee, year_start)
         elif self.payment_mode == PaymentMode.TRANCHES:
             return PaymentSchedule.for_tranches(self.annual_fee, year_start)
-        return PaymentSchedule.for_mensuel(self.annual_fee, year_start)
+        return PaymentSchedule.for_mensuel(self.annual_fee, year_start, nb_months=self.nb_months)
 
     def add_class(self, klass: Class) -> None:
         if klass.level_id != self.id:
@@ -145,13 +148,15 @@ class SchoolYear:
         raise EntityNotFoundError(f"Classe {class_id} introuvable dans l'année {self.label}.")
 
     def configure_level_pricing(
-        self, level_id: LevelId, annual_fee: Money, payment_mode: PaymentMode
+        self, level_id: LevelId, annual_fee: Money, payment_mode: PaymentMode,
+        nb_months: int = 10,
     ) -> None:
         if self.is_closed:
             raise DomainError("Impossible de modifier une année clôturée.")
         level = self.get_level(level_id)
         level.annual_fee = annual_fee
         level.payment_mode = payment_mode
+        level.nb_months = nb_months
 
     def __str__(self) -> str:
         return f"{self.label} ({self.status.value})"

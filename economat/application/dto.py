@@ -46,6 +46,7 @@ class AddLevelCommand:
     level_name:      str
     annual_fee_fcfa: int = 0
     payment_mode:    str = "TRANCHES"
+    nb_months:       int = 10
 
 @dataclass(frozen=True)
 class AddClassCommand:
@@ -81,6 +82,7 @@ class ConfigureSchoolPricingCommand:
     level_id:        str
     annual_fee_fcfa: int
     payment_mode:    str
+    nb_months:       int = 10
 
 @dataclass
 class ConfigurePricingResult:
@@ -152,29 +154,21 @@ class RecordPaymentCommand:
     recorded_by:       str
     notes:             str = ""
     paid_by:           str = ""
+    # Poste de frais visé — obligatoire. Pointe vers un FeeItemModel.id.
+    # La ligne scolarité (système) a son propre fee_item_id.
+    fee_item_id:       str = ""
     # Opérateur Mobile Money (Orange Money, Wave, MTN…) — pertinent seulement
     # si method == "MOBILE_MONEY".
     mobile_operator:   str = ""
     # Numéro ayant servi à la transaction — pertinent seulement si method == "MOBILE_MONEY".
     mobile_number:     str = ""
     # ── Portail de paiement parent ────────────────────────────────────────
-    # État initial du paiement créé. "VALID" (défaut, comportement guichet
-    # inchangé) ou "PENDING" (paiement en ligne, en attente de confirmation
-    # de la passerelle avant de compter dans un solde).
     initial_state:     str = "VALID"
-    # Canal d'encaissement : "" (défaut → GUICHET côté modèle) ou
-    # "PORTAIL_PARENT" pour un paiement fait par le parent en ligne.
     channel:           str = ""
-    # Référence de transaction chez la passerelle de paiement (Samirpay/CRPay),
-    # pertinent seulement pour un paiement portail.
     gateway_transaction_ref: str = ""
     # ── Champs offline / déterministes ───────────────────────────────────
-    # receipt_number fourni : généré côté client (déterministe) ou laissé vide
-    # pour que le serveur le génère en fallback (mode online classique).
     receipt_number:    str = ""
-    # Tranche visée (ex. "T1", "T2", "T3", "M1"…) — incluse dans le numéro de reçu.
     installment_label: str = ""
-    # UUID idempotence : si fourni, le paiement ne sera enregistré qu'une fois.
     client_uuid:       str = ""
 
 @dataclass
@@ -188,11 +182,86 @@ class RecordPaymentResult:
     payment_status:  Optional[str] = None
     class_name:      Optional[str] = None
     level_name:      Optional[str] = None
+    fee_item_name:   Optional[str] = None
+    fee_category:    Optional[str] = None
     receipt_rows:    Optional[dict] = None
     error_message:   Optional[str] = None
 
 
-# ─ Cancel Payment ────────────────────────────────────────────────────────────────────
+# ─ FeeItem ────────────────────────────────────────────────────────────────────
+
+@dataclass(frozen=True)
+class CreateFeeItemCommand:
+    """Créer une ligne de frais manuelle (hors scolarité système)."""
+    school_year_id: str
+    name:           str
+    category:       str        # FeeCategory.value (hors SCOLARITE)
+    amount_fcfa:    int
+    scope_type:     str        # "LEVEL" ou "CLASS"
+    target_id:      str        # LevelId.value ou ClassId.value
+    payment_mode:   str = "UNIQUE"
+    nb_months:      int = 10
+    is_mandatory:   bool = True
+    created_by:     str = ""
+
+@dataclass(frozen=True)
+class UpdateFeeItemCommand:
+    """Modifier une ligne de frais manuelle existante."""
+    fee_item_id:  str
+    name:         str
+    amount_fcfa:  int
+    payment_mode: str
+    nb_months:    int
+    is_mandatory: bool
+    updated_by:   str = ""
+
+@dataclass(frozen=True)
+class DeactivateFeeItemCommand:
+    """Archiver une ligne de frais manuelle (ne plus apparaître à payer)."""
+    fee_item_id: str
+    updated_by:  str = ""
+
+@dataclass
+class FeeItemResult:
+    success:       bool
+    fee_item_id:   Optional[str] = None
+    name:          Optional[str] = None
+    category:      Optional[str] = None
+    error_message: Optional[str] = None
+
+
+# ─ Payable Items (liste de frais dus + payés pour un élève) ───────────────────
+
+@dataclass(frozen=True)
+class PayableLine:
+    """Une ligne de frais dans la liste « à payer » d'un élève.
+
+    Alimente le dropdown guichet ET la sélection parent sur mobile.
+    """
+    fee_item_id:    str            # FeeItemId.value (permet l'imputation d'un paiement)
+    name:           str            # Libellé à afficher ("Scolarité", "Cantine T1"…)
+    category:       str            # FeeCategory.value (pour le regroupement)
+    category_label: str            # FeeCategory.label (pour l'affichage)
+    amount_due:     int            # Montant total attendu (FCFA)
+    amount_paid:    int            # Total déjà payé (paiements VALID)
+    remaining:      int            # Reste à payer (>= 0)
+    payment_mode:   str            # PaymentMode.value (informatif)
+    is_system:      bool           # True = scolarité auto-générée
+    is_mandatory:   bool
+    next_due_label: Optional[str] = None   # Prochaine échéance (ex. "Tranche 2")
+    next_due_date:  Optional[str] = None   # ISO date de la prochaine échéance
+    payment_status: Optional[str] = None   # PaymentStatus.value
+
+@dataclass
+class PayableItemsResult:
+    success:       bool
+    lines:         List[PayableLine] = field(default_factory=list)
+    total_due:     int = 0
+    total_paid:    int = 0
+    total_remaining: int = 0
+    error_message: Optional[str] = None
+
+
 
 @dataclass(frozen=True)
 class CancelPaymentCommand:

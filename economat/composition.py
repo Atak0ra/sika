@@ -8,6 +8,7 @@ from economat.infrastructure.persistence.registration_repository import (
 )
 from economat.infrastructure.persistence.django_repositories import (
     DjangoEnrollmentRepository,
+    DjangoFeeItemRepository,
     DjangoPaymentRepository,
     DjangoSchoolRepository,
     DjangoSchoolYearRepository,
@@ -30,6 +31,7 @@ def _repos():
         "payment":     DjangoPaymentRepository(),
         "membership":  DjangoMembershipRepository(),
         "user":        DjangoUserRepository(),
+        "fee_item":    DjangoFeeItemRepository(),
     }
 
 
@@ -39,6 +41,10 @@ def get_school_year_repo():
 
 def get_payment_repo():
     return _repos()["payment"]
+
+
+def get_fee_item_repo():
+    return _repos()["fee_item"]
 
 
 # ─ Année scolaire ────────────────────────────────────────────────────────────────────
@@ -79,7 +85,7 @@ def get_add_class_use_case():
 def get_configure_pricing_use_case():
     from economat.application.use_cases.configure_school_pricing import ConfigureSchoolPricingUseCase
     r = _repos()
-    return ConfigureSchoolPricingUseCase(year_repo=r["year"])
+    return ConfigureSchoolPricingUseCase(year_repo=r["year"], fee_item_repo=r["fee_item"])
 
 
 # ─ Élèves + Enrollments ───────────────────────────────────────────────────────────────
@@ -89,6 +95,32 @@ def get_register_student_use_case():
     r = _repos()
     return RegisterStudentUseCase(
         student_repo=r["student"], year_repo=r["year"], enrollment_repo=r["enrollment"]
+    )
+
+
+# ─ Frais de scolarité ────────────────────────────────────────────────────────────────
+
+def get_create_fee_item_use_case():
+    from economat.application.use_cases.create_fee_item import CreateFeeItemUseCase
+    return CreateFeeItemUseCase(fee_item_repo=get_fee_item_repo())
+
+def get_update_fee_item_use_case():
+    from economat.application.use_cases.update_fee_item import UpdateFeeItemUseCase
+    return UpdateFeeItemUseCase(fee_item_repo=get_fee_item_repo())
+
+def get_deactivate_fee_item_use_case():
+    from economat.application.use_cases.update_fee_item import DeactivateFeeItemUseCase
+    return DeactivateFeeItemUseCase(fee_item_repo=get_fee_item_repo())
+
+def get_list_payable_items_use_case():
+    from economat.application.use_cases.list_payable_items import ListPayableItemsUseCase
+    r = _repos()
+    return ListPayableItemsUseCase(
+        student_repo=r["student"],
+        year_repo=r["year"],
+        enrollment_repo=r["enrollment"],
+        payment_repo=r["payment"],
+        fee_item_repo=r["fee_item"],
     )
 
 

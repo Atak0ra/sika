@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 from django.utils.html import format_html
 
 from economat.infrastructure.models import (
-    ClassModel, CountryModel, EnrollmentModel, LevelModel, MembershipModel,
+    ClassModel, CountryModel, EnrollmentModel, FeeItemModel, LevelModel, MembershipModel,
     PaymentModel, PotentialCustomerModel, SchoolModel, SchoolRegistrationModel,
     SchoolYearModel, StudentModel,
 )
@@ -291,7 +291,60 @@ class SchoolRegistrationAdmin(admin.ModelAdmin):
         return ", ".join(labels.get(m, m) for m in methods) or "—"
 
 
-# ─ Clients potentiels ────────────────────────────────────────────────────────
+
+# ─ Frais de scolarité ────────────────────────────────────────────────────────
+
+@admin.register(FeeItemModel)
+class FeeItemAdmin(admin.ModelAdmin):
+    list_display  = (
+        "name", "category_badge", "school_year", "scope_display",
+        "amount_display", "payment_mode", "is_system_badge", "is_active",
+    )
+    list_filter   = ("category", "school_year__school", "is_system", "is_active", "payment_mode")
+    search_fields = ("name", "school_year__label", "school_year__school__name")
+    readonly_fields = ("id", "is_system", "created_at", "updated_at")
+
+    def get_readonly_fields(self, request, obj=None):
+        ro = list(super().get_readonly_fields(request, obj))
+        if obj and obj.is_system:
+            ro += ["name", "category", "scope_type", "level", "klass"]
+        return ro
+
+    @admin.display(description="Catégorie")
+    def category_badge(self, obj):
+        colors = {
+            "SCOLARITE": "#e0e7ff;color:#3730a3",
+            "CANTINE":   "#fef3c7;color:#92400e",
+            "TRANSPORT": "#e0f2fe;color:#0369a1",
+            "SORTIES":   "#d1fae5;color:#065f46",
+            "SPORT":     "#fce7f3;color:#be185d",
+            "FOURNITURES": "#ede9fe;color:#5b21b6",
+            "AUTRE":     "#f3f4f6;color:#374151",
+        }
+        style = colors.get(obj.category, "#f3f4f6;color:#374151")
+        return format_html(
+            '<span style="background:{};padding:2px 8px;border-radius:999px;font-size:11px">{}</span>',
+            style, obj.get_category_display(),
+        )
+
+    @admin.display(description="Portée")
+    def scope_display(self, obj):
+        if obj.scope_type == "LEVEL":
+            return f"Niveau : {obj.level.name}" if obj.level else "Niveau entier"
+        return f"Classe : {obj.klass.name}" if obj.klass else "Classe"
+
+    @admin.display(description="Montant")
+    def amount_display(self, obj):
+        return f"{obj.amount:,} FCFA".replace(",", " ")
+
+    @admin.display(description="Système")
+    def is_system_badge(self, obj):
+        if obj.is_system:
+            return format_html('<span style="color:#3730a3;font-weight:bold">⚙ Système</span>')
+        return "—"
+
+
+
 
 @admin.register(PotentialCustomerModel)
 class PotentialCustomerAdmin(admin.ModelAdmin):

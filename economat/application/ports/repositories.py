@@ -4,15 +4,23 @@ application/ports/repositories.py
 PORTS SORTANTS — interfaces des dépôts (NOUVEAU SCHEMA avec SchoolYear + Enrollment).
 """
 from __future__ import annotations
+
 from abc import ABC, abstractmethod
 from typing import Dict, List, Optional
 
 from economat.domain.enrollment.entities import Enrollment
 from economat.domain.enrollment.value_objects import EnrollmentId
+from economat.domain.fee.entities import FeeItem
+from economat.domain.fee.value_objects import FeeItemId, FeeScope
 from economat.domain.payment.entities import Payment
 from economat.domain.payment.value_objects import PaymentId
 from economat.domain.school.entities import School, SchoolYear
-from economat.domain.school.value_objects import ClassId, SchoolId, SchoolYearId
+from economat.domain.school.value_objects import (
+    ClassId,
+    LevelId,
+    SchoolId,
+    SchoolYearId,
+)
 from economat.domain.student.entities import Student
 from economat.domain.student.value_objects import StudentId
 
@@ -75,6 +83,8 @@ class PaymentRepository(ABC):
     @abstractmethod
     def find_by_enrollment(self, enrollment_id: EnrollmentId) -> List[Payment]: ...
     @abstractmethod
+    def find_by_fee_item(self, fee_item_id: FeeItemId) -> List[Payment]: ...
+    @abstractmethod
     def find_by_school_and_year(self, school_id: SchoolId, year_id: SchoolYearId) -> Dict[str, List[Payment]]: ...
     """Batch anti-N+1 : retourne {enrollment_id_str: [Payment...]}."""
     @abstractmethod
@@ -83,3 +93,50 @@ class PaymentRepository(ABC):
     def next_id(self) -> PaymentId: ...
     @abstractmethod
     def last_receipt_number(self, school_id: SchoolId) -> int: ...
+
+
+class FeeItemRepository(ABC):
+    """Port sortant pour les lignes de frais de scolarité."""
+
+    @abstractmethod
+    def find_by_id(self, fee_item_id: FeeItemId) -> Optional[FeeItem]: ...
+
+    @abstractmethod
+    def find_by_year(self, year_id: SchoolYearId) -> List[FeeItem]: ...
+    """Toutes les lignes (actives + inactives) d'une année scolaire."""
+
+    @abstractmethod
+    def find_active_by_year(self, year_id: SchoolYearId) -> List[FeeItem]: ...
+    """Lignes actives uniquement."""
+
+    @abstractmethod
+    def find_applicable_to_enrollment(
+        self, year_id: SchoolYearId, level_id: LevelId, class_id: ClassId,
+    ) -> List[FeeItem]:
+        """Lignes actives qui s'appliquent à cet enrollment (scope LEVEL ou CLASS)."""
+        ...
+
+    @abstractmethod
+    def find_system_for_level(self, level_id: LevelId, year_id: SchoolYearId) -> Optional[FeeItem]:
+        """Retourne la ligne système SCOLARITE d'un niveau (ou None si non encore créée)."""
+        ...
+
+    @abstractmethod
+    def ensure_system_fee_for_level(
+        self, level_id: LevelId, level_name: str, year_id: SchoolYearId,
+        annual_fee_fcfa: int, payment_mode: str, nb_months: int,
+        scope: FeeScope,
+    ) -> FeeItem:
+        """Crée ou met à jour la ligne système SCOLARITE pour un niveau.
+
+        Idempotente : si la ligne existe déjà, met à jour le montant + mode.
+        Appelée automatiquement après toute modification du tarif du niveau.
+        """
+        ...
+
+    @abstractmethod
+    def save(self, fee_item: FeeItem) -> None: ...
+
+    @abstractmethod
+    def next_id(self) -> FeeItemId: ...
+
