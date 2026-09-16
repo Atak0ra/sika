@@ -340,6 +340,13 @@ class FeeItemModel(models.Model):
         verbose_name="Classes ciblées",
         help_text="Liste JSON de class_ids. Vide si scope_type=ALL.",
     )
+    # class_amounts : surcharges montant par classe { class_id_str: montant_int }
+    class_amounts = models.JSONField(
+        default=dict, blank=True,
+        verbose_name="Montants par classe",
+        help_text='Surcharges optionnelles, ex. {"<uuid-CP>": 10000, "<uuid-CM>": 15000}. '
+                  'Si absent pour une classe, le montant par défaut (amount) s\'applique.',
+    )
     # FK niveau — conservée pour la scolarité système (is_system=True)
     level       = models.ForeignKey(
         LevelModel, on_delete=models.CASCADE, null=True, blank=True,

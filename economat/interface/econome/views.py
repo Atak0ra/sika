@@ -204,14 +204,16 @@ def collection_dashboard(request):
         )
         total_enrollments = sum(e["nb"] for e in class_map.values())
         for fi in fee_items_qs:
+            ca = fi.class_amounts or {}
             if fi.scope_type == "ALL":
-                # S'applique à tous : ajouter à toutes les classes
-                for entry in class_map.values():
-                    entry["expected"] += fi.amount
+                for cid, entry in class_map.items():
+                    montant = ca.get(cid, fi.amount)
+                    entry["expected"] += montant
             elif fi.scope_type == "CLASSES" and fi.class_ids:
                 for cid in fi.class_ids:
                     if cid in class_map:
-                        class_map[cid]["expected"] += fi.amount
+                        montant = ca.get(cid, fi.amount)
+                        class_map[cid]["expected"] += montant
 
         for entry in class_map.values():
             entry["balance"] = max(entry["expected"] - entry["collected"], 0)

@@ -47,6 +47,7 @@
     <!-- Montant -->
     <div style="font-size:1rem;font-weight:700;color:#1a1d29;white-space:nowrap;font-variant-numeric:tabular-nums;">
       {{ item.amount|fcfa_long }}
+      {% if item.class_amounts %}<span style="font-size:.68rem;background:#ede9fe;color:#5b21b6;padding:.1rem .4rem;border-radius:999px;font-weight:600;margin-left:.3rem;">variable</span>{% endif %}
     </div>
 
     <!-- Statut -->

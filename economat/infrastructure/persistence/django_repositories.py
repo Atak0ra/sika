@@ -330,6 +330,7 @@ class DjangoFeeItemRepository:
                 "amount":         fee_item.amount.amount,
                 "scope_type":     scope_type,
                 "class_ids":      class_ids,
+                "class_amounts":  dict(fee_item.class_amounts or {}),
                 "payment_mode":   fee_item.payment_mode.value,
                 "nb_months":      fee_item.nb_months,
                 "is_mandatory":   fee_item.is_mandatory,

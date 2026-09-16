@@ -96,7 +96,7 @@ class TestUpdateFeeItemUseCase:
         repo = _FeeItemRepo()
         fid = self._create(repo)
         r = UpdateFeeItemUseCase(repo).execute(UpdateFeeItemCommand(
-            fee_item_id=fid, name="Cantine T2", amount_fcfa=20_000,
+            fee_item_id=fid, name="Cantine T2", amount_fcfa=20_000, class_amounts={},
             payment_mode="UNIQUE", nb_months=10, is_mandatory=False,
         ))
         assert r.success
@@ -113,7 +113,7 @@ class TestUpdateFeeItemUseCase:
         )
         repo.save(sys)
         r = UpdateFeeItemUseCase(repo).execute(UpdateFeeItemCommand(
-            fee_item_id="sys-1", name="X", amount_fcfa=1, payment_mode="UNIQUE",
+            fee_item_id="sys-1", name="X", amount_fcfa=1, class_amounts={}, payment_mode="UNIQUE",
             nb_months=10, is_mandatory=True,
         ))
         assert not r.success and "système" in r.error_message
@@ -126,4 +126,21 @@ class TestUpdateFeeItemUseCase:
 
     def test_deactivate_not_found(self):
         r = DeactivateFeeItemUseCase(_FeeItemRepo()).execute(DeactivateFeeItemCommand(fee_item_id="ghost"))
+        assert not r.success
+
+    def test_create_with_class_amounts(self):
+        repo = _FeeItemRepo()
+        r = CreateFeeItemUseCase(repo).execute(_cmd(
+            class_amounts={"cls-a": 10_000, "cls-b": 20_000}
+        ))
+        assert r.success
+        fi = repo.find_by_id(FeeItemId(r.fee_item_id))
+        assert fi.class_amounts == {"cls-a": 10_000, "cls-b": 20_000}
+        assert fi.amount_for("cls-a") == Money(10_000, Currency.XOF)
+        assert fi.amount_for("cls-z") == Money(15_000, Currency.XOF)  # défaut
+
+    def test_rejects_classes_scope_with_no_classes(self):
+        r = CreateFeeItemUseCase(_FeeItemRepo()).execute(_cmd(
+            scope_type="CLASSES", class_ids=[]
+        ))
         assert not r.success

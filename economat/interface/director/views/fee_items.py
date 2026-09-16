@@ -69,6 +69,8 @@ class FeeItemForm(_forms.Form):
         widget=_forms.CheckboxSelectMultiple(),
     )
     is_mandatory = _forms.BooleanField(label="Frais obligatoire", required=False, initial=True)
+    # class_amounts soumis comme JSON dans un champ caché (rempli par le JS du formulaire)
+    class_amounts_json = _forms.CharField(required=False, widget=_forms.HiddenInput())
 
     def __init__(self, *args, year_orm=None, **kwargs):
         super().__init__(*args, **kwargs)
@@ -88,6 +90,17 @@ class FeeItemForm(_forms.Form):
             self.add_error("class_ids", "Sélectionnez au moins une classe.")
         if not data.get("nb_months"):
             data["nb_months"] = 10
+        # Parser les surcharges JSON
+        import json
+        raw = data.get("class_amounts_json", "").strip()
+        try:
+            parsed = json.loads(raw) if raw else {}
+            # Convertir les valeurs en int, ignorer les invalides
+            data["class_amounts"] = {
+                k: int(v) for k, v in parsed.items() if str(v).isdigit() and int(v) > 0
+            }
+        except (json.JSONDecodeError, ValueError):
+            data["class_amounts"] = {}
         return data
 
 
@@ -133,6 +146,7 @@ def fee_item_create(request, school_id: str, year_id: str, membership=None):
             school_year_id=year_id, name=d["name"], category=d["category"],
             amount_fcfa=d["amount_fcfa"], scope_type=d["scope_type"],
             class_ids=d.get("class_ids") or [],
+            class_amounts=d.get("class_amounts") or {},
             payment_mode=d["payment_mode"], nb_months=d["nb_months"],
             is_mandatory=d.get("is_mandatory", True), created_by=request.user.username,
         ))
@@ -171,12 +185,14 @@ def fee_item_edit(request, school_id: str, year_id: str, fee_item_id: str, membe
         "is_mandatory": fee_item.is_mandatory,
         "scope_type":   fee_item.scope_type,
         "class_ids":    fee_item.class_ids or [],
+        "class_amounts": fee_item.class_amounts or {},
     }
     form = FeeItemForm(request.POST or None, initial=initial, year_orm=year)
     if request.method == "POST" and form.is_valid():
         d = form.cleaned_data
         result = get_update_fee_item_use_case().execute(UpdateFeeItemCommand(
             fee_item_id=fee_item_id, name=d["name"], amount_fcfa=d["amount_fcfa"],
+            class_amounts=d.get("class_amounts") or {},
             payment_mode=d["payment_mode"], nb_months=d["nb_months"],
             is_mandatory=d.get("is_mandatory", True), updated_by=request.user.username,
         ))

@@ -196,28 +196,30 @@ class CreateFeeItemCommand:
     school_year_id: str
     name:           str
     category:       str          # FeeCategory.value (hors SCOLARITE)
-    amount_fcfa:    int
+    amount_fcfa:    int          # montant par défaut
     scope_type:     str          # "ALL" ou "CLASSES"
     class_ids:      list = None  # liste de ClassId.value si scope_type=CLASSES
+    class_amounts:  dict = None  # { class_id_str: montant_int } surcharges optionnelles
     payment_mode:   str = "UNIQUE"
     nb_months:      int = 10
     is_mandatory:   bool = True
     created_by:     str = ""
 
     def __post_init__(self):
-        # normalise None → liste vide
-        object.__setattr__(self, "class_ids", list(self.class_ids or []))
+        object.__setattr__(self, "class_ids",     list(self.class_ids or []))
+        object.__setattr__(self, "class_amounts",  dict(self.class_amounts or {}))
 
 @dataclass(frozen=True)
 class UpdateFeeItemCommand:
     """Modifier une ligne de frais manuelle existante."""
-    fee_item_id:  str
-    name:         str
-    amount_fcfa:  int
-    payment_mode: str
-    nb_months:    int
-    is_mandatory: bool
-    updated_by:   str = ""
+    fee_item_id:   str
+    name:          str
+    amount_fcfa:   int          # montant par défaut
+    class_amounts: dict         # { class_id_str: montant_int } surcharges (peut être {})
+    payment_mode:  str
+    nb_months:     int
+    is_mandatory:  bool
+    updated_by:    str = ""
 
 @dataclass(frozen=True)
 class DeactivateFeeItemCommand:

@@ -105,7 +105,7 @@ class ListPayableItemsUseCase:
             item_payments = self._payments.find_by_fee_item(fee.id)
             item_valid = [p for p in item_payments
                           if p.is_valid() and str(p.enrollment_id) == str(enrollment.id)]
-            schedule = fee.get_payment_schedule(year.start_date)
+            schedule = fee.get_payment_schedule(year.start_date, class_id=str(enrollment.class_id))
             sr = self._calc.calculate(schedule, item_valid, as_of=as_of)
             total_paid_item = sum(p.amount.amount for p in item_valid)
             lines.append(PayableLine(

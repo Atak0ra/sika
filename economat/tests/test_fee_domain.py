@@ -202,3 +202,55 @@ class TestLevelNbMonths:
         ).get_payment_schedule(datetime.date(2024, 10, 1))
         assert len(schedule.installments) == 9
         assert schedule.installments[0].amount == _money(10_000)
+
+
+class TestFeeItemClassAmounts:
+    """Tests du système de surcharges par classe."""
+
+    def _item(self, class_amounts=None):
+        return _fee_item(class_amounts=class_amounts or {})
+
+    def test_default_amount_when_no_surcharge(self):
+        item = self._item()
+        assert item.amount_for("cls-a") == _money(15_000)
+        assert item.amount_for(None) == _money(15_000)
+
+    def test_surcharge_overrides_default(self):
+        item = self._item(class_amounts={"cls-a": 10_000, "cls-b": 20_000})
+        assert item.amount_for("cls-a") == _money(10_000)
+        assert item.amount_for("cls-b") == _money(20_000)
+
+    def test_default_used_when_class_not_in_surcharges(self):
+        item = self._item(class_amounts={"cls-a": 10_000})
+        assert item.amount_for("cls-z") == _money(15_000)  # pas de surcharge
+
+    def test_invalid_surcharge_raises(self):
+        import pytest
+        with pytest.raises(ValueError, match="entier"):
+            _fee_item(class_amounts={"cls-a": 0})
+
+    def test_negative_surcharge_raises(self):
+        with pytest.raises(ValueError):
+            _fee_item(class_amounts={"cls-a": -500})
+
+    def test_has_variable_amounts_false_when_empty(self):
+        assert not self._item().has_variable_amounts()
+
+    def test_has_variable_amounts_true_when_set(self):
+        assert self._item(class_amounts={"cls-a": 10_000}).has_variable_amounts()
+
+    def test_schedule_uses_surcharge(self):
+        import datetime
+        item = self._item(class_amounts={"cls-a": 10_000})
+        # Classe avec surcharge
+        s_a = item.get_payment_schedule(datetime.date(2024, 9, 1), class_id="cls-a")
+        assert s_a.total_amount == _money(10_000)
+        # Classe sans surcharge -> montant par défaut
+        s_z = item.get_payment_schedule(datetime.date(2024, 9, 1), class_id="cls-z")
+        assert s_z.total_amount == _money(15_000)
+
+    def test_schedule_without_class_id_uses_default(self):
+        import datetime
+        item = self._item(class_amounts={"cls-a": 10_000})
+        s = item.get_payment_schedule(datetime.date(2024, 9, 1))
+        assert s.total_amount == _money(15_000)

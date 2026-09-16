@@ -77,6 +77,7 @@ class CreateFeeItemUseCase:
             category=category,
             amount=Money(cmd.amount_fcfa, Currency.XOF),
             scope=scope,
+            class_amounts=cmd.class_amounts,
             payment_mode=payment_mode,
             nb_months=cmd.nb_months,
             is_mandatory=cmd.is_mandatory,

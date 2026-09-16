@@ -48,6 +48,7 @@ class UpdateFeeItemUseCase:
 
         fee_item.name         = cmd.name.strip()
         fee_item.amount       = Money(cmd.amount_fcfa, Currency.XOF)
+        fee_item.class_amounts = cmd.class_amounts
         fee_item.payment_mode = payment_mode
         fee_item.nb_months    = cmd.nb_months
         fee_item.is_mandatory = cmd.is_mandatory

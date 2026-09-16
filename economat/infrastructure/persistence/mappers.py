@@ -164,6 +164,7 @@ def fee_item_to_domain(orm) -> "FeeItem":
         category=FeeCategory(orm.category),
         amount=Money(orm.amount, Currency.XOF),
         scope=scope,
+        class_amounts=dict(orm.class_amounts or {}),
         payment_mode=PaymentMode(orm.payment_mode),
         nb_months=orm.nb_months,
         is_mandatory=orm.is_mandatory,

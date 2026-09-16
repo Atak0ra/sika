@@ -166,13 +166,22 @@ def _fee_item_expected_by_category(year_id, enrollments):
         cid = str(getattr(e, "klass_id", None) or getattr(e, "class_id", None) or "")
         if cid: class_counts[cid] += 1
     for fi in fee_items:
+        # Calculer le prévisionnel en tenant compte des surcharges par classe
+        total_fi = 0
+        class_amounts_map = fi.class_amounts or {}
         if fi.scope_type == "ALL":
-            nb = sum(level_counts.values())  # tous les élèves inscrits
+            # Toutes les classes : appliquer surcharge si elle existe, sinon défaut
+            for cid_str, nb in class_counts.items():
+                montant = class_amounts_map.get(cid_str, fi.amount)
+                total_fi += montant * nb
         elif fi.scope_type == "CLASSES" and fi.class_ids:
-            nb = sum(class_counts.get(str(cid), 0) for cid in fi.class_ids)
-        else:
-            nb = 0
-        if nb > 0: result[fi.category] += fi.amount * nb
+            for cid in fi.class_ids:
+                nb = class_counts.get(str(cid), 0)
+                if nb > 0:
+                    montant = class_amounts_map.get(str(cid), fi.amount)
+                    total_fi += montant * nb
+        if total_fi > 0:
+            result[fi.category] += total_fi
     return dict(result)
 
 
