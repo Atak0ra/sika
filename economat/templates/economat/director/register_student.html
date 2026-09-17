@@ -1,5 +1,5 @@
 {% extends "economat/director/_base_director.html" %}
-{% block title %}Nouvel élève — {{ school.name }}{% endblock %}
+{% block title %}Nouvel élève · {{ school.name }}{% endblock %}
 {% block director_content %}
 
 <!-- Fil d'Ariane -->
@@ -89,7 +89,7 @@
     <div id="step2" style="display:none;">
       <div class="card" style="padding:1.75rem;margin-bottom:1rem;">
         <h2 style="font-size:1rem;font-weight:700;letter-spacing:-.01em;margin-bottom:.3rem;">Dans quelle classe ?</h2>
-        <p style="font-size:.8125rem;color:#6b7280;margin-bottom:1.4rem;">{{ school_year.label }} — {{ school.name }}</p>
+        <p style="font-size:.8125rem;color:#6b7280;margin-bottom:1.4rem;">{{ school_year.label }} · {{ school.name }}</p>
         <div style="margin-bottom:.875rem;">
           <label class="field-label">Niveau <span style="color:#dc2626;">*</span></label>
           {{ form.level_id }}

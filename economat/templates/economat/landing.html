@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sukulu — Payez et gérez les frais scolaires en FCFA</title>
+  <title>Sukulu · Frais scolaires, encaissement et paiement mobile en FCFA</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fraunces:ital,wght@0,600;1,600&display=swap" rel="stylesheet">
@@ -364,11 +364,13 @@
     <!-- Texte gauche -->
     <div>
       <h1 class="hero-title">
-        Payez la scolarité<br>
-        <em>depuis votre mobile.</em>
+        Tous les frais scolaires,<br>
+        <em>en ordre.</em>
       </h1>
       <p class="hero-sub">
-        Scolarité, cantine, transport, sorties&hellip; Le parent règle en Mobile Money sans se déplacer. L&rsquo;école encaisse, suit et pilote tout d&rsquo;un coup d&rsquo;&oelig;il.
+        Scolarité, cantine, transport, sorties, frais annexes&hellip;
+        L&rsquo;économe encaisse au guichet, le parent paie depuis son téléphone en Mobile Money.
+        L&rsquo;école suit les retards et voit tout en temps réel.
       </p>
       <div class="hero-cta">
         <a href="{% url 'economat:parent_portal_search' %}" class="btn btn-primary"
@@ -384,7 +386,7 @@
         </a>
       </div>
       <p class="hero-note">
-        Espace parent sans création de compte &mdash; juste votre matricule.
+        Espace parent sans création de compte, juste votre matricule.
         &ensp;<span style="color:var(--on-dark-muted);">|</span>&ensp;
         <span style="color:var(--on-dark-muted);">École déjà inscrite&nbsp;? <a href="{% url 'economat:login' %}" style="color:#fff;text-decoration:underline;font-weight:600;">Se connecter</a>.</span>
       </p>
@@ -407,7 +409,7 @@
           <span class="receipt-class">CM2 A</span>
         </div>
         <div class="receipt-divider"></div>
-        <div class="receipt-amount-lbl">Cantine &mdash; Octobre</div>
+        <div class="receipt-amount-lbl">Cantine, octobre</div>
         <div class="receipt-amount" style="font-size:1.5rem;">15&thinsp;000 <span>FCFA</span></div>
         <div style="font-size:.72rem;color:#6b7280;margin-top:.3rem;margin-bottom:.7rem;">Scolarité soldée &middot; Reste cantine : 75&thinsp;000 FCFA</div>
         <div class="receipt-foot">
@@ -435,83 +437,68 @@
 <section class="parent-section" id="parents">
   <div class="parent-inner">
 
-    <!-- Colonne gauche : explication étape par étape -->
+    <!-- Colonne gauche -->
     <div>
       <div class="section-label" style="color:#15803d;">Pour les parents</div>
-      <h2 class="section-title" style="color:#14532d;">
-        Payez tous les frais<br>de votre enfant,<br>
-        <em style="font-style:normal;color:#16a34a;">depuis votre téléphone.</em>
+      <h2 class="section-title" style="color:#14532d;line-height:1.15;">
+        Tous les frais de votre enfant,<br>visibles et réglables depuis chez vous.
       </h2>
-      <p style="font-size:1.0625rem;color:#166534;line-height:1.7;margin-bottom:0;max-width:520px;">
-        Scolarité, cantine, transport, sorties&hellip; tous les frais dus en un seul endroit.
-        Réglez en Mobile Money — Orange, Wave, MTN, Moov — sans vous déplacer, sans créer de compte.
+      <p style="font-size:1.0625rem;color:#166534;line-height:1.75;margin:1.25rem 0 2rem;max-width:480px;">
+        Scolarité, cantine, transport, sorties&hellip; Consultez ce qui est dû et payez quand vous voulez : en espèces à l&rsquo;école ou en Mobile Money depuis votre téléphone. Chaque paiement génère un reçu que vous pouvez garder.
       </p>
-      <div class="parent-steps">
-        <div class="pstep">
-          <div class="pstep-num">1</div>
-          <div>
-            <div class="pstep-title">Entrez le matricule de votre enfant</div>
-            <div class="pstep-desc">Saisissez le code fourni par l&rsquo;école. Aucun compte, aucun mot de passe.</div>
-          </div>
-        </div>
-        <div class="pstep">
-          <div class="pstep-num">2</div>
-          <div>
-            <div class="pstep-title">Consultez tous les frais dus</div>
-            <div class="pstep-desc">Scolarité, cantine, transport&hellip; chaque poste s&rsquo;affiche avec le montant restant à régler.</div>
-          </div>
-        </div>
-        <div class="pstep">
-          <div class="pstep-num">3</div>
-          <div>
-            <div class="pstep-title">Payez avec votre opérateur Mobile Money</div>
-            <div class="pstep-desc">Choisissez Orange Money, Wave, MTN ou Moov selon votre pays. Confirmation immédiate.</div>
-          </div>
-        </div>
-        <div class="pstep">
-          <div class="pstep-num">4</div>
-          <div>
-            <div class="pstep-title">Téléchargez votre reçu</div>
-            <div class="pstep-desc">Reçu numérique généré instantanément. Retrouvez tout votre historique à tout moment.</div>
-          </div>
-        </div>
-      </div>
+      <ul style="list-style:none;padding:0;margin:0 0 2.25rem;display:flex;flex-direction:column;gap:1rem;">
+        <li style="display:flex;align-items:flex-start;gap:.85rem;">
+          <span style="flex-shrink:0;width:1.6rem;height:1.6rem;border-radius:50%;background:#16a34a;display:flex;align-items:center;justify-content:center;margin-top:.15rem;">
+            <svg aria-hidden="true" style="width:.75rem;height:.75rem;stroke:#fff;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>
+          </span>
+          <span style="font-size:.9375rem;color:#166534;"><strong style="color:#14532d;">Juste votre matricule</strong> pour accéder à l&rsquo;espace de votre enfant. Aucun compte, aucun mot de passe.</span>
+        </li>
+        <li style="display:flex;align-items:flex-start;gap:.85rem;">
+          <span style="flex-shrink:0;width:1.6rem;height:1.6rem;border-radius:50%;background:#16a34a;display:flex;align-items:center;justify-content:center;margin-top:.15rem;">
+            <svg aria-hidden="true" style="width:.75rem;height:.75rem;stroke:#fff;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>
+          </span>
+          <span style="font-size:.9375rem;color:#166534;"><strong style="color:#14532d;">Payez au guichet ou en Mobile Money</strong> (Orange, Wave, MTN, Moov) selon ce qui vous convient.</span>
+        </li>
+        <li style="display:flex;align-items:flex-start;gap:.85rem;">
+          <span style="flex-shrink:0;width:1.6rem;height:1.6rem;border-radius:50%;background:#16a34a;display:flex;align-items:center;justify-content:center;margin-top:.15rem;">
+            <svg aria-hidden="true" style="width:.75rem;height:.75rem;stroke:#fff;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>
+          </span>
+          <span style="font-size:.9375rem;color:#166534;"><strong style="color:#14532d;">Un reçu à chaque paiement,</strong> guichet ou mobile, consultable et téléchargeable à tout moment.</span>
+        </li>
+      </ul>
       <a href="{% url 'economat:parent_portal_search' %}"
          class="btn"
-         style="display:inline-flex;margin-top:2.25rem;background:#16a34a;color:#fff;border-color:#16a34a;padding:.95rem 2rem;font-size:1rem;font-weight:700;box-shadow:0 4px 14px rgba(22,163,74,.35);border-radius:10px;">
+         style="display:inline-flex;background:#16a34a;color:#fff;border-color:#16a34a;padding:.9rem 1.85rem;font-size:.9375rem;font-weight:700;box-shadow:0 4px 14px rgba(22,163,74,.3);border-radius:10px;">
         <svg aria-hidden="true" style="width:1em;height:1em;stroke:currentColor;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;vertical-align:-.1em;" viewBox="0 0 24 24"><use href="#il-phone"/></svg>
         Accéder à l&rsquo;espace parent
       </a>
     </div>
 
-    <!-- Colonne droite : mockup téléphone -->
+    <!-- Colonne droite : reçu simplifié -->
     <div>
       <div class="phone-mockup">
         <div class="phone-header">
           <div class="phone-title">
-            <svg aria-hidden="true" style="width:.9em;height:.9em;stroke:#16a34a;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;vertical-align:-.1em;margin-right:.3em;" viewBox="0 0 24 24"><use href="#il-school"/></svg>
+            <svg aria-hidden="true" style="width:.9em;height:.9em;stroke:#16a34a;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;vertical-align:-.1em;margin-right:.35em;" viewBox="0 0 24 24"><use href="#il-school"/></svg>
             Frais scolaires
           </div>
-          <span class="phone-badge">En ligne</span>
+          <span class="phone-badge">Sans compte</span>
         </div>
-        <div class="phone-student">Élève&nbsp;: <strong>Awa DIALLO</strong> &mdash; CM2 A</div>
+        <div class="phone-student" style="margin-bottom:1.5rem;">Awa DIALLO &middot; CM2 A &middot; Lycée Sainte-Marie</div>
 
-        <!-- Scolarité soldée -->
         <div class="fee-row" style="background:#f0fdf4;border-color:#bbf7d0;">
           <div>
             <div class="fee-row-label">Scolarité annuelle</div>
-            <div class="fee-row-sub">Année 2025&ndash;2026</div>
+            <div class="fee-row-sub">Soldée en 3 versements</div>
           </div>
           <div style="text-align:right;">
-            <div class="fee-row-amount" style="color:#15803d;">Soldée</div>
-            <span class="fee-row-status-paid">Payé</span>
+            <div class="fee-row-amount" style="color:#15803d;">&#10003; Soldée</div>
           </div>
         </div>
 
-        <!-- Cantine due -->
         <div class="fee-row">
           <div>
-            <div class="fee-row-label">Cantine — Novembre</div>
+            <div class="fee-row-label">Cantine, novembre</div>
             <div class="fee-row-sub">Reste à payer</div>
           </div>
           <div style="text-align:right;">
@@ -520,10 +507,9 @@
           </div>
         </div>
 
-        <!-- Transport dû -->
         <div class="fee-row">
           <div>
-            <div class="fee-row-label">Transport — T2</div>
+            <div class="fee-row-label">Transport, 2e trimestre</div>
             <div class="fee-row-sub">Reste à payer</div>
           </div>
           <div style="text-align:right;">
@@ -532,15 +518,9 @@
           </div>
         </div>
 
-        <a href="{% url 'economat:parent_portal_search' %}" class="phone-cta">
-          Payer maintenant &rarr;
-        </a>
-
-        <div class="operators">
-          <span class="op">🟠 Orange Money</span>
-          <span class="op">🔵 Wave</span>
-          <span class="op">🟡 MTN MoMo</span>
-          <span class="op">🟢 Moov Money</span>
+        <div style="margin-top:1.1rem;padding:1rem;background:#f8fafc;border-radius:10px;border:1px solid #ecedf1;font-size:.8125rem;color:#4b4e5f;line-height:1.5;">
+          Paiement accepté au guichet de l&rsquo;école<br>
+          <span style="color:#6b7280;">ou en Mobile Money depuis votre téléphone.</span>
         </div>
       </div>
     </div>
@@ -553,8 +533,8 @@
   <div class="section-inner">
     <div style="margin-bottom:3rem;">
       <div class="section-label">Fonctionnalités</div>
-      <h2 class="section-title">Scolarité, cantine, transport&hellip; tout centralisé</h2>
-      <p class="section-sub">Créez vos postes de frais librement. Ils apparaissent automatiquement chez les parents concernés, au guichet et en Mobile Money.</p>
+      <h2 class="section-title">Scolarité, cantine, transport, sorties&hellip; tout centralisé</h2>
+      <p class="section-sub">Créez vos postes de frais librement. Ils apparaissent automatiquement chez les parents concernés, au guichet et en Mobile Money. L&rsquo;école suit en temps réel ce qui a été payé, ce qui est en retard, classe par classe.</p>
 
     </div>
     <div class="features-grid">

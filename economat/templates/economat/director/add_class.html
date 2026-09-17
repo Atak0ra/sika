@@ -1,5 +1,5 @@
 {% extends "economat/director/_base_director.html" %}
-{% block title %}Classes {{ level.name }} — {{ school.name }}{% endblock %}
+{% block title %}Classes {{ level.name }} · {{ school.name }}{% endblock %}
 {% block director_content %}
 <div style="margin-bottom:1.5rem;">
   <a href="{% url 'economat:add_level' school.id school_year.id %}"

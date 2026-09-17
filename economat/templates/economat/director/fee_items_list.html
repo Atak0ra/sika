@@ -1,12 +1,12 @@
 {% extends "economat/director/_base_director.html" %}
 {% load economat_tags %}
-{% block title %}Frais — {{ school_year.label }}{% endblock %}
+{% block title %}Frais · {{ school_year.label }}{% endblock %}
 {% block director_content %}
 
 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:.75rem;">
   <div>
     <h1 style="font-size:1.125rem;font-weight:700;letter-spacing:-0.02em;">Postes de frais</h1>
-    <p style="font-size:.8375rem;color:#6b7280;margin-top:.25rem;">{{ school.name }} — {{ school_year.label }}</p>
+    <p style="font-size:.8375rem;color:#6b7280;margin-top:.25rem;">{{ school.name }} · {{ school_year.label }}</p>
   </div>
   <a href="{% url 'economat:fee_item_create' school.id school_year.id %}" class="btn-primary"
      style="display:inline-flex;gap:.4rem;align-items:center;font-size:.875rem;">
