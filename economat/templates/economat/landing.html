@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sukulu — Gestion de tous les frais scolaires en FCFA</title>
+  <title>Sukulu — Payez et gérez les frais scolaires en FCFA</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fraunces:ital,wght@0,600;1,600&display=swap" rel="stylesheet">
@@ -221,6 +221,60 @@
     .cta-title{font-size:3rem;font-weight:800;color:#fff;margin-bottom:1rem;letter-spacing:-0.03em;line-height:1.1;}
     .cta-sub{font-size:1.125rem;color:var(--on-dark-muted);margin-bottom:2.5rem;line-height:1.7;}
 
+    /* Section parent */
+    .parent-section{
+      background:linear-gradient(160deg,#f0fdf4 0%,#dcfce7 100%);
+      border-bottom:1px solid #bbf7d0;
+      padding:7rem 2rem;
+    }
+    .parent-inner{max-width:1140px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:5rem;align-items:center;}
+    .parent-steps{display:flex;flex-direction:column;gap:1.75rem;margin-top:2.5rem;}
+    .pstep{display:flex;gap:1.25rem;align-items:flex-start;}
+    .pstep-num{
+      flex-shrink:0;width:2.25rem;height:2.25rem;border-radius:50%;
+      background:#16a34a;color:#fff;font-weight:800;font-size:.875rem;
+      display:flex;align-items:center;justify-content:center;margin-top:.1rem;
+    }
+    .pstep-title{font-size:1rem;font-weight:700;color:#14532d;margin-bottom:.3rem;}
+    .pstep-desc{font-size:.9375rem;color:#166534;line-height:1.6;}
+    .phone-mockup{
+      background:#fff;border-radius:28px;
+      box-shadow:0 30px 70px rgba(0,80,20,.15),0 8px 20px rgba(0,80,20,.08);
+      padding:2rem 1.75rem;border:1px solid #bbf7d0;
+      max-width:340px;margin:0 auto;
+    }
+    .phone-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;}
+    .phone-title{font-size:.875rem;font-weight:700;color:#14532d;}
+    .phone-badge{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;padding:.25rem .6rem;border-radius:999px;background:#dcfce7;color:#15803d;border:1px solid #bbf7d0;}
+    .phone-student{font-size:.8125rem;color:#6b7280;margin-bottom:1.25rem;}
+    .phone-student strong{color:#1a1d29;}
+    .fee-row{
+      display:flex;align-items:center;justify-content:space-between;
+      padding:.85rem .9rem;border-radius:12px;margin-bottom:.6rem;
+      border:1px solid #ecedf1;background:#f8fffe;
+    }
+    .fee-row-label{font-size:.875rem;font-weight:600;color:#1a1d29;}
+    .fee-row-sub{font-size:.75rem;color:#6b7280;margin-top:.1rem;}
+    .fee-row-amount{font-size:.9375rem;font-weight:800;color:#1a1d29;white-space:nowrap;}
+    .fee-row-status-due{font-size:.65rem;font-weight:700;text-transform:uppercase;padding:.2rem .55rem;border-radius:999px;background:#fef3c7;color:#92400e;border:1px solid #fde68a;}
+    .fee-row-status-paid{font-size:.65rem;font-weight:700;text-transform:uppercase;padding:.2rem .55rem;border-radius:999px;background:#dcfce7;color:#15803d;border:1px solid #bbf7d0;}
+    .phone-cta{
+      margin-top:1.25rem;width:100%;display:block;text-align:center;
+      background:#16a34a;color:#fff;font-weight:700;font-size:.9375rem;
+      border-radius:12px;padding:.9rem;
+      box-shadow:0 4px 14px rgba(22,163,74,.35);
+    }
+    .operators{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.85rem;justify-content:center;}
+    .op{font-size:.7rem;font-weight:600;padding:.25rem .65rem;border-radius:999px;background:#fff;border:1px solid #d1d5db;color:#374151;}
+
+    @media(max-width:900px){
+      .parent-inner{grid-template-columns:1fr;gap:3rem;}
+      .phone-mockup{max-width:100%;}
+    }
+    @media(max-width:640px){
+      .parent-section{padding:4rem 1.25rem;}
+    }
+
     /* Footer */
     .footer{
       background:#f4f5f9;
@@ -289,9 +343,17 @@
       <svg aria-hidden="true" style="width:1.4rem;height:1.4rem;stroke:var(--brand);fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><use href="#il-school"/></svg>
       <span class="brand-mark">Sukulu</span>
     </div>
-    <a href="{% url 'economat:login' %}" class="btn btn-primary" style="padding:.5rem 1rem;font-size:.8375rem;">
-      Connexion
-    </a>
+    <div style="display:flex;align-items:center;gap:.75rem;">
+      <a href="{% url 'economat:parent_portal_search' %}"
+         style="font-size:.8375rem;font-weight:600;color:rgba(255,255,255,.82);padding:.45rem .85rem;border-radius:7px;border:1px solid rgba(255,255,255,.15);transition:background .15s;"
+         onmouseover="this.style.background='rgba(255,255,255,.08)'" onmouseout="this.style.background='transparent'">
+        <svg aria-hidden="true" style="width:.85em;height:.85em;stroke:currentColor;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;vertical-align:-.1em;margin-right:.3em;" viewBox="0 0 24 24"><use href="#il-phone"/></svg>
+        Espace parent
+      </a>
+      <a href="{% url 'economat:login' %}" class="btn btn-primary" style="padding:.5rem 1rem;font-size:.8375rem;">
+        Connexion école
+      </a>
+    </div>
   </div>
 </nav>
 
@@ -302,30 +364,29 @@
     <!-- Texte gauche -->
     <div>
       <h1 class="hero-title">
-        Tous les frais scolaires,<br>
-        <em>une seule plateforme.</em>
+        Payez la scolarité<br>
+        <em>depuis votre mobile.</em>
       </h1>
       <p class="hero-sub">
-        Scolarité, cantine, transport, sorties&hellip; centralisez chaque encaissement,
-        laissez le parent payer depuis son mobile, et pilotez tout d&rsquo;un coup d&rsquo;œil.
+        Scolarité, cantine, transport, sorties&hellip; Le parent règle en Mobile Money sans se déplacer. L&rsquo;école encaisse, suit et pilote tout d&rsquo;un coup d&rsquo;&oelig;il.
       </p>
       <div class="hero-cta">
-        <a href="{% url 'economat:register_school' %}" class="btn btn-primary"
-           style="background:#fff;color:#1a1d29;border-color:#fff;padding:1.05rem 2.25rem;font-size:1.0625rem;font-weight:700;box-shadow:0 4px 16px rgba(0,0,0,.2);">
-          Inscrire mon école
-          <svg aria-hidden="true" style="width:1em;height:1em;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;vertical-align:-.1em;" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+        <a href="{% url 'economat:parent_portal_search' %}" class="btn btn-primary"
+           style="background:#16a34a;border-color:#16a34a;padding:1.05rem 2.25rem;font-size:1.0625rem;font-weight:700;box-shadow:0 4px 16px rgba(22,163,74,.45);">
+          <svg aria-hidden="true" style="width:1em;height:1em;stroke:currentColor;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;vertical-align:-.1em;" viewBox="0 0 24 24"><use href="#il-phone"/></svg>
+          Payer la scolarité de mon enfant
         </a>
-        <a href="{% url 'economat:parent_portal_search' %}" class="btn btn-outline"
+        <a href="{% url 'economat:register_school' %}" class="btn btn-outline"
            style="padding:1.05rem 2.25rem;font-size:1.0625rem;font-weight:700;
                   background:rgba(255,255,255,.1);color:#fff;border-color:rgba(255,255,255,.25);">
-          <svg aria-hidden="true" style="width:1em;height:1em;stroke:currentColor;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;vertical-align:-.1em;" viewBox="0 0 24 24"><use href="#il-users"/></svg>
-          Espace parent
+          <svg aria-hidden="true" style="width:1em;height:1em;stroke:currentColor;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;vertical-align:-.1em;" viewBox="0 0 24 24"><use href="#il-school"/></svg>
+          Inscrire mon école
         </a>
       </div>
       <p class="hero-note">
-        Demande d&rsquo;inscription en ligne, en quelques minutes.
+        Espace parent sans création de compte &mdash; juste votre matricule.
         &ensp;<span style="color:var(--on-dark-muted);">|</span>&ensp;
-        <span style="color:var(--on-dark-muted);">Déjà inscrit&nbsp;? <a href="{% url 'economat:login' %}" style="color:#fff;text-decoration:underline;font-weight:600;">Se connecter</a>.</span>
+        <span style="color:var(--on-dark-muted);">École déjà inscrite&nbsp;? <a href="{% url 'economat:login' %}" style="color:#fff;text-decoration:underline;font-weight:600;">Se connecter</a>.</span>
       </p>
     </div>
 
@@ -368,6 +429,123 @@
     </div>
   </a>
 
+</section>
+
+<!-- SECTION PARENT — PAIEMENT MOBILE MONEY -->
+<section class="parent-section" id="parents">
+  <div class="parent-inner">
+
+    <!-- Colonne gauche : explication étape par étape -->
+    <div>
+      <div class="section-label" style="color:#15803d;">Pour les parents</div>
+      <h2 class="section-title" style="color:#14532d;">
+        Payez tous les frais<br>de votre enfant,<br>
+        <em style="font-style:normal;color:#16a34a;">depuis votre téléphone.</em>
+      </h2>
+      <p style="font-size:1.0625rem;color:#166534;line-height:1.7;margin-bottom:0;max-width:520px;">
+        Scolarité, cantine, transport, sorties&hellip; tous les frais dus en un seul endroit.
+        Réglez en Mobile Money — Orange, Wave, MTN, Moov — sans vous déplacer, sans créer de compte.
+      </p>
+      <div class="parent-steps">
+        <div class="pstep">
+          <div class="pstep-num">1</div>
+          <div>
+            <div class="pstep-title">Entrez le matricule de votre enfant</div>
+            <div class="pstep-desc">Saisissez le code fourni par l&rsquo;école. Aucun compte, aucun mot de passe.</div>
+          </div>
+        </div>
+        <div class="pstep">
+          <div class="pstep-num">2</div>
+          <div>
+            <div class="pstep-title">Consultez tous les frais dus</div>
+            <div class="pstep-desc">Scolarité, cantine, transport&hellip; chaque poste s&rsquo;affiche avec le montant restant à régler.</div>
+          </div>
+        </div>
+        <div class="pstep">
+          <div class="pstep-num">3</div>
+          <div>
+            <div class="pstep-title">Payez avec votre opérateur Mobile Money</div>
+            <div class="pstep-desc">Choisissez Orange Money, Wave, MTN ou Moov selon votre pays. Confirmation immédiate.</div>
+          </div>
+        </div>
+        <div class="pstep">
+          <div class="pstep-num">4</div>
+          <div>
+            <div class="pstep-title">Téléchargez votre reçu</div>
+            <div class="pstep-desc">Reçu numérique généré instantanément. Retrouvez tout votre historique à tout moment.</div>
+          </div>
+        </div>
+      </div>
+      <a href="{% url 'economat:parent_portal_search' %}"
+         class="btn"
+         style="display:inline-flex;margin-top:2.25rem;background:#16a34a;color:#fff;border-color:#16a34a;padding:.95rem 2rem;font-size:1rem;font-weight:700;box-shadow:0 4px 14px rgba(22,163,74,.35);border-radius:10px;">
+        <svg aria-hidden="true" style="width:1em;height:1em;stroke:currentColor;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;vertical-align:-.1em;" viewBox="0 0 24 24"><use href="#il-phone"/></svg>
+        Accéder à l&rsquo;espace parent
+      </a>
+    </div>
+
+    <!-- Colonne droite : mockup téléphone -->
+    <div>
+      <div class="phone-mockup">
+        <div class="phone-header">
+          <div class="phone-title">
+            <svg aria-hidden="true" style="width:.9em;height:.9em;stroke:#16a34a;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;vertical-align:-.1em;margin-right:.3em;" viewBox="0 0 24 24"><use href="#il-school"/></svg>
+            Frais scolaires
+          </div>
+          <span class="phone-badge">En ligne</span>
+        </div>
+        <div class="phone-student">Élève&nbsp;: <strong>Awa DIALLO</strong> &mdash; CM2 A</div>
+
+        <!-- Scolarité soldée -->
+        <div class="fee-row" style="background:#f0fdf4;border-color:#bbf7d0;">
+          <div>
+            <div class="fee-row-label">Scolarité annuelle</div>
+            <div class="fee-row-sub">Année 2025&ndash;2026</div>
+          </div>
+          <div style="text-align:right;">
+            <div class="fee-row-amount" style="color:#15803d;">Soldée</div>
+            <span class="fee-row-status-paid">Payé</span>
+          </div>
+        </div>
+
+        <!-- Cantine due -->
+        <div class="fee-row">
+          <div>
+            <div class="fee-row-label">Cantine — Novembre</div>
+            <div class="fee-row-sub">Reste à payer</div>
+          </div>
+          <div style="text-align:right;">
+            <div class="fee-row-amount">15&thinsp;000 FCFA</div>
+            <span class="fee-row-status-due">Dû</span>
+          </div>
+        </div>
+
+        <!-- Transport dû -->
+        <div class="fee-row">
+          <div>
+            <div class="fee-row-label">Transport — T2</div>
+            <div class="fee-row-sub">Reste à payer</div>
+          </div>
+          <div style="text-align:right;">
+            <div class="fee-row-amount">20&thinsp;000 FCFA</div>
+            <span class="fee-row-status-due">Dû</span>
+          </div>
+        </div>
+
+        <a href="{% url 'economat:parent_portal_search' %}" class="phone-cta">
+          Payer maintenant &rarr;
+        </a>
+
+        <div class="operators">
+          <span class="op">🟠 Orange Money</span>
+          <span class="op">🔵 Wave</span>
+          <span class="op">🟡 MTN MoMo</span>
+          <span class="op">🟢 Moov Money</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
 </section>
 
 <!-- FEATURES -->
@@ -472,6 +650,8 @@
 <!-- CTA FINAL -->
 <section class="cta-section">
   <div class="cta-inner">
+
+    <!-- Bloc école -->
     <div style="width:3rem;height:3rem;border-radius:14px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;margin:0 auto 1.5rem;">
       <svg aria-hidden="true" style="width:1.4rem;height:1.4rem;stroke:#fff;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><use href="#il-school"/></svg>
     </div>
@@ -485,6 +665,27 @@
     <p style="margin-top:1rem;font-size:.8125rem;">
       <a href="{% url 'economat:login' %}" style="color:var(--on-dark-muted);text-decoration:underline;font-weight:500;">Déjà inscrit ? Se connecter</a>
     </p>
+
+    <!-- Séparateur -->
+    <div style="margin:3rem auto;max-width:280px;display:flex;align-items:center;gap:1rem;">
+      <div style="flex:1;height:1px;background:rgba(255,255,255,.12);"></div>
+      <span style="font-size:.8125rem;color:var(--on-dark-muted);white-space:nowrap;">Vous êtes parent ?</span>
+      <div style="flex:1;height:1px;background:rgba(255,255,255,.12);"></div>
+    </div>
+
+    <!-- Bloc parent -->
+    <div style="width:3rem;height:3rem;border-radius:14px;background:rgba(22,163,74,.25);border:1px solid rgba(22,163,74,.4);display:flex;align-items:center;justify-content:center;margin:0 auto 1.5rem;">
+      <svg aria-hidden="true" style="width:1.4rem;height:1.4rem;stroke:#4ade80;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><use href="#il-phone"/></svg>
+    </div>
+    <h2 class="cta-title" style="font-size:2rem;">Payez la scolarité de votre enfant</h2>
+    <p class="cta-sub" style="font-size:1rem;">
+      Aucun compte nécessaire. Juste le matricule et votre Mobile Money.
+    </p>
+    <a href="{% url 'economat:parent_portal_search' %}" class="btn" style="background:#16a34a;color:#fff;border:1px solid #16a34a;padding:.8rem 2rem;font-size:.9375rem;font-weight:700;border-radius:10px;box-shadow:0 4px 14px rgba(22,163,74,.4);">
+      <svg aria-hidden="true" style="width:1em;height:1em;stroke:currentColor;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;vertical-align:-.1em;" viewBox="0 0 24 24"><use href="#il-phone"/></svg>
+      Accéder à l&rsquo;espace parent
+    </a>
+
   </div>
 </section>
 
