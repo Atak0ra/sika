@@ -551,76 +551,58 @@
   </div>
 </section>
 
-<!-- RÔLES -->
+<!-- SECTION ÉCOLE — QUI UTILISE QUOI -->
 <section class="section" style="background:var(--bg);border-bottom:1px solid var(--border);">
   <div class="section-inner">
-    <div style="margin-bottom:3rem;">
-      <div class="section-label">Accès</div>
-      <h2 class="section-title">Un espace pour chaque acteur</h2>
-      <p class="section-sub">Du directeur au parent, chacun accède uniquement à son périmètre.</p>
+
+    <div style="max-width:600px;margin-bottom:3.5rem;">
+      <div class="section-label">Pour les écoles</div>
+      <h2 class="section-title">Fait pour toute l&rsquo;équipe</h2>
+      <p class="section-sub">
+        Directeur, secrétaire, économe&nbsp;: chacun voit ce qui le concerne, rien de plus.
+        Tout le monde travaille sur les mêmes données, en temps réel.
+      </p>
     </div>
-    <div class="roles-grid" style="grid-template-columns:repeat(2,1fr);">
+
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;">
 
       <!-- Directeur -->
-      <div class="role" style="border-color:#c7d2fe;background:#eef2ff;">
-        <div style="width:2rem;height:2rem;border-radius:8px;background:#4f46e5;display:flex;align-items:center;justify-content:center;margin-bottom:.85rem;">
-          <svg aria-hidden="true" style="width:1rem;height:1rem;stroke:#fff;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><use href="#il-chart"/></svg>
+      <div style="background:var(--surface);border:1.5px solid #c7d2fe;border-radius:16px;padding:1.85rem;box-shadow:var(--shadow-xs);">
+        <div style="width:2.5rem;height:2.5rem;border-radius:10px;background:#4f46e5;display:flex;align-items:center;justify-content:center;margin-bottom:1.15rem;">
+          <svg aria-hidden="true" style="width:1.1rem;height:1.1rem;stroke:#fff;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><use href="#il-chart"/></svg>
         </div>
-        <div class="role-title" style="color:#312e81;">Directeur</div>
-        <div class="role-sub">Accès complet</div>
-        <ul class="role-list">
-          <li><svg aria-hidden="true" class="icon role-check" style="width:.9em;height:.9em;"><use href="#il-check"/></svg> Dashboard &amp; KPIs</li>
-          <li><svg aria-hidden="true" class="icon role-check" style="width:.9em;height:.9em;"><use href="#il-check"/></svg> Configuration des tarifs</li>
-          <li><svg aria-hidden="true" class="icon role-check" style="width:.9em;height:.9em;"><use href="#il-check"/></svg> Gestion de l’équipe</li>
-          <li><svg aria-hidden="true" class="icon role-check" style="width:.9em;height:.9em;"><use href="#il-check"/></svg> Création des postes de frais</li>
-          <li><svg aria-hidden="true" class="icon role-check" style="width:.9em;height:.9em;"><use href="#il-check"/></svg> Reporting par catégorie</li>
-        </ul>
+        <div style="font-size:1rem;font-weight:700;color:#312e81;margin-bottom:.5rem;">Directeur</div>
+        <p style="font-size:.9375rem;color:var(--text-2);line-height:1.65;margin:0 0 1.25rem;">
+          Suit les encaissements du jour, le taux de recouvrement global et les retards par classe.
+          Configure les tarifs et gère l&rsquo;accès de l&rsquo;équipe.
+        </p>
+        <div style="font-size:.8125rem;color:#4f46e5;font-weight:600;letter-spacing:.01em;">Dashboard &middot; KPIs &middot; Alertes retards</div>
       </div>
 
       <!-- Secrétaire -->
-      <div class="role">
-        <div style="width:2rem;height:2rem;border-radius:8px;background:#ecfdf5;display:flex;align-items:center;justify-content:center;margin-bottom:.85rem;">
-          <svg aria-hidden="true" style="width:1rem;height:1rem;stroke:#059669;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><use href="#il-users"/></svg>
+      <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:16px;padding:1.85rem;box-shadow:var(--shadow-xs);">
+        <div style="width:2.5rem;height:2.5rem;border-radius:10px;background:#ecfdf5;display:flex;align-items:center;justify-content:center;margin-bottom:1.15rem;">
+          <svg aria-hidden="true" style="width:1.1rem;height:1.1rem;stroke:#059669;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><use href="#il-users"/></svg>
         </div>
-        <div class="role-title">Secrétaire</div>
-        <div class="role-sub">Inscriptions &amp; frais</div>
-        <ul class="role-list">
-          <li><svg aria-hidden="true" class="icon role-check" style="width:.9em;height:.9em;"><use href="#il-check"/></svg> Inscription des élèves</li>
-          <li><svg aria-hidden="true" class="icon role-check" style="width:.9em;height:.9em;"><use href="#il-check"/></svg> Saisie des paiements</li>
-          <li><svg aria-hidden="true" class="icon role-check" style="width:.9em;height:.9em;"><use href="#il-check"/></svg> Création des postes de frais</li>
-          <li class="off"><svg aria-hidden="true" class="icon role-cross" style="width:.9em;height:.9em;"><use href="#il-x"/></svg> Configuration tarifs</li>
-        </ul>
+        <div style="font-size:1rem;font-weight:700;margin-bottom:.5rem;">Secrétaire</div>
+        <p style="font-size:.9375rem;color:var(--text-2);line-height:1.65;margin:0 0 1.25rem;">
+          Inscrit les élèves, gère les niveaux et classes, saisit les paiements.
+          Pas accès à la configuration des tarifs ni au pilotage financier.
+        </p>
+        <div style="font-size:.8125rem;color:#059669;font-weight:600;letter-spacing:.01em;">Inscriptions &middot; Élèves &middot; Paiements</div>
       </div>
 
       <!-- Économe -->
-      <div class="role">
-        <div style="width:2rem;height:2rem;border-radius:8px;background:#fff7ed;display:flex;align-items:center;justify-content:center;margin-bottom:.85rem;">
-          <svg aria-hidden="true" style="width:1rem;height:1rem;stroke:#d97706;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><use href="#il-wallet"/></svg>
+      <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:16px;padding:1.85rem;box-shadow:var(--shadow-xs);">
+        <div style="width:2.5rem;height:2.5rem;border-radius:10px;background:#fff7ed;display:flex;align-items:center;justify-content:center;margin-bottom:1.15rem;">
+          <svg aria-hidden="true" style="width:1.1rem;height:1.1rem;stroke:#d97706;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><use href="#il-wallet"/></svg>
         </div>
-        <div class="role-title">Économe <span style="font-size:.75rem;font-weight:500;color:#6b7280;">(DAF / Comptable)</span></div>
-        <div class="role-sub">Encaissements</div>
-        <ul class="role-list">
-          <li><svg aria-hidden="true" class="icon role-check" style="width:.9em;height:.9em;"><use href="#il-check"/></svg> Saisie tout type de frais</li>
-          <li><svg aria-hidden="true" class="icon role-check" style="width:.9em;height:.9em;"><use href="#il-check"/></svg> Dropdown des frais dus par élève</li>
-          <li><svg aria-hidden="true" class="icon role-check" style="width:.9em;height:.9em;"><use href="#il-check"/></svg> Génération des reçus</li>
-          <li><svg aria-hidden="true" class="icon role-check" style="width:.9em;height:.9em;"><use href="#il-check"/></svg> Création des postes de frais</li>
-        </ul>
-      </div>
-
-
-      <!-- Parent -->
-      <div class="role" style="border-color:#bbf7d0;background:#f0fdf4;">
-        <div style="width:2rem;height:2rem;border-radius:8px;background:#16a34a;display:flex;align-items:center;justify-content:center;margin-bottom:.85rem;">
-          <svg aria-hidden="true" style="width:1rem;height:1rem;stroke:#fff;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><use href="#il-phone"/></svg>
-        </div>
-        <div class="role-title" style="color:#14532d;">Parent</div>
-        <div class="role-sub">Espace mobile, sans compte</div>
-        <ul class="role-list">
-          <li><svg aria-hidden="true" class="icon role-check" style="width:.9em;height:.9em;"><use href="#il-check"/></svg> Voir tous les frais dus</li>
-          <li><svg aria-hidden="true" class="icon role-check" style="width:.9em;height:.9em;"><use href="#il-check"/></svg> Choisir ce qu&rsquo;il veut payer</li>
-          <li><svg aria-hidden="true" class="icon role-check" style="width:.9em;height:.9em;"><use href="#il-check"/></svg> Payer en Mobile Money</li>
-          <li><svg aria-hidden="true" class="icon role-check" style="width:.9em;height:.9em;"><use href="#il-check"/></svg> Télécharger ses reçus</li>
-        </ul>
+        <div style="font-size:1rem;font-weight:700;margin-bottom:.5rem;">Économe <span style="font-size:.75rem;font-weight:500;color:var(--text-3);">(DAF, comptable)</span></div>
+        <p style="font-size:.9375rem;color:var(--text-2);line-height:1.65;margin:0 0 1.25rem;">
+          Encaisse au guichet en 3 clics, génère le reçu numéroté sur place.
+          Voit exactement ce que chaque élève doit encore, poste par poste.
+        </p>
+        <div style="font-size:.8125rem;color:#d97706;font-weight:600;letter-spacing:.01em;">Guichet &middot; Reçus &middot; Soldes en direct</div>
       </div>
 
     </div>
