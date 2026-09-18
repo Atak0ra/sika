@@ -70,7 +70,9 @@ def add_level(request, school_id: str, year_id: str, membership=None):
 
     ctx = base_context(
         request, school, year, "niveaux", membership=membership,
-        form=form, page_title=f"Niveaux — {year.label}",
+        form=form,
+        levels=year.levels.prefetch_related("classes").order_by("name"),
+        page_title=f"Niveaux — {year.label}",
     )
     return render(request, "economat/director/add_level.html", ctx)
 
