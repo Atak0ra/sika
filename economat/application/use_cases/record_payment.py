@@ -152,6 +152,7 @@ class RecordPaymentUseCase:
         if cmd.channel:            extra["channel"]           = cmd.channel
         if cmd.gateway_transaction_ref:
             extra["gateway_transaction_ref"] = cmd.gateway_transaction_ref
+        if cmd.fee_item_id:        extra["fee_item_id"]       = cmd.fee_item_id
         if extra:
             _PM2.objects.filter(pk=payment.id.value).update(**extra)
 

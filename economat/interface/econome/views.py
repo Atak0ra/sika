@@ -18,7 +18,8 @@ from django.views.decorators.http import require_GET, require_POST
 from economat.application.dto import RecordPaymentCommand
 from economat.composition import get_record_payment_use_case
 from economat.infrastructure.models import (
-    ClassModel, EnrollmentModel, LevelModel, MembershipModel, PaymentModel, SchoolYearModel,
+    ClassModel, EnrollmentModel, FeeItemModel, LevelModel, MembershipModel, PaymentModel,
+    SchoolYearModel,
 )
 from economat.interface.director.views._shared import _sidebar_levels
 from .forms import RecordPaymentForm, StudentSearchForm
@@ -292,6 +293,7 @@ def payments_list(request):
       - date_from / date_to  (défaut = aujourd'hui)
       - level                (niveau scolaire)
       - class                (classe)
+      - fee_item             (poste de frais : scolarité, cantine, transport…)
     Bandeau récap dynamique (total + nombre) qui suit les filtres actifs.
     Lecture seule — aucune action (annulation, etc.) disponible ici.
     """
@@ -301,16 +303,22 @@ def payments_list(request):
     today       = datetime.date.today()
     date_from_s = request.GET.get("date_from", "").strip()
     date_to_s   = request.GET.get("date_to",   "").strip()
-    level_id    = request.GET.get("level",  "").strip()
-    class_id    = request.GET.get("class",  "").strip()
+    level_id    = request.GET.get("level",     "").strip()
+    class_id    = request.GET.get("class",     "").strip()
+    fee_item_id = request.GET.get("fee_item",  "").strip()
 
     # "date_from" présent dans la query string → l'utilisateur a explicitement
     # choisi une plage (même vide = tout l'historique de l'année). Un filtre
-    # niveau/classe sans date (ex. clic sur une classe depuis la sidebar) est
+    # niveau/classe/poste sans date (ex. clic sur une classe depuis la sidebar) est
     # traité pareil : l'intention est de voir l'historique de cette classe,
     # pas seulement ses encaissements du jour. Absent de tout ça → première
     # visite, on affiche aujourd'hui par défaut.
-    params_in_qs = "date_from" in request.GET or bool(level_id) or bool(class_id)
+    params_in_qs = (
+        "date_from" in request.GET
+        or bool(level_id)
+        or bool(class_id)
+        or bool(fee_item_id)
+    )
 
     # Valeurs par défaut : aujourd'hui dans les deux champs
     date_from = today
@@ -347,6 +355,7 @@ def payments_list(request):
                 "student",
                 "enrollment__klass",
                 "enrollment__klass__level",
+                "fee_item",
             )
         )
         # Filtres date (None = pas de borne)
@@ -359,6 +368,9 @@ def payments_list(request):
             qs = qs.filter(enrollment__klass__level_id=level_id)
         if class_id:
             qs = qs.filter(enrollment__klass_id=class_id)
+        # Filtre poste de frais
+        if fee_item_id:
+            qs = qs.filter(fee_item_id=fee_item_id)
         qs = qs.order_by("-payment_date", "-created_at")
 
     # ── Bandeau récap (total + nb) — agrégat SQL sur la sélection filtrée ────
@@ -370,9 +382,10 @@ def payments_list(request):
     paginator = Paginator(qs, 30)
     page_obj  = paginator.get_page(request.GET.get("page", 1))
 
-    # ── Selects filtres (niveau + classes de l'année active) ─────────────────
-    levels  = []
-    classes = []
+    # ── Selects filtres (niveau + classes + postes de frais de l'année active) ─
+    levels     = []
+    classes    = []
+    fee_items  = []
     if active_year:
         levels = LevelModel.objects.filter(
             school_year=active_year
@@ -383,13 +396,20 @@ def payments_list(request):
         # Si un niveau est sélectionné, on restreint les classes disponibles
         if level_id:
             classes = classes.filter(level_id=level_id)
+        # Tous les postes actifs de l'année (scolarité système + frais annexes)
+        fee_items = FeeItemModel.objects.filter(
+            school_year=active_year, is_active=True,
+        ).order_by("category", "name")
 
     # Valeurs affichées dans les inputs date (chaîne vide si pas de borne)
     f_date_from = date_from.isoformat() if date_from else ""
     f_date_to   = date_to.isoformat()   if date_to   else ""
-    is_today    = (date_from == today and date_to == today and not level_id and not class_id)
+    is_today    = (
+        date_from == today and date_to == today
+        and not level_id and not class_id and not fee_item_id
+    )
 
-    # Nom lisible du filtre actif (classe cliquée depuis la sidebar, etc.)
+    # Nom lisible du filtre actif (classe cliquée depuis la sidebar, poste sélectionné, etc.)
     # — affiché explicitement dans l'en-tête plutôt qu'un vague "· filtré".
     active_filter_label = ""
     if class_id:
@@ -400,6 +420,10 @@ def payments_list(request):
         active_level = LevelModel.objects.filter(pk=level_id).first()
         if active_level:
             active_filter_label = active_level.name
+    elif fee_item_id:
+        active_fi = FeeItemModel.objects.filter(pk=fee_item_id).first()
+        if active_fi:
+            active_filter_label = active_fi.name
 
     ctx = _sidebar_ctx(school, active_year, "encaissements")
     ctx.update(_payment_modal_ctx(school, active_year))
@@ -410,12 +434,14 @@ def payments_list(request):
         "recap_count":  recap_count,
         "levels":       levels,
         "classes":      classes,
+        "fee_items":    fee_items,
         # Valeurs des filtres actifs (pour re-remplir le formulaire)
-        "f_date_from":  f_date_from,
-        "f_date_to":    f_date_to,
-        "f_level_id":   level_id,
-        "f_class_id":   class_id,
-        "is_today":     is_today,
+        "f_date_from":     f_date_from,
+        "f_date_to":       f_date_to,
+        "f_level_id":      level_id,
+        "f_class_id":      class_id,
+        "f_fee_item_id":   fee_item_id,
+        "is_today":        is_today,
         "active_filter_label": active_filter_label,
         "page_title":   "Encaissements",
     })
