@@ -34,9 +34,9 @@
 
       <nav style="display:flex;flex-direction:column;gap:.15rem;">
 
-        {# ════════════════════════════════════════════════
+        <!-- ════════════════════════════════════════════════
            SECRÉTAIRE — Vision non-financière
-        ════════════════════════════════════════════════ #}
+        ════════════════════════════════════════════════ -->
         {% if user_role == 'SECRETARY' %}
 
         <a href="{% url 'economat:secretary_dashboard' %}"
@@ -102,12 +102,12 @@
           <svg aria-hidden="true" class="icon" style="width:1em;height:1em;"><use href="#icon-layers"/></svg>
           Frais annexes
         </a>
-        {% endif %}{# /school_year SECRETARY #}
+        {% endif %}
 
 
-        {# ════════════════════════════════════════════════
+        <!-- ════════════════════════════════════════════════
            ÉCONOME — Caisse + Catalogue
-        ════════════════════════════════════════════════ #}
+        ════════════════════════════════════════════════ -->
         {% elif user_role == 'ECONOME' %}
 
         <a href="{% url 'economat:econome_dashboard' %}"
@@ -118,7 +118,7 @@
         </a>
 
         {% if school_year %}
-        {# — Caisse — #}
+        
         <button type="button" class="sb-level-btn" id="sbCaisseBtn"
                 onclick="sbToggleSection('sbCaissePanel','sb_caisse_open')"
                 style="margin-top:.15rem;">
@@ -186,7 +186,7 @@
             {% endif %}
           </div>
         </div>
-        {# — Tarifs & catalogue — #}
+        
         <button type="button" class="sb-level-btn" id="sbCatalogueBtn"
                 onclick="sbToggleSection('sbCataloguePanel','sb_catalogue_open')"
                 style="margin-top:.1rem;">
@@ -204,10 +204,10 @@
             </a>
           </div>
         </div>
-        {% endif %}{# /school_year ECONOME #}
+        {% endif %}
 
 
-        {# ════════════════ DIRECTEUR ════════════════ #}
+        
         {% else %}
 
         <a href="{% url 'economat:director_dashboard' %}"
@@ -218,7 +218,7 @@
         </a>
 
         {% if school_year %}
-        {# — Encaissements — #}
+        
         <button type="button" class="sb-level-btn" id="sbEncaissBtn"
                 onclick="sbToggleSection('sbEncaissPanel','sb_encaiss_open')"
                 style="margin-top:.1rem;">
@@ -328,7 +328,7 @@
             </a>
           </div>
         </div>
-        {% endif %}{# /school_year DIRECTOR #}
+        {% endif %}
 
         {% if school %}
         <div style="height:1px;background:#ecedf1;margin:.35rem 0 .2rem;"></div>
@@ -352,7 +352,7 @@
         </a>
         {% endif %}
 
-        {% endif %}{# /user_role #}
+        {% endif %}
 
       </nav>
     </div>
