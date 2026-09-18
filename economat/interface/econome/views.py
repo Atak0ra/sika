@@ -34,16 +34,28 @@ def _get_user_active_year(request):
     return m.school, year
 
 
-def _sidebar_ctx(school, active_year, active_nav: str) -> dict:
+def _get_user_role(request) -> str:
+    """Retourne le rôle réel de l'utilisateur connecté (DIRECTOR, SECRETARY, ECONOME)."""
+    m = MembershipModel.objects.filter(user=request.user, is_active=True).first()
+    return m.role if m else "ECONOME"
+
+
+def _sidebar_ctx(school, active_year, active_nav: str, *, request=None) -> dict:
     """
     Contexte de la sidebar partagée avec le directeur/la secrétaire
     (_base_director.html) : école, année, arbre niveaux > classes.
+
+    user_role est dérivé du vrai MembershipModel de l'utilisateur connecté
+    (request) pour que le menu reste cohérent quelle que soit la vue visitée —
+    un Directeur sur une page d'encaissement garde son menu Directeur.
+    Si request est None (rétro-compatibilité), fallback "ECONOME".
     """
+    user_role = _get_user_role(request) if request is not None else "ECONOME"
     return {
         "school":         school,
         "school_year":    active_year,
         "sidebar_levels": _sidebar_levels(active_year),
-        "user_role":      "ECONOME",
+        "user_role":      user_role,
         "active_nav":     active_nav,
         "all_years": (
             SchoolYearModel.objects.filter(school_id=school.id).order_by("-label")
@@ -270,7 +282,7 @@ def collection_dashboard(request):
                 "color": _CATEGORY_COLORS.get(cat, "#6b7280"),
             })
 
-    ctx = _sidebar_ctx(school, active_year, "dashboard_econome")
+    ctx = _sidebar_ctx(school, active_year, "dashboard_econome", request=request)
     ctx.update(_payment_modal_ctx(school, active_year))
     ctx.update({
         "stats":              stats,
@@ -306,18 +318,14 @@ def payments_list(request):
     level_id    = request.GET.get("level",     "").strip()
     class_id    = request.GET.get("class",     "").strip()
     fee_item_id = request.GET.get("fee_item",  "").strip()
+    category    = request.GET.get("category",  "").strip()  # "SCOLARITE" ou "annexes"
 
-    # "date_from" présent dans la query string → l'utilisateur a explicitement
-    # choisi une plage (même vide = tout l'historique de l'année). Un filtre
-    # niveau/classe/poste sans date (ex. clic sur une classe depuis la sidebar) est
-    # traité pareil : l'intention est de voir l'historique de cette classe,
-    # pas seulement ses encaissements du jour. Absent de tout ça → première
-    # visite, on affiche aujourd'hui par défaut.
     params_in_qs = (
         "date_from" in request.GET
         or bool(level_id)
         or bool(class_id)
         or bool(fee_item_id)
+        or bool(category)
     )
 
     # Valeurs par défaut : aujourd'hui dans les deux champs
@@ -371,6 +379,11 @@ def payments_list(request):
         # Filtre poste de frais
         if fee_item_id:
             qs = qs.filter(fee_item_id=fee_item_id)
+        # Filtre catégorie (liens directs depuis le menu : Scolarité / Frais annexes)
+        if category == "SCOLARITE":
+            qs = qs.filter(fee_item__category="SCOLARITE")
+        elif category == "annexes":
+            qs = qs.exclude(fee_item__category="SCOLARITE")
         qs = qs.order_by("-payment_date", "-created_at")
 
     # ── Bandeau récap (total + nb) — agrégat SQL sur la sélection filtrée ────
@@ -406,11 +419,14 @@ def payments_list(request):
     f_date_to   = date_to.isoformat()   if date_to   else ""
     is_today    = (
         date_from == today and date_to == today
-        and not level_id and not class_id and not fee_item_id
+        and not level_id and not class_id and not fee_item_id and not category
     )
 
-    # Nom lisible du filtre actif (classe cliquée depuis la sidebar, poste sélectionné, etc.)
-    # — affiché explicitement dans l'en-tête plutôt qu'un vague "· filtré".
+    # Libellé du filtre actif affiché dans l'en-tête de page
+    CATEGORY_LABELS = {
+        "SCOLARITE": "Frais de scolarité",
+        "annexes":   "Frais annexes",
+    }
     active_filter_label = ""
     if class_id:
         active_klass = ClassModel.objects.filter(pk=class_id).select_related("level").first()
@@ -424,8 +440,10 @@ def payments_list(request):
         active_fi = FeeItemModel.objects.filter(pk=fee_item_id).first()
         if active_fi:
             active_filter_label = active_fi.name
+    elif category:
+        active_filter_label = CATEGORY_LABELS.get(category, category)
 
-    ctx = _sidebar_ctx(school, active_year, "encaissements")
+    ctx = _sidebar_ctx(school, active_year, "encaissements", request=request)
     ctx.update(_payment_modal_ctx(school, active_year))
     ctx.update({
         "page_obj":     page_obj,
@@ -441,6 +459,7 @@ def payments_list(request):
         "f_level_id":      level_id,
         "f_class_id":      class_id,
         "f_fee_item_id":   fee_item_id,
+        "f_category":      category,
         "is_today":        is_today,
         "active_filter_label": active_filter_label,
         "page_title":   "Encaissements",

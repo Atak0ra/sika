@@ -34,8 +34,11 @@
 
       <nav style="display:flex;flex-direction:column;gap:.15rem;">
 
-        <!-- ══ SECRÉTAIRE ══ -->
+        {# ════════════════════════════════════════════════
+           SECRÉTAIRE — Vision non-financière
+        ════════════════════════════════════════════════ #}
         {% if user_role == 'SECRETARY' %}
+
         <a href="{% url 'economat:secretary_dashboard' %}"
            class="nav-link {% if active_nav == 'dashboard_secretaire' %}nav-link-active{% endif %}"
            style="font-size:.84375rem;">
@@ -43,39 +46,49 @@
           Accueil
         </a>
 
-        <!-- ══ ÉCONOME ══ -->
-        {% elif user_role == 'ECONOME' %}
-        <a href="{% url 'economat:econome_dashboard' %}"
-           class="nav-link {% if active_nav == 'dashboard_econome' %}nav-link-active{% endif %}"
-           style="font-size:.84375rem;">
-          <svg aria-hidden="true" class="icon" style="width:1em;height:1em;"><use href="#icon-bar-chart"/></svg>
-          Tableau de bord
-        </a>
-
-        <!-- ══ DIRECTEUR ══ -->
-        {% else %}
-        <a href="{% url 'economat:director_dashboard' %}"
-           class="nav-link {% if active_nav == 'dashboard' %}nav-link-active{% endif %}"
-           style="font-size:.84375rem;">
-          <svg aria-hidden="true" class="icon" style="width:1em;height:1em;"><use href="#icon-bar-chart"/></svg>
-          Tableau de bord
-        </a>
         {% if school_year %}
-        <a href="{% url 'economat:econome_dashboard' %}"
-           class="nav-link {% if active_nav == 'encaissements' %}nav-link-active{% endif %}"
-           style="font-size:.84375rem;">
-          <svg aria-hidden="true" class="icon" style="width:1em;height:1em;color:#d97706;"><use href="#icon-coins"/></svg>
-          Encaissements
-        </a>
-        <a href="{% url 'economat:alerts' school.id school_year.id %}"
-           class="nav-link {% if active_nav == 'alertes' %}nav-link-active{% endif %}"
-           style="font-size:.84375rem;">
-          <svg aria-hidden="true" class="icon" style="width:1em;height:1em;"><use href="#icon-alert-circle"/></svg>
-          Alertes
-          {% if bi_total_alerts %}
-          <span style="margin-left:auto;font-size:.68rem;font-weight:700;padding:.1rem .4rem;border-radius:999px;background:#fef2f2;color:#b91c1c;">{{ bi_total_alerts }}</span>
-          {% endif %}
-        </a>
+        {% if sidebar_levels %}
+        <div class="sb-tree">
+          <button type="button" class="sb-level-btn" id="sbNiveauxBtn"
+                  onclick="sbToggleNiveaux()" style="padding-left:.55rem;">
+            <svg aria-hidden="true" class="sb-level-icon" style="color:#6b7280;" viewBox="0 0 24 24"><use href="#icon-users"/></svg>
+            Élèves
+            <svg aria-hidden="true" class="sb-chevron" id="sbNiveauxChevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div id="sbNiveauxPanel" class="sb-classes" style="padding-left:.5rem;">
+            <div class="sb-classes-inner" style="padding-top:.15rem;">
+              <a href="{% url 'economat:students_list' school.id school_year.id %}"
+                 class="sb-class-link {% if active_nav == 'eleves' and not active_class_id %}active{% endif %}"
+                 style="font-style:italic;color:#6b7280;">
+                <span class="sb-class-dot"></span>Tous les élèves
+              </a>
+              {% for item in sidebar_levels %}
+              <div class="sb-level">
+                <button type="button"
+                        class="sb-level-btn {% if active_class_id %}{% for k in item.classes %}{% if active_class_id == k.id|stringformat:'s' %}open{% endif %}{% endfor %}{% endif %}"
+                        onclick="sbToggle(this)" style="padding-left:.35rem;font-size:.8125rem;">
+                  <span style="width:.35rem;height:.35rem;border-radius:50%;background:#c7d2fe;flex-shrink:0;display:inline-block;"></span>
+                  {{ item.level.name }}
+                  <span style="margin-left:auto;font-size:.68rem;color:#6b7280;font-variant-numeric:tabular-nums;">{{ item.classes|length }}</span>
+                  <svg aria-hidden="true" class="sb-chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+                <div class="sb-classes {% if active_class_id %}{% for k in item.classes %}{% if active_class_id == k.id|stringformat:'s' %}open{% endif %}{% endfor %}{% endif %}"
+                     style="padding-left:.75rem;">
+                  <div class="sb-classes-inner">
+                    {% for klass in item.classes %}
+                    <a href="{% url 'economat:class_detail' school.id school_year.id klass.id %}"
+                       class="sb-class-link {% if active_class_id == klass.id|stringformat:'s' %}active{% endif %}">
+                      <span class="sb-class-dot"></span>{{ klass.name }}
+                    </a>
+                    {% endfor %}
+                  </div>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+        {% else %}
         <a href="{% url 'economat:students_list' school.id school_year.id %}"
            class="nav-link {% if active_nav == 'eleves' %}nav-link-active{% endif %}"
            style="font-size:.84375rem;">
@@ -83,42 +96,56 @@
           Élèves
         </a>
         {% endif %}
-        {% endif %}
+        <a href="{% url 'economat:fee_items_list' school.id school_year.id %}"
+           class="nav-link {% if active_nav == 'frais' %}nav-link-active{% endif %}"
+           style="font-size:.84375rem;">
+          <svg aria-hidden="true" class="icon" style="width:1em;height:1em;"><use href="#icon-layers"/></svg>
+          Frais annexes
+        </a>
+        {% endif %}{# /school_year SECRETARY #}
 
-        {# ── Opérations & Paramétrage — ÉCONOME & SECRÉTAIRE ── #}
-        {% if user_role == 'ECONOME' or user_role == 'SECRETARY' %}
+
+        {# ════════════════════════════════════════════════
+           ÉCONOME — Caisse + Catalogue
+        ════════════════════════════════════════════════ #}
+        {% elif user_role == 'ECONOME' %}
+
+        <a href="{% url 'economat:econome_dashboard' %}"
+           class="nav-link {% if active_nav == 'dashboard_econome' %}nav-link-active{% endif %}"
+           style="font-size:.84375rem;">
+          <svg aria-hidden="true" class="icon" style="width:1em;height:1em;"><use href="#icon-bar-chart"/></svg>
+          Tableau de bord
+        </a>
+
         {% if school_year %}
-
-        <button type="button" class="sb-level-btn" id="sbOperationsBtn"
-                onclick="sbToggleSection('sbOperationsPanel','sb_operations_open')"
+        {# — Caisse — #}
+        <button type="button" class="sb-level-btn" id="sbCaisseBtn"
+                onclick="sbToggleSection('sbCaissePanel','sb_caisse_open')"
                 style="margin-top:.15rem;">
           <svg aria-hidden="true" class="sb-level-icon" style="color:#d97706;" viewBox="0 0 24 24"><use href="#icon-coins"/></svg>
-          Opérations
-          <svg aria-hidden="true" class="sb-chevron" id="sbOperationsChevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+          Caisse
+          <svg aria-hidden="true" class="sb-chevron" id="sbCaisseChevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
-        <div id="sbOperationsPanel" class="sb-classes">
+        <div id="sbCaissePanel" class="sb-classes">
           <div class="sb-classes-inner" style="padding-top:.1rem;padding-left:0;">
-            {% if user_role == 'ECONOME' %}
             <a href="{% url 'economat:econome_payments' %}"
-               class="nav-link {% if active_nav == 'encaissements' %}nav-link-active{% endif %}"
+               class="nav-link {% if active_nav == 'encaissements' and not f_category %}nav-link-active{% endif %}"
                style="font-size:.8125rem;padding-left:1.6rem;">
               <svg aria-hidden="true" class="icon" style="width:.9em;height:.9em;"><use href="#icon-coins"/></svg>
-              Encaissements
+              Journal complet
             </a>
-            {% else %}
-            <a href="{% url 'economat:econome_dashboard' %}"
-               class="nav-link {% if active_nav == 'encaissements' %}nav-link-active{% endif %}"
+            <a href="{% url 'economat:econome_payments' %}?category=SCOLARITE"
+               class="nav-link {% if active_nav == 'encaissements' and f_category == 'SCOLARITE' %}nav-link-active{% endif %}"
                style="font-size:.8125rem;padding-left:1.6rem;">
-              <svg aria-hidden="true" class="icon" style="width:.9em;height:.9em;"><use href="#icon-coins"/></svg>
-              Encaissements
+              <svg aria-hidden="true" class="icon" style="width:.9em;height:.9em;"><use href="#icon-school"/></svg>
+              Frais de scolarité
             </a>
-            <a href="{% url 'economat:students_list' school.id school_year.id %}"
-               class="nav-link {% if active_nav == 'eleves' %}nav-link-active{% endif %}"
+            <a href="{% url 'economat:econome_payments' %}?category=annexes"
+               class="nav-link {% if active_nav == 'encaissements' and f_category == 'annexes' %}nav-link-active{% endif %}"
                style="font-size:.8125rem;padding-left:1.6rem;">
-              <svg aria-hidden="true" class="icon" style="width:.9em;height:.9em;"><use href="#icon-users"/></svg>
-              Élèves
+              <svg aria-hidden="true" class="icon" style="width:.9em;height:.9em;"><use href="#icon-layers"/></svg>
+              Frais annexes
             </a>
-            {% endif %}
             {% if sidebar_levels %}
             <div class="sb-tree" style="padding-left:.8rem;">
               <button type="button" class="sb-level-btn" id="sbNiveauxBtn"
@@ -127,7 +154,7 @@
                   <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
                   <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
                 </svg>
-                {% if user_role == 'ECONOME' %}Par classe{% else %}Niveaux{% endif %}
+                Par classe
                 <span style="margin-left:auto;font-size:.7rem;color:#6b7280;font-variant-numeric:tabular-nums;">{{ sidebar_levels|length }}</span>
                 <svg aria-hidden="true" class="sb-chevron" id="sbNiveauxChevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
               </button>
@@ -135,28 +162,19 @@
                 <div class="sb-classes-inner" style="padding-top:.15rem;">
                   {% for item in sidebar_levels %}
                   <div class="sb-level">
-                    <button type="button"
-                            class="sb-level-btn {% if active_class_id %}{% for klass in item.classes %}{% if active_class_id == klass.id|stringformat:'s' %}open{% endif %}{% endfor %}{% endif %}"
-                            onclick="sbToggle(this)" style="padding-left:.35rem;font-size:.8125rem;">
+                    <button type="button" class="sb-level-btn" onclick="sbToggle(this)"
+                            style="padding-left:.35rem;font-size:.8125rem;">
                       <span style="width:.35rem;height:.35rem;border-radius:50%;background:#c7d2fe;flex-shrink:0;display:inline-block;"></span>
                       {{ item.level.name }}
                       <span style="margin-left:auto;font-size:.68rem;color:#6b7280;font-variant-numeric:tabular-nums;">{{ item.classes|length }}</span>
                       <svg aria-hidden="true" class="sb-chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
                     </button>
-                    <div class="sb-classes {% if active_class_id %}{% for klass in item.classes %}{% if active_class_id == klass.id|stringformat:'s' %}open{% endif %}{% endfor %}{% endif %}"
-                         style="padding-left:.75rem;">
+                    <div class="sb-classes" style="padding-left:.75rem;">
                       <div class="sb-classes-inner">
                         {% for klass in item.classes %}
-                        {% if user_role == 'ECONOME' %}
                         <a href="{% url 'economat:econome_payments' %}?class={{ klass.id }}" class="sb-class-link">
                           <span class="sb-class-dot"></span>{{ klass.name }}
                         </a>
-                        {% else %}
-                        <a href="{% url 'economat:class_detail' school.id school_year.id klass.id %}"
-                           class="sb-class-link {% if active_class_id == klass.id|stringformat:'s' %}active{% endif %}">
-                          <span class="sb-class-dot"></span>{{ klass.name }}
-                        </a>
-                        {% endif %}
                         {% endfor %}
                       </div>
                     </div>
@@ -167,57 +185,104 @@
             </div>
             {% endif %}
           </div>
-        </div>{# /sbOperationsPanel #}
-
-        <button type="button" class="sb-level-btn" id="sbParametrageBtn"
-                onclick="sbToggleSection('sbParametragePanel','sb_parametrage_open')"
+        </div>
+        {# — Tarifs & catalogue — #}
+        <button type="button" class="sb-level-btn" id="sbCatalogueBtn"
+                onclick="sbToggleSection('sbCataloguePanel','sb_catalogue_open')"
                 style="margin-top:.1rem;">
           <svg aria-hidden="true" class="sb-level-icon" viewBox="0 0 24 24"><use href="#icon-settings"/></svg>
-          Paramétrage
-          <svg aria-hidden="true" class="sb-chevron" id="sbParametrageChevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+          Tarifs & catalogue
+          <svg aria-hidden="true" class="sb-chevron" id="sbCatalogueChevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
-        <div id="sbParametragePanel" class="sb-classes">
+        <div id="sbCataloguePanel" class="sb-classes">
           <div class="sb-classes-inner" style="padding-top:.1rem;padding-left:0;">
             <a href="{% url 'economat:fee_items_list' school.id school_year.id %}"
                class="nav-link {% if active_nav == 'frais' %}nav-link-active{% endif %}"
+               style="font-size:.8125rem;padding-left:1.6rem;">
+              <svg aria-hidden="true" class="icon" style="width:.9em;height:.9em;"><use href="#icon-layers"/></svg>
+              Catalogue frais annexes
+            </a>
+          </div>
+        </div>
+        {% endif %}{# /school_year ECONOME #}
+
+
+        {# ════════════════ DIRECTEUR ════════════════ #}
+        {% else %}
+
+        <a href="{% url 'economat:director_dashboard' %}"
+           class="nav-link {% if active_nav == 'dashboard' %}nav-link-active{% endif %}"
+           style="font-size:.84375rem;">
+          <svg aria-hidden="true" class="icon" style="width:1em;height:1em;"><use href="#icon-bar-chart"/></svg>
+          Tableau de bord
+        </a>
+
+        {% if school_year %}
+        {# — Encaissements — #}
+        <button type="button" class="sb-level-btn" id="sbEncaissBtn"
+                onclick="sbToggleSection('sbEncaissPanel','sb_encaiss_open')"
+                style="margin-top:.1rem;">
+          <svg aria-hidden="true" class="sb-level-icon" style="color:#d97706;" viewBox="0 0 24 24"><use href="#icon-coins"/></svg>
+          Encaissements
+          <svg aria-hidden="true" class="sb-chevron" id="sbEncaissChevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div id="sbEncaissPanel" class="sb-classes">
+          <div class="sb-classes-inner" style="padding-top:.1rem;padding-left:0;">
+            <a href="{% url 'economat:econome_payments' %}"
+               class="nav-link {% if active_nav == 'encaissements' and not f_category %}nav-link-active{% endif %}"
+               style="font-size:.8125rem;padding-left:1.6rem;">
+              <svg aria-hidden="true" class="icon" style="width:.9em;height:.9em;"><use href="#icon-coins"/></svg>
+              Journal des transactions
+            </a>
+            <a href="{% url 'economat:econome_payments' %}?category=SCOLARITE"
+               class="nav-link {% if active_nav == 'encaissements' and f_category == 'SCOLARITE' %}nav-link-active{% endif %}"
+               style="font-size:.8125rem;padding-left:1.6rem;">
+              <svg aria-hidden="true" class="icon" style="width:.9em;height:.9em;"><use href="#icon-school"/></svg>
+              Frais de scolarité
+            </a>
+            <a href="{% url 'economat:econome_payments' %}?category=annexes"
+               class="nav-link {% if active_nav == 'encaissements' and f_category == 'annexes' %}nav-link-active{% endif %}"
                style="font-size:.8125rem;padding-left:1.6rem;">
               <svg aria-hidden="true" class="icon" style="width:.9em;height:.9em;"><use href="#icon-layers"/></svg>
               Frais annexes
             </a>
           </div>
         </div>
-
-        {% endif %}{# /school_year #}
-        {% endif %}{# /ECONOME or SECRETARY #}
-
-        {# ── DIRECTEUR : Niveaux + Paramétrage + liens école ── #}
-        {% if user_role == 'DIRECTOR' and school_year %}
-
+        <a href="{% url 'economat:alerts' school.id school_year.id %}"
+           class="nav-link {% if active_nav == 'alertes' %}nav-link-active{% endif %}"
+           style="font-size:.84375rem;">
+          <svg aria-hidden="true" class="icon" style="width:1em;height:1em;"><use href="#icon-alert-circle"/></svg>
+          Alertes & recouvrement
+          {% if bi_total_alerts %}
+          <span style="margin-left:auto;font-size:.68rem;font-weight:700;padding:.1rem .4rem;border-radius:999px;background:#fef2f2;color:#b91c1c;">{{ bi_total_alerts }}</span>
+          {% endif %}
+        </a>
         {% if sidebar_levels %}
         <div class="sb-tree">
           <button type="button" class="sb-level-btn" id="sbNiveauxBtn"
                   onclick="sbToggleNiveaux()" style="padding-left:.55rem;">
-            <svg aria-hidden="true" class="sb-level-icon" viewBox="0 0 24 24">
-              <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
-              <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
-            </svg>
-            Niveaux
-            <span style="margin-left:auto;font-size:.7rem;color:#6b7280;font-variant-numeric:tabular-nums;">{{ sidebar_levels|length }}</span>
+            <svg aria-hidden="true" class="sb-level-icon" style="color:#6b7280;" viewBox="0 0 24 24"><use href="#icon-users"/></svg>
+            Élèves
             <svg aria-hidden="true" class="sb-chevron" id="sbNiveauxChevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
           </button>
           <div id="sbNiveauxPanel" class="sb-classes" style="padding-left:.5rem;">
             <div class="sb-classes-inner" style="padding-top:.15rem;">
+              <a href="{% url 'economat:students_list' school.id school_year.id %}"
+                 class="sb-class-link {% if active_nav == 'eleves' and not active_class_id %}active{% endif %}"
+                 style="font-style:italic;color:#6b7280;">
+                <span class="sb-class-dot"></span>Tous les élèves
+              </a>
               {% for item in sidebar_levels %}
               <div class="sb-level">
                 <button type="button"
-                        class="sb-level-btn {% if active_class_id %}{% for klass in item.classes %}{% if active_class_id == klass.id|stringformat:'s' %}open{% endif %}{% endfor %}{% endif %}"
+                        class="sb-level-btn {% if active_class_id %}{% for k in item.classes %}{% if active_class_id == k.id|stringformat:'s' %}open{% endif %}{% endfor %}{% endif %}"
                         onclick="sbToggle(this)" style="padding-left:.35rem;font-size:.8125rem;">
                   <span style="width:.35rem;height:.35rem;border-radius:50%;background:#c7d2fe;flex-shrink:0;display:inline-block;"></span>
                   {{ item.level.name }}
                   <span style="margin-left:auto;font-size:.68rem;color:#6b7280;font-variant-numeric:tabular-nums;">{{ item.classes|length }}</span>
                   <svg aria-hidden="true" class="sb-chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
                 </button>
-                <div class="sb-classes {% if active_class_id %}{% for klass in item.classes %}{% if active_class_id == klass.id|stringformat:'s' %}open{% endif %}{% endfor %}{% endif %}"
+                <div class="sb-classes {% if active_class_id %}{% for k in item.classes %}{% if active_class_id == k.id|stringformat:'s' %}open{% endif %}{% endfor %}{% endif %}"
                      style="padding-left:.75rem;">
                   <div class="sb-classes-inner">
                     {% for klass in item.classes %}
@@ -234,7 +299,6 @@
           </div>
         </div>
         {% endif %}
-
         <button type="button" class="sb-level-btn" id="sbParametrageBtn"
                 onclick="sbToggleSection('sbParametragePanel','sb_parametrage_open')"
                 style="margin-top:.15rem;">
@@ -248,26 +312,25 @@
                class="nav-link {% if active_nav == 'tarifs' %}nav-link-active{% endif %}"
                style="font-size:.8125rem;padding-left:1.6rem;">
               <svg aria-hidden="true" class="icon" style="width:.9em;height:.9em;"><use href="#icon-coins"/></svg>
-              Écolage
+              Grille de scolarité
             </a>
             <a href="{% url 'economat:fee_items_list' school.id school_year.id %}"
                class="nav-link {% if active_nav == 'frais' %}nav-link-active{% endif %}"
                style="font-size:.8125rem;padding-left:1.6rem;">
               <svg aria-hidden="true" class="icon" style="width:.9em;height:.9em;"><use href="#icon-layers"/></svg>
-              Frais annexes
+              Catalogue frais annexes
             </a>
             <a href="{% url 'economat:add_level' school.id school_year.id %}"
                class="nav-link {% if active_nav == 'niveaux' %}nav-link-active{% endif %}"
                style="font-size:.8125rem;padding-left:1.6rem;">
               <svg aria-hidden="true" class="icon" style="width:.9em;height:.9em;"><use href="#icon-book"/></svg>
-              Niveaux
+              Classes & niveaux
             </a>
           </div>
         </div>
+        {% endif %}{# /school_year DIRECTOR #}
 
-        {% endif %}{# /DIRECTOR school_year #}
-
-        {% if school and user_role == 'DIRECTOR' %}
+        {% if school %}
         <div style="height:1px;background:#ecedf1;margin:.35rem 0 .2rem;"></div>
         <a href="{% url 'economat:manage_years' school.id %}"
            class="nav-link {% if active_nav == 'annees' %}nav-link-active{% endif %}"
@@ -288,6 +351,8 @@
           Paramètres école
         </a>
         {% endif %}
+
+        {% endif %}{# /user_role #}
 
       </nav>
     </div>
@@ -336,8 +401,10 @@ function _sbSectionInit(panelId, storageKey) {
   if (btn) btn.classList.toggle('open', !!open);
 }
 
-_sbSectionInit('sbOperationsPanel',   'sb_operations_open');
-_sbSectionInit('sbParametragePanel',  'sb_parametrage_open');
+_sbSectionInit('sbCaissePanel',     'sb_caisse_open');
+_sbSectionInit('sbEncaissPanel',    'sb_encaiss_open');
+_sbSectionInit('sbCataloguePanel',  'sb_catalogue_open');
+_sbSectionInit('sbParametragePanel','sb_parametrage_open');
 
 /* ── Accordéon Niveaux > Classes ── */
 var _sbNiveauxPanel   = document.getElementById('sbNiveauxPanel');
