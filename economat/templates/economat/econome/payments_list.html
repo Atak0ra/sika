@@ -308,7 +308,7 @@
   </svg>
   <p style="font-size:.875rem;color:#6b7280;margin-bottom:.75rem;">
     {% if is_today %}Aucun encaissement enregistré aujourd'hui.
-    {% else %}Aucun encaissement sur cette période{% if f_level_id or f_class_id or f_fee_item_id %} avec ces filtres{% endif %}.
+    {% else %}Aucun encaissement sur cette période{% if f_level_id or f_class_id or f_fee_item_id or f_category %} avec ces filtres{% endif %}.
     {% endif %}
   </p>
   {% if not is_today %}

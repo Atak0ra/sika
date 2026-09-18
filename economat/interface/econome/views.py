@@ -409,10 +409,20 @@ def payments_list(request):
         # Si un niveau est sélectionné, on restreint les classes disponibles
         if level_id:
             classes = classes.filter(level_id=level_id)
-        # Tous les postes actifs de l'année (scolarité système + frais annexes)
-        fee_items = FeeItemModel.objects.filter(
-            school_year=active_year, is_active=True,
-        ).order_by("category", "name")
+        # Postes actifs — restreints à la catégorie active si un filtre category est posé :
+        # • SCOLARITE → pas de select poste (un seul poste par niveau, rien à affiner)
+        # • annexes   → seulement les postes hors scolarité
+        # • (aucun)   → tous les postes
+        if category == "SCOLARITE":
+            fee_items = []   # select masqué côté template
+        elif category == "annexes":
+            fee_items = FeeItemModel.objects.filter(
+                school_year=active_year, is_active=True, is_system=False,
+            ).order_by("category", "name")
+        else:
+            fee_items = FeeItemModel.objects.filter(
+                school_year=active_year, is_active=True,
+            ).order_by("category", "name")
 
     # Valeurs affichées dans les inputs date (chaîne vide si pas de borne)
     f_date_from = date_from.isoformat() if date_from else ""
